@@ -23,8 +23,8 @@ type PermitGenerationInput {
 
 Mixed feelings on the following:
 
-`task` - Payments can possibly be for any reason from any plugin developer in our system, but in the foreseeable future I think that they should be associated with a GitHub issue. 
-`transfer` - For automatically transferring the funds vs generating a permit. If we have access to the private key, we have the ability to make a transfer on their behalf. 
+- `task` - Payments can possibly be for any reason from any plugin developer in our system, but in the foreseeable future (for V1) I think that they should be associated with a GitHub issue, or not. 
+- `transfer` - For automatically transferring the funds vs generating a permit. If we have access to the private key, we have the ability to make a transfer on their behalf. 
 
 ### Processing  
 
