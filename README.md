@@ -1,7 +1,7 @@
 # `@ubiquibot/permit-generation`
 
-- The purpose of this module is to isolate the bot's payment capabilities. 
-- For security reasons, only the `ubiquibot-kernel` should be able to communicate with this (instead of plugins being able to invoke this directly.) [^1^]
+- The purpose of this module is to isolate the bot's payment capabilities.
+- This can be directly invoked from other plugins [^1^].
 
 ## V1 Technical Specification
 
@@ -23,8 +23,12 @@ type PermitGenerationInput {
 
 Mixed feelings on the following:
 
-- `task` - Payments can possibly be for any reason from any plugin developer in our system, but in the foreseeable future (for V1) I think that they should be associated with a GitHub issue, or not. 
+- `task` - Payments can possibly be for any reason from any plugin developer in our ecosystem, but in the foreseeable future (for V1) I think that they should be associated with a GitHub issue, or nothing. 
 - `transfer` - For automatically transferring the funds vs generating a permit. If we have access to the private key, we have the ability to make a transfer on their behalf. 
+
+General remarks:
+
+- `evmPrivateKeyEncrypted` - I researched GitHub App permissions and its a boolean for all organization secrets or none; or all repository secrets or none. I think that partners may be weary to share ALL secrets so perhaps it makes sense to proceed with the `X25519` `evmPrivateKeyEncrypted` system.
 
 ### Processing  
 
@@ -46,6 +50,6 @@ Mixed feelings on the following:
 
 Return value should just be an array of generated permits. A seperate module can convert them into URLs for pay.ubq.fi. 
 
-[^1^]: I have mixed feelings on this because I trust encryption to handle this, but intuitively I believe it makes sense to create a wall from the payments system for the plugin developer community. Perhaps we can check the IP address of the Cloudflare Worker or some other better built in authentication mechanism. 
+[^1^]: I put a lot of thought into this and unless the plugins can hack X25519 encryption I think its fine for them to attempt brute forcing etc. In exhange its simpler infrastucture vs only accepting requests from the kernel (which seems more secure, but for V1 perhaps unnecessary.)
 [^2^]: We pass in the username for enhanced developer experience for plugin development. I believe it will be much easier to use GitHub usernames and let the system do the lookup. 
 [^3^]: Mixed feelings on this lookup because it does not self encapsulate this module well. We already have an optional database write for the permit record, but this plugin WILL break if there is a database issue for reading the user's registered wallet, which can make testing and development more difficult here. The alternative is to pass in the user's wallet here, but then the kernel (or another plugin) needs to look up their wallet address (this seems like the better approach.)
