@@ -16,7 +16,7 @@ type PermitGenerationInput {
   address: string;
   task: GitHubIssue | null;  
   transfer: boolean;
-  evmPrivateKeyEncrypted
+  evmPrivateKeyEncrypted: string;
 }[]
 ```
 ###### Remarks
@@ -31,10 +31,11 @@ Mixed feelings on the following:
 ###### Data validation
 
 1. Look up the GitHub global user ID (number) that corresponds with the username. Check if a user ID exists (does the user exist?), otherwise log an error and proceed. [^2^]
-2. Parse the amount and see if its a valid number.
-3. ~~Look up the address on chain to see if a token exists there. If not, throw an error.~~
-4. Verify that the `task.id` exists on GitHub. If not, throw an error. If it is `null` then skip this validation.
-5. Record all the results in our database. `public.permits`
+  1. Look up the registered wallet address of the user from our database. [^3^]
+3. Parse the amount and see if its a valid number.
+4. ~~Look up the address on chain to see if a token exists there. If not, throw an error.~~
+5. Verify that the `task.id` exists on GitHub. If not, throw an error. If it is `null` then skip this validation.
+6. Record all the results in our database. `public.permits`
 
 ###### Other
 
@@ -47,3 +48,4 @@ Return value should just be an array of generated permits. A seperate module can
 
 [^1^]: I have mixed feelings on this because I trust encryption to handle this, but intuitively I believe it makes sense to create a wall from the payments system for the plugin developer community. Perhaps we can check the IP address of the Cloudflare Worker or some other better built in authentication mechanism. 
 [^2^]: We pass in the username for enhanced developer experience for plugin development. I believe it will be much easier to use GitHub usernames and let the system do the lookup. 
+[^3^]: Mixed feelings on this lookup because it does not self encapsulate this module well. We already have an optional database write for the permit record, but this plugin WILL break if there is a database issue for reading the user's registered wallet, which can make testing and development more difficult here. The alternative is to pass in the user's wallet here, but then the kernel (or another plugin) needs to look up their wallet address (this seems like the better approach.)
