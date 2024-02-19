@@ -41,11 +41,6 @@ General remarks:
 5. Verify that the `task.id` exists on GitHub. If not, throw an error. If it is `null` then skip this validation.
 6. Record all the results in our database. `public.permits`
 
-###### Other
-
-- We need to instruct partner repositories to enable access to repository/organization secrets, especially for `evmPrivateKey`
-- The bot should read the secret directly by authenticating based on the installation ID, app private key, and app ID. 
-
 ### Return
 
 Return value should just be an array of generated permits. A seperate module can convert them into URLs for pay.ubq.fi. 
