@@ -7,5 +7,25 @@
   "words": ["dataurl", "devpool", "outdir", "servedir"],
   "dictionaries": ["typescript", "node", "software-terms"],
   "import": ["@cspell/dict-typescript/cspell-ext.json", "@cspell/dict-node/cspell-ext.json", "@cspell/dict-software-terms"],
-  "ignoreRegExpList": ["[0-9a-fA-F]{6}"]
+  "ignoreRegExpList": ["[0-9a-fA-F]{6}"],
+  "ignoreWords": [
+    "keccak",
+    "mult",
+    "URLSAFE",
+    "Gddm",
+    "Njbl",
+    "knip",
+    "jiggery",
+    "pokery",
+    "URLSAFE2",
+    "Mult",
+    "WXDAI",
+    "ubiquibot",
+    "Supabase",
+    "supabase",
+    "libsodium",
+    "Libsodium",
+    "ciphertext",
+    "tweetnacl"
+  ]
 }
