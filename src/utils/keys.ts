@@ -28,8 +28,8 @@ function deriveNonce(epk: Uint8Array, recipientPubKey: Uint8Array) {
 export async function decryptKeys(cipherText: string): Promise<{ privateKey: string; publicKey: string } | { privateKey: null; publicKey: null }> {
   let _public: null | string = null;
   let _private: null | string = null;
-  // this is the evmPrivateEncrypted for 0x70997970C51812dc3A010C7d01b50e0d17dc79C8 (anvil acc[1])
-  const X25519_PRIVATE_KEY = "TNjblUQ1U959TKGddmNlyOJQ7RMGaqS0XXH185Ei1Ik";
+
+  const X25519_PRIVATE_KEY = process.env.X25519_PRIVATE_KEY;
 
   if (!X25519_PRIVATE_KEY) {
     console.warn("X25519_PRIVATE_KEY is not defined");

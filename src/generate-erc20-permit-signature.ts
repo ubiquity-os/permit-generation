@@ -2,9 +2,9 @@ import { MaxUint256, PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } fr
 import { BigNumber, ethers } from "ethers";
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { getPayoutConfigByNetworkId } from "./utils/payoutConfigByNetworkId";
-import { BotConfig, configGenerator } from "@ubiquibot/configuration";
-import Decimal from "decimal.js";
+import { configGenerator } from "@ubiquibot/configuration";
 import { decryptKeys } from "./utils/keys";
+import { GenerateErc20PermitSignatureParams, PermitTransactionData } from "./types/permits";
 
 export async function generateErc20PermitSignature({ beneficiary, amount, issueId, userId }: GenerateErc20PermitSignatureParams) {
   const config = await configGenerator();
@@ -57,7 +57,7 @@ export async function generateErc20PermitSignature({ beneficiary, amount, issueI
     throw console.debug("Failed to sign typed data", error);
   });
 
-  const transactionData: Erc20PermitTransactionData = {
+  const transactionData = {
     type: "erc20-permit",
     permit: {
       permitted: {
@@ -74,36 +74,9 @@ export async function generateErc20PermitSignature({ beneficiary, amount, issueI
     owner: adminWallet.address,
     signature: signature,
     networkId: evmNetworkId,
-  };
+  } as PermitTransactionData;
 
   console.info("Generated ERC20 permit2 signature", transactionData);
 
   return transactionData;
-}
-export interface GenerateErc20PermitSignatureParams {
-  beneficiary: string;
-  amount: Decimal;
-
-  issueId: string;
-  userId: string;
-  config: BotConfig;
-}
-
-interface Erc20PermitTransactionData {
-  type: "erc20-permit";
-  permit: {
-    permitted: {
-      token: string;
-      amount: string;
-    };
-    nonce: string;
-    deadline: string;
-  };
-  transferDetails: {
-    to: string;
-    requestedAmount: string;
-  };
-  owner: string;
-  signature: string;
-  networkId: number;
 }
