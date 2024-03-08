@@ -17,15 +17,12 @@ export async function generateErc20PermitSignature(context: Context): Promise<Pe
     return;
   }
 
-  const beneficiary = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const beneficiary = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
   const amount = new Decimal(100);
   const issueId = "123";
   const userId = "123";
 
-  const {
-    payments: { evmNetworkId },
-    keys: { evmPrivateEncrypted },
-  } = config;
+  const { evmNetworkId, evmPrivateEncrypted } = config;
 
   if (!evmPrivateEncrypted) throw logger.warn("No bot wallet private key defined");
   const { rpc, paymentToken } = getPayoutConfigByNetworkId(evmNetworkId);

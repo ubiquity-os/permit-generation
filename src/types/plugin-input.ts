@@ -11,10 +11,6 @@ export interface PluginInputs<T extends WebhookEventName = SupportedEvents> {
 }
 
 export interface PermitGenerationSettings {
-  payments: {
-    evmNetworkId: number;
-  };
-  keys: {
-    evmPrivateEncrypted: string;
-  };
+  evmNetworkId: number;
+  evmPrivateEncrypted: string;
 }

@@ -41,21 +41,19 @@ async function run() {
     },
   };
 
-  // it'll use issue_comment.created for now
-  // but will implement on pull_request.closed then filter for as complete/merged
-  if (context.eventName === "issue_comment.created") {
-    // parse for which permit to generate
-    // for now just erc20
-    const signature = await generateErc20PermitSignature(context);
-    console.log(signature);
-    return signature;
-  } else {
-    throw new Error(`Event ${context.eventName} is not supported`);
+  const permit = await generateErc20PermitSignature(context);
+
+  if (permit) {
+    return JSON.stringify(permit);
   }
+
+  return "No permit generated";
 }
 
 run()
-  .then((result) => core.setOutput("result", result))
+  .then((result) => {
+    core.setOutput("result", result);
+  })
   .catch((error) => {
     console.error(error);
     core.setFailed(error);

@@ -1,74 +1,48 @@
-import SODIUM from "libsodium-wrappers-sumo";
-import { scalarMult, box } from "tweetnacl";
-import tweetnaclUtil from "tweetnacl-util";
-// @ts-expect-error no type
-import blake2b from "blake2b";
-
-/**
- * libsodium hashes the epk with the rpk to create a nonce
- * tweetnacl enforces you to manually handle the nonce
- * @param epk  The ephemeral public key
- * @param recipientPubKey  The recipient's public key
- * @returns  The derived nonce
- */
-function deriveNonce(epk: Uint8Array, recipientPubKey: Uint8Array) {
-  return blake2b(24).update(epk).update(recipientPubKey).digest();
-}
-
-/**
- * The trouble with libsodium was that it just would not successfully `await sodium.ready` no matter what package I used.
- * So the wrappers-sumo exposes some functions that don't require the ready promise to be resolved.
- * But the heavy lifting like scalarMult and boxes still require the ready promise to be resolved.
- * So a little jiggery-pokery with deriving the nonce that libsodium adds for convenience
- *  and we're good to go
- *
- * whether this is viable in production is another question but it's a start
- */
+import sodium from "libsodium-wrappers";
+const KEY_PREFIX = "HSK_";
 
 export async function decryptKeys(cipherText: string): Promise<{ privateKey: string; publicKey: string } | { privateKey: null; publicKey: null }> {
+  await sodium.ready;
+
   let _public: null | string = null;
   let _private: null | string = null;
 
-  const X25519_PRIVATE_KEY = process.env.X25519_PRIVATE_KEY;
+  // how are we getting this key if the config holds the cypher?
+  const X25519_PRIVATE_KEY = "c9iN-2iINYDhW_8_LfNcmHiggigh_wYMYmhNHUWnZZY";
 
   if (!X25519_PRIVATE_KEY) {
     console.warn("X25519_PRIVATE_KEY is not defined");
     return { privateKey: null, publicKey: null };
   }
-  _public = await getScalarKey(X25519_PRIVATE_KEY);
 
+  _public = await getScalarKey(X25519_PRIVATE_KEY);
   if (!_public) {
     console.warn("Public key is null");
     return { privateKey: null, publicKey: null };
   }
+  const binaryPublic = sodium.from_base64(_public, sodium.base64_variants.URLSAFE_NO_PADDING);
+  const binaryPrivate = sodium.from_base64(X25519_PRIVATE_KEY, sodium.base64_variants.URLSAFE_NO_PADDING);
 
-  const binaryPublic = SODIUM.from_base64(_public, SODIUM.base64_variants.URLSAFE_NO_PADDING);
-  const binaryPrivate = SODIUM.from_base64(X25519_PRIVATE_KEY, SODIUM.base64_variants.URLSAFE_NO_PADDING);
-  const binaryCipher = SODIUM.from_base64(cipherText, SODIUM.base64_variants.URLSAFE_NO_PADDING);
+  const binaryCipher = sodium.from_base64(cipherText, sodium.base64_variants.URLSAFE_NO_PADDING);
 
-  const epk = binaryCipher.slice(0, 32);
-  const nonce = deriveNonce(epk, binaryPublic);
+  console.trace({
+    cipherText,
+    _public,
+    _private,
+    X25519_PRIVATE_KEY,
+    binPub: binaryPublic,
+    binPriv: binaryPrivate,
+    binCipher: binaryCipher,
+  });
 
-  const actualEncryptedMessage = binaryCipher.slice(32);
-  const decryptedMessage = box.open(actualEncryptedMessage, nonce, epk, binaryPrivate);
-
-  if (decryptedMessage) {
-    const decryptedText = tweetnaclUtil.encodeUTF8(decryptedMessage);
-    _private = decryptedText;
-  } else {
-    console.warn("Decryption failed");
-    return { privateKey: null, publicKey: null };
-  }
-
-  if (!_private) {
-    console.warn("Private key is null");
-    throw new Error("Private key is null");
-  }
+  const walletPrivateKey: string | null = sodium.crypto_box_seal_open(binaryCipher, binaryPublic, binaryPrivate, "text");
+  _private = walletPrivateKey?.replace(KEY_PREFIX, "");
 
   return { privateKey: _private, publicKey: _public };
 }
 
 async function getScalarKey(x25519PrivateKey: string) {
-  const binPriv = SODIUM.from_base64(x25519PrivateKey, SODIUM.base64_variants.URLSAFE_NO_PADDING);
-  return SODIUM.to_base64(scalarMult.base(binPriv), SODIUM.base64_variants.URLSAFE_NO_PADDING);
+  await sodium.ready;
+  const binPriv = sodium.from_base64(x25519PrivateKey, sodium.base64_variants.URLSAFE_NO_PADDING);
+  return sodium.crypto_scalarmult_base(binPriv, "base64");
 }
