@@ -1,8 +1,8 @@
-import { getPayoutConfigByNetworkId } from "./utils/payoutConfigByNetworkId";
+import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 import { BigNumber, ethers, utils } from "ethers";
 import { MaxUint256 } from "@uniswap/permit2-sdk";
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
-import { Erc721PermitSignatureData, GenerateErc721PermitSignatureParams, PermitTransactionData } from "./types/permits";
+import { Erc721PermitSignatureData, GenerateErc721PermitSignatureParams, PermitTransactionData } from "../types/permits";
 
 const NFT_MINTER_PRIVATE_KEY = process.env.NFT_MINTER_PRIVATE_KEY;
 const NFT_CONTRACT_ADDRESS = process.env.NFT_CONTRACT_ADDRESS;

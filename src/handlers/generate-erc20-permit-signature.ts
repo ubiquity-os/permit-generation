@@ -1,44 +1,52 @@
 import { MaxUint256, PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
 import { BigNumber, ethers } from "ethers";
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
-import { getPayoutConfigByNetworkId } from "./utils/payoutConfigByNetworkId";
-import { configGenerator } from "@ubiquibot/configuration";
-import { decryptKeys } from "./utils/keys";
-import { GenerateErc20PermitSignatureParams, PermitTransactionData } from "./types/permits";
+import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
+import { decryptKeys } from "../utils/keys";
+import { PermitTransactionData } from "../types/permits";
+import Decimal from "decimal.js";
+import { Context } from "../types/context";
 
-export async function generateErc20PermitSignature({ beneficiary, amount, issueId, userId }: GenerateErc20PermitSignatureParams) {
-  const config = await configGenerator();
+export async function generateErc20PermitSignature(context: Context): Promise<PermitTransactionData | void> {
+  const config = context.config;
+  const logger = context.logger;
+  const payload = context.payload;
 
-  // @ts-expect-error globalThis
-  globalThis.window = undefined;
-  // @ts-expect-error globalThis
-  globalThis.importScripts = undefined;
+  if (!("issue" in payload) || !payload.issue) {
+    context.logger.debug("Not an issue event");
+    return;
+  }
+
+  const beneficiary = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const amount = new Decimal(100);
+  const issueId = "123";
+  const userId = "123";
 
   const {
     payments: { evmNetworkId },
     keys: { evmPrivateEncrypted },
   } = config;
 
-  if (!evmPrivateEncrypted) throw console.warn("No bot wallet private key defined");
+  if (!evmPrivateEncrypted) throw logger.warn("No bot wallet private key defined");
   const { rpc, paymentToken } = getPayoutConfigByNetworkId(evmNetworkId);
   const { privateKey } = await decryptKeys(evmPrivateEncrypted);
 
-  if (!rpc) throw console.error("RPC is not defined");
-  if (!privateKey) throw console.error("Private key is not defined");
-  if (!paymentToken) throw console.error("Payment token is not defined");
+  if (!rpc) throw logger.error("RPC is not defined");
+  if (!privateKey) throw logger.error("Private key is not defined");
+  if (!paymentToken) throw logger.error("Payment token is not defined");
 
   let provider;
   let adminWallet;
   try {
     provider = new ethers.providers.JsonRpcProvider(rpc);
   } catch (error) {
-    throw console.debug("Failed to instantiate provider", error);
+    throw logger.debug("Failed to instantiate provider", error);
   }
 
   try {
     adminWallet = new ethers.Wallet(privateKey, provider);
   } catch (error) {
-    throw console.debug("Failed to instantiate wallet", error);
+    throw logger.debug("Failed to instantiate wallet", error);
   }
 
   const permitTransferFromData: PermitTransferFrom = {
@@ -54,7 +62,7 @@ export async function generateErc20PermitSignature({ beneficiary, amount, issueI
   const { domain, types, values } = SignatureTransfer.getPermitData(permitTransferFromData, PERMIT2_ADDRESS, evmNetworkId);
 
   const signature = await adminWallet._signTypedData(domain, types, values).catch((error) => {
-    throw console.debug("Failed to sign typed data", error);
+    throw logger.debug("Failed to sign typed data", error);
   });
 
   const transactionData = {
@@ -76,7 +84,7 @@ export async function generateErc20PermitSignature({ beneficiary, amount, issueI
     networkId: evmNetworkId,
   } as PermitTransactionData;
 
-  console.info("Generated ERC20 permit2 signature", transactionData);
+  logger.info("Generated ERC20 permit2 signature", transactionData);
 
   return transactionData;
 }
