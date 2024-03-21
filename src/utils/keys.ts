@@ -7,7 +7,7 @@ export async function decryptKeys(cipherText: string): Promise<{ privateKey: str
   let _public: null | string = null;
   let _private: null | string = null;
 
-  // how are we getting this key if the config holds the cypher?
+  // cSpell: ignore c9iN-2iINYDhW_8_LfNcmHiggigh_wYMYmhNHUWnZZY
   const X25519_PRIVATE_KEY = "c9iN-2iINYDhW_8_LfNcmHiggigh_wYMYmhNHUWnZZY";
 
   if (!X25519_PRIVATE_KEY) {
