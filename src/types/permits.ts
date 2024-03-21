@@ -1,27 +1,4 @@
 import { BigNumber } from "ethers";
-import { BotConfig } from "@ubiquibot/configuration";
-import Decimal from "decimal.js";
-
-export interface GenerateErc20PermitSignatureParams {
-  beneficiary: string;
-  amount: Decimal;
-
-  issueId: string;
-  userId: string;
-  config: BotConfig;
-}
-
-export interface GenerateErc721PermitSignatureParams {
-  organizationName: string;
-  repositoryName: string;
-  issueId: string;
-  issueNumber: string;
-  beneficiary: string;
-  username: string;
-  userId: string;
-  contributionType: string;
-  networkId: number;
-}
 
 export interface Erc721PermitSignatureData {
   beneficiary: string;
