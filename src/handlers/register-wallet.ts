@@ -33,7 +33,7 @@ export async function registerWallet(context: Context, address: string | null) {
 
   if (address && senderID) {
     const { wallet, user } = adapters.supabase;
-    const userRecord = await user.getUser(senderID);
+    const userRecord = await user.getUserById(senderID);
 
     try {
       if (!userRecord || userRecord.length === 0) {
