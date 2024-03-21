@@ -33,6 +33,7 @@
     "@actions/github": "^6.0.0",
     "@octokit/rest": "^20.0.2",
     "@octokit/webhooks": "^13.1.0",
+    "@supabase/supabase-js": "^2.39.7",
     "@sinclair/typebox": "^0.32.5",
     "@uniswap/permit2-sdk": "^1.2.0",
     "blake2b": "^2.1.4",

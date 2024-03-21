@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
   "version": "0.2",
-  "ignorePaths": ["**/*.json", "**/*.css", "node_modules", "**/*.log"],
+  "ignorePaths": ["**/*.json", "**/*.css", "node_modules", "**/*.log", "supabase"],
   "useGitignore": true,
   "language": "en",
   "words": ["dataurl", "devpool", "outdir", "servedir"],
@@ -11,6 +11,9 @@
   "ignoreWords": [
     "keccak",
     "mult",
+    "ensname",
+    "supabase",
+    "scalarmult",
     "URLSAFE",
     "Gddm",
     "Njbl",
