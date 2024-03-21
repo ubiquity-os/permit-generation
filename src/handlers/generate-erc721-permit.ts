@@ -2,7 +2,8 @@ import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 import { BigNumber, ethers, utils } from "ethers";
 import { MaxUint256 } from "@uniswap/permit2-sdk";
 import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
-import { Erc721PermitSignatureData, GenerateErc721PermitSignatureParams, PermitTransactionData } from "../types/permits";
+import { Erc721PermitSignatureData, PermitTransactionData } from "../types/permits";
+import { Context } from "../types/context";
 
 const NFT_MINTER_PRIVATE_KEY = process.env.NFT_MINTER_PRIVATE_KEY;
 const NFT_CONTRACT_ADDRESS = process.env.NFT_CONTRACT_ADDRESS;
@@ -21,40 +22,45 @@ const types = {
 
 const keys = ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"];
 
-export async function generateErc721PermitSignature({
-  networkId,
-  organizationName,
-  repositoryName,
-  issueNumber,
-  issueId,
-  beneficiary,
-  username,
-  userId,
-  contributionType,
-}: GenerateErc721PermitSignatureParams) {
-  const { rpc } = getPayoutConfigByNetworkId(networkId);
+export async function generateErc721PermitSignature(
+  context: Context,
+  issueId: number,
+  contributionType: string,
+  username: string
+): Promise<PermitTransactionData | string> {
+  const { evmNetworkId } = context.config;
+  const adapters = context.adapters;
+  const logger = context.logger;
 
-  if (!rpc) throw console.error("RPC is not defined");
-  if (!NFT_MINTER_PRIVATE_KEY) throw console.error("NFT minter private key is not defined");
-  if (!NFT_CONTRACT_ADDRESS) throw console.error("NFT contract address is not defined");
+  const { rpc } = getPayoutConfigByNetworkId(evmNetworkId);
 
-  // @ts-expect-error globalThis
-  globalThis.window = undefined;
-  // @ts-expect-error globalThis
-  globalThis.importScripts = undefined;
+  if (!rpc) throw logger.error("RPC is not defined");
+  if (!NFT_MINTER_PRIVATE_KEY) throw logger.error("NFT minter private key is not defined");
+  if (!NFT_CONTRACT_ADDRESS) throw logger.error("NFT contract address is not defined");
+
+  const beneficiary = await adapters.supabase.wallet.getWalletByUsername(username);
+  if (!beneficiary) {
+    throw logger.error("No wallet found for user");
+  }
+
+  const userId = await adapters.supabase.user.getUserIdByWallet(beneficiary);
+
+  const organizationName = context.payload.repository.owner.login;
+  const repositoryName = context.payload.repository.name;
+  const issueNumber = issueId.toString();
 
   let provider;
   let adminWallet;
   try {
     provider = new ethers.providers.JsonRpcProvider(rpc);
   } catch (error) {
-    throw console.error("Failed to instantiate provider", error);
+    throw logger.error("Failed to instantiate provider", error);
   }
 
   try {
     adminWallet = new ethers.Wallet(NFT_MINTER_PRIVATE_KEY, provider);
   } catch (error) {
-    throw console.error("Failed to instantiate wallet", error);
+    throw logger.error("Failed to instantiate wallet", error);
   }
 
   const erc721SignatureData: Erc721PermitSignatureData = {
@@ -71,13 +77,13 @@ export async function generateErc721PermitSignature({
         name: SIGNING_DOMAIN_NAME,
         version: SIGNING_DOMAIN_VERSION,
         verifyingContract: NFT_CONTRACT_ADDRESS,
-        chainId: networkId,
+        chainId: evmNetworkId,
       },
       types,
       erc721SignatureData
     )
     .catch((error: unknown) => {
-      throw console.error("Failed to sign typed data", error);
+      throw logger.error("Failed to sign typed data", error);
     });
 
   const nftMetadata = {} as Record<string, string>;
@@ -102,7 +108,7 @@ export async function generateErc721PermitSignature({
     },
     owner: adminWallet.address,
     signature: signature,
-    networkId: networkId,
+    networkId: evmNetworkId,
     nftMetadata: nftMetadata as PermitTransactionData["nftMetadata"],
     request: {
       beneficiary: erc721SignatureData.beneficiary,

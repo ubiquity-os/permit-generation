@@ -4,25 +4,28 @@ import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 import { decryptKeys } from "../utils/keys";
 import { PermitTransactionData } from "../types/permits";
-import Decimal from "decimal.js";
 import { Context } from "../types/context";
 
-export async function generateErc20PermitSignature(context: Context): Promise<PermitTransactionData | void> {
+export async function generateErc20PermitSignature(context: Context, wallet: `0x${string}`, amount: number): Promise<PermitTransactionData | string> {
   const config = context.config;
   const logger = context.logger;
-  const payload = context.payload;
+  const { evmNetworkId, evmPrivateEncrypted } = config;
+  const { user } = context.adapters.supabase;
 
-  if (!("issue" in payload) || !payload.issue) {
-    context.logger.debug("Not an issue event");
-    return;
+  const beneficiary = wallet;
+  const userId = user.getUserIdByWallet(beneficiary);
+  let issueId: number | null = null;
+
+  if ("issue" in context.payload) {
+    issueId = context.payload.issue.number;
+  } else if ("pull_request" in context.payload) {
+    issueId = context.payload.pull_request.number;
   }
 
-  const beneficiary = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
-  const amount = new Decimal(100);
-  const issueId = "123";
-  const userId = "123";
-
-  const { evmNetworkId, evmPrivateEncrypted } = config;
+  if (!beneficiary || !userId) {
+    logger.error("No wallet found for user");
+    return "Permit not generated: no wallet found for user";
+  }
 
   if (!evmPrivateEncrypted) throw logger.warn("No bot wallet private key defined");
   const { rpc, paymentToken } = getPayoutConfigByNetworkId(evmNetworkId);
