@@ -1,16 +1,12 @@
 import { BigNumber, utils } from "ethers";
 import { generateErc721PermitSignature } from "../src/handlers/generate-erc721-permit";
 import { Context } from "../src/types/context";
-import { mockContext } from "./constants";
+import { NFT_CONTRACT_ADDRESS, SPENDER, cypherText, mockContext } from "./constants";
 
 describe("generateErc721PermitSignature", () => {
   let context: Context;
 
-  const SPENDER = "0x0000000000000000000000000000000000000001";
-
   // cSpell: disable
-  const cypherText =
-    "wOzNgt-yKT6oFlOVz5wrBLUSYxAbKGE9Co-yvT8f9lePsx7wJwPVugS9186zdhr1T4UpkpXvq9ii5M-nWfrydMnllSkowH4LirRZsHbvRVSvDoH_uh80p6HpwqDSG3g4Nwx5q0GD3H-ne4vwXMuwWAHd";
 
   jest.autoMockOn();
 
@@ -34,7 +30,7 @@ describe("generateErc721PermitSignature", () => {
 
   beforeEach(() => {
     process.env.X25519_PRIVATE_KEY = "bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls";
-    process.env.NFT_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000003";
+    process.env.NFT_CONTRACT_ADDRESS = NFT_CONTRACT_ADDRESS;
     process.env.NFT_MINTER_PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
 
     context = {
@@ -44,10 +40,10 @@ describe("generateErc721PermitSignature", () => {
         evmPrivateEncrypted: cypherText,
         isNftRewardEnabled: true,
         nftMinterPrivateKey: process.env.NFT_MINTER_PRIVATE_KEY,
-        nftContractAddress: process.env.NFT_CONTRACT_ADDRESS,
+        nftContractAddress: NFT_CONTRACT_ADDRESS,
 
         // possible inputs from workflow_dispatch
-        token: process.env.NFT_CONTRACT_ADDRESS,
+        token: NFT_CONTRACT_ADDRESS,
         amount: 100,
         spender: SPENDER,
         userId: 123,

@@ -29,7 +29,7 @@ export async function generatePayoutPermit(context: Context): Promise<PermitTran
  * Generates a payout permit from a workflow dispatch.
  * @notice All inputs must be passed in from the previous plugin/kernel.
  */
-async function generatePayoutForWorkflowDispatch(context: Context, isNftRewardEnabled: boolean): Promise<PermitTransactionData | string> {
+export async function generatePayoutForWorkflowDispatch(context: Context, isNftRewardEnabled: boolean): Promise<PermitTransactionData | string> {
   const inputs = unpackInputs(context);
   const logger = context.logger;
 
@@ -62,7 +62,7 @@ async function generatePayoutForWorkflowDispatch(context: Context, isNftRewardEn
   }
 }
 
-async function generatePayoutForPullRequest(
+export async function generatePayoutForPullRequest(
   context: Context,
   payload: Context<"pull_request.closed">["payload"],
   isNftRewardEnabled: boolean
@@ -84,7 +84,7 @@ async function generatePayoutForPullRequest(
   return CHECK_LOGS_MESSAGE;
 }
 
-async function generatePermit(
+export async function generatePermit(
   context: Context,
   walletRecord: `0x${string}`,
   isNftRewardEnabled: boolean,

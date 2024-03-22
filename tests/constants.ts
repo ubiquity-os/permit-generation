@@ -1,5 +1,12 @@
 import { Context } from "../src/types/context";
 
+export const NFT_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000003";
+export const SPENDER = "0x0000000000000000000000000000000000000001";
+
+// cSpell: disable
+export const cypherText =
+  "wOzNgt-yKT6oFlOVz5wrBLUSYxAbKGE9Co-yvT8f9lePsx7wJwPVugS9186zdhr1T4UpkpXvq9ii5M-nWfrydMnllSkowH4LirRZsHbvRVSvDoH_uh80p6HpwqDSG3g4Nwx5q0GD3H-ne4vwXMuwWAHd";
+
 export const mockContext = {
   payload: {
     sender: {
