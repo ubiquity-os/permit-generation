@@ -10,6 +10,12 @@ export async function generateErc20PermitSignature(context: Context, wallet: `0x
   const config = context.config;
   const logger = context.logger;
   const { evmNetworkId, evmPrivateEncrypted } = config;
+
+  if (!evmPrivateEncrypted || !evmNetworkId) {
+    logger.fatal("EVM configuration is not defined");
+    throw new Error("EVM configuration is not defined");
+  }
+
   const { user } = context.adapters.supabase;
 
   const beneficiary = wallet;
@@ -22,7 +28,12 @@ export async function generateErc20PermitSignature(context: Context, wallet: `0x
     issueId = context.payload.pull_request.number;
   }
 
-  if (!beneficiary || !userId) {
+  if (!beneficiary) {
+    logger.error("No beneficiary found for permit");
+    return "Permit not generated: No beneficiary found for permit";
+  }
+
+  if (!userId) {
     logger.error("No wallet found for user");
     return "Permit not generated: no wallet found for user";
   }

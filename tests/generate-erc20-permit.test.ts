@@ -1,0 +1,86 @@
+import { generateErc20PermitSignature } from "../src/handlers/generate-erc20-permit";
+import { Context } from "../src/types/context";
+import { mockContext } from "./constants";
+
+describe("generateErc20PermitSignature", () => {
+  let context: Context;
+  const wallet: `0x${string}` = "0x0000000000000000000000000000000000000001";
+
+  jest.autoMockOn();
+
+  /**
+   * 5. **Update GitHub Secrets**
+      - Copy the newly generated private key and update it on your GitHub Actions secret. 
+      Find the field labeled `x25519_PRIVATE_KEY` and replace its content with your generated x25519 private key.
+   */
+  // cSpell: ignore bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls
+  process.env.X25519_PRIVATE_KEY = "bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls";
+
+  /**
+   * 6. **Update Configuration File**
+      - Next, take the cipher text, which is the encrypted version of your private key,
+      and paste it into your `ubiquibot-config.yaml` file. Look for the field labeled
+      `evmEncryptedPrivate` and replace its content with the cipher text.
+   */
+  // cSpell: disable
+  const cypherText =
+    "wOzNgt-yKT6oFlOVz5wrBLUSYxAbKGE9Co-yvT8f9lePsx7wJwPVugS9186zdhr1T4UpkpXvq9ii5M-nWfrydMnllSkowH4LirRZsHbvRVSvDoH_uh80p6HpwqDSG3g4Nwx5q0GD3H-ne4vwXMuwWAHd";
+
+  jest.mock("@supabase/supabase-js", () => {
+    return {
+      createClient: jest.fn().mockReturnValue({
+        from: jest.fn().mockReturnValue({
+          select: jest.fn().mockReturnValue({
+            eq: jest.fn().mockReturnValue({
+              select: jest.fn().mockReturnValue({
+                eq: jest.fn().mockReturnValue({
+                  single: jest.fn().mockResolvedValue({ id: 123 }),
+                }),
+              }),
+            }),
+          }),
+        }),
+      }),
+    };
+  });
+
+  beforeEach(() => {
+    context = {
+      ...mockContext,
+      config: {
+        evmNetworkId: 1,
+      },
+    } as unknown as Context;
+  });
+
+  it("should generate ERC20 permit signature", async () => {
+    const amount = 100;
+
+    context.config.evmPrivateEncrypted = cypherText;
+
+    const result = await generateErc20PermitSignature(context, wallet, amount);
+
+    expect(result).toBeDefined();
+    expect(result).not.toContain("Permit not generated");
+    expect(context.logger.info).toHaveBeenCalledWith("Generated ERC20 permit2 signature", expect.any(Object));
+  });
+
+  it("should return error message when no wallet found for user", async () => {
+    const amount = 100;
+    context.config.evmPrivateEncrypted = cypherText;
+
+    (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(null);
+
+    const result = await generateErc20PermitSignature(context, wallet, amount);
+
+    expect(result).toBe("Permit not generated: no wallet found for user");
+    expect(context.logger.error).toHaveBeenCalledWith("No wallet found for user");
+  });
+
+  it("should throw error when evmPrivateEncrypted is not defined", async () => {
+    const amount = 100;
+
+    await expect(generateErc20PermitSignature(context, wallet, amount)).rejects.toThrow("EVM configuration is not defined");
+    expect(context.logger.fatal).toHaveBeenCalledWith("EVM configuration is not defined");
+  });
+});

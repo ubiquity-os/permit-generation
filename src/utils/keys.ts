@@ -7,14 +7,12 @@ export async function decryptKeys(cipherText: string): Promise<{ privateKey: str
   let _public: null | string = null;
   let _private: null | string = null;
 
-  // cSpell: ignore c9iN-2iINYDhW_8_LfNcmHiggigh_wYMYmhNHUWnZZY
-  const X25519_PRIVATE_KEY = "c9iN-2iINYDhW_8_LfNcmHiggigh_wYMYmhNHUWnZZY";
+  const X25519_PRIVATE_KEY = process.env.X25519_PRIVATE_KEY;
 
   if (!X25519_PRIVATE_KEY) {
     console.warn("X25519_PRIVATE_KEY is not defined");
     return { privateKey: null, publicKey: null };
   }
-
   _public = await getScalarKey(X25519_PRIVATE_KEY);
   if (!_public) {
     console.warn("Public key is null");

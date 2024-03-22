@@ -8,7 +8,7 @@ export class User extends Super {
     super(supabase, context);
   }
 
-  async getUserById(userId: number) {
+  async getUsernameById(userId: number) {
     const { data, error } = await this.supabase.from("users").select("username").eq("user_id", userId).single();
     if (error) {
       console.error(FAILED_TO_GET_USER, { userId, error });
@@ -19,7 +19,7 @@ export class User extends Super {
     return data?.username;
   }
 
-  async getUserByUsername(username: string) {
+  async getUserIdByUsername(username: string) {
     const { data, error } = await this.supabase.from("users").select("user_id").eq("username", username).single();
     if (error) {
       console.error(FAILED_TO_GET_USER, { username, error });

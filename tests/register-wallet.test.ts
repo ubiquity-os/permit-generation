@@ -1,42 +1,16 @@
 import { registerWallet } from "../src/handlers/register-wallet";
 import { Context } from "../src/types/context";
+import { mockContext } from "./constants";
 
 describe("registerWallet", () => {
   let context: Context;
 
   beforeEach(() => {
-    context = {
-      payload: {
-        sender: {
-          login: "tester",
-          id: 123,
-        },
-        comment: {
-          body: "Sample comment",
-        },
-      },
-      logger: {
-        info: jest.fn(),
-        fatal: jest.fn(),
-        error: jest.fn(),
-      },
-      adapters: {
-        supabase: {
-          user: {
-            deleteUser: jest.fn(),
-            upsertUser: jest.fn(),
-            getUserIdByWallet: jest.fn(),
-            getUserByUsername: jest.fn(),
-            getUserById: jest.fn(),
-          },
-          wallet: {
-            upsertWallet: jest.fn().mockImplementation(() => Promise.resolve()),
-            getWalletByUserId: jest.fn(),
-            getWalletByUsername: jest.fn(),
-          },
-        },
-      },
-    } as unknown as Context;
+    context = mockContext;
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it("should register wallet address when address is provided", async () => {
@@ -57,6 +31,7 @@ describe("registerWallet", () => {
   });
 
   it("should skip registration when address is null address", async () => {
+    context.payload.sender;
     expect(await registerWallet(context, "0x0000000000000000000000000000000000000000")).toBe(false);
     expect(context.logger.error).toHaveBeenCalledWith("Skipping to register a wallet address because user is trying to set their address to null address");
     expect(context.adapters.supabase.wallet.upsertWallet).not.toHaveBeenCalled();
