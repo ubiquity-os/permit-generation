@@ -49,7 +49,7 @@ export function unpackInputs(context: Context): {
   erc721: { userId?: number; username?: string; issueID: number; contribution_type: string } | null;
   erc20: { token: `0x${string}`; amount: number; spender: `0x${string}`; networkId: number } | null;
 } {
-  const { userId, token, amount, spender, networkId, contribution_type, username, issueID } = context.config;
+  const { userId, token, amount, spender, evmNetworkId: networkId, contribution_type, username, issueID } = context.config;
 
   let erc721 = null;
   let erc20 = null;

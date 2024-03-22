@@ -19,7 +19,6 @@ export interface PermitGenerationSettings {
   token?: `0x${string}`;
   amount?: number;
   spender?: `0x${string}`;
-  networkId?: number;
   userId?: number;
 
   // nft specific inputs

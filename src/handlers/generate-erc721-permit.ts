@@ -5,8 +5,6 @@ import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
 import { Erc721PermitSignatureData, PermitTransactionData } from "../types/permits";
 import { Context } from "../types/context";
 
-const NFT_MINTER_PRIVATE_KEY = process.env.NFT_MINTER_PRIVATE_KEY;
-const NFT_CONTRACT_ADDRESS = process.env.NFT_CONTRACT_ADDRESS;
 const SIGNING_DOMAIN_NAME = "NftReward-Domain";
 const SIGNING_DOMAIN_VERSION = "1";
 
@@ -28,19 +26,32 @@ export async function generateErc721PermitSignature(
   contributionType: string,
   username: string
 ): Promise<PermitTransactionData | string> {
+  const NFT_MINTER_PRIVATE_KEY = process.env.NFT_MINTER_PRIVATE_KEY;
+  const NFT_CONTRACT_ADDRESS = process.env.NFT_CONTRACT_ADDRESS;
+
   const { evmNetworkId } = context.config;
   const adapters = context.adapters;
   const logger = context.logger;
 
   const { rpc } = getPayoutConfigByNetworkId(evmNetworkId);
 
-  if (!rpc) throw logger.error("RPC is not defined");
-  if (!NFT_MINTER_PRIVATE_KEY) throw logger.error("NFT minter private key is not defined");
-  if (!NFT_CONTRACT_ADDRESS) throw logger.error("NFT contract address is not defined");
+  if (!rpc) {
+    logger.error("RPC is not defined");
+    throw new Error("RPC is not defined");
+  }
+  if (!NFT_MINTER_PRIVATE_KEY) {
+    logger.error("NFT minter private key is not defined");
+    throw new Error("NFT minter private key is not defined");
+  }
+  if (!NFT_CONTRACT_ADDRESS) {
+    logger.error("NFT contract address is not defined");
+    throw new Error("NFT contract address is not defined");
+  }
 
   const beneficiary = await adapters.supabase.wallet.getWalletByUsername(username);
   if (!beneficiary) {
-    throw logger.error("No wallet found for user");
+    logger.error("No wallet found for user");
+    throw new Error("No wallet found for user");
   }
 
   const userId = await adapters.supabase.user.getUserIdByWallet(beneficiary);
@@ -54,13 +65,15 @@ export async function generateErc721PermitSignature(
   try {
     provider = new ethers.providers.JsonRpcProvider(rpc);
   } catch (error) {
-    throw logger.error("Failed to instantiate provider", error);
+    logger.error("Failed to instantiate provider", error);
+    throw new Error("Failed to instantiate provider");
   }
 
   try {
     adminWallet = new ethers.Wallet(NFT_MINTER_PRIVATE_KEY, provider);
   } catch (error) {
-    throw logger.error("Failed to instantiate wallet", error);
+    logger.error("Failed to instantiate wallet", error);
+    throw new Error("Failed to instantiate wallet");
   }
 
   const erc721SignatureData: Erc721PermitSignatureData = {
@@ -83,7 +96,8 @@ export async function generateErc721PermitSignature(
       erc721SignatureData
     )
     .catch((error: unknown) => {
-      throw logger.error("Failed to sign typed data", error);
+      logger.error("Failed to sign typed data", error);
+      throw new Error("Failed to sign typed data");
     });
 
   const nftMetadata = {} as Record<string, string>;

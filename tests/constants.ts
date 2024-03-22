@@ -6,7 +6,6 @@ export const mockContext = {
       login: "tester",
       id: 123,
     },
-
     comment: {
       body: "Sample comment",
     },
@@ -15,6 +14,12 @@ export const mockContext = {
     },
     pull_request: {
       number: 123,
+    },
+    repository: {
+      owner: {
+        login: "test",
+      },
+      name: "test",
     },
   },
   logger: {

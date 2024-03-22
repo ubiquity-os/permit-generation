@@ -9,14 +9,6 @@ describe("generateErc20PermitSignature", () => {
   jest.autoMockOn();
 
   /**
-   * 5. **Update GitHub Secrets**
-      - Copy the newly generated private key and update it on your GitHub Actions secret. 
-      Find the field labeled `x25519_PRIVATE_KEY` and replace its content with your generated x25519 private key.
-   */
-  // cSpell: ignore bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls
-  process.env.X25519_PRIVATE_KEY = "bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls";
-
-  /**
    * 6. **Update Configuration File**
       - Next, take the cipher text, which is the encrypted version of your private key,
       and paste it into your `ubiquibot-config.yaml` file. Look for the field labeled
@@ -45,6 +37,14 @@ describe("generateErc20PermitSignature", () => {
   });
 
   beforeEach(() => {
+    /**
+   * 5. **Update GitHub Secrets**
+      - Copy the newly generated private key and update it on your GitHub Actions secret. 
+      Find the field labeled `x25519_PRIVATE_KEY` and replace its content with your generated x25519 private key.
+   */
+    // cSpell: ignore bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls
+    process.env.X25519_PRIVATE_KEY = "bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls";
+
     context = {
       ...mockContext,
       config: {
@@ -62,6 +62,7 @@ describe("generateErc20PermitSignature", () => {
 
     expect(result).toBeDefined();
     expect(result).not.toContain("Permit not generated");
+    expect(result).toBeInstanceOf(Object);
     expect(context.logger.info).toHaveBeenCalledWith("Generated ERC20 permit2 signature", expect.any(Object));
   });
 
