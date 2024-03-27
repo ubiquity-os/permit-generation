@@ -1,0 +1,61 @@
+name: Permit Generation
+
+on:
+  workflow_dispatch:
+    inputs:
+      stateId:
+        required: true
+      eventName:
+        required: true
+      eventPayload:
+        required: true
+      settings:
+        required: true
+      authToken:
+        required: true
+      ref:
+        required: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.10.0"
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Generate Permit
+        run: npx tsx ./src/index.ts
+        id: permit
+        env:
+          STATE_ID: ${{ github.event.inputs.stateId }}
+          EVENT_NAME: ${{ github.event.inputs.eventName }}
+          EVENT_PAYLOAD: ${{ github.event.inputs.eventPayload }}
+          SETTINGS: ${{ github.event.inputs.settings }}
+          AUTH_TOKEN: ${{ github.event.inputs.authToken }}
+          REF: ${{ github.event.inputs.ref }}
+
+      - name: Return Permit To The Kernel
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const permitStr = '${{ steps.permit.outputs.result }}';
+            const permitObj = JSON.parse(permitStr);
+
+            await github.rest.repos.createDispatchEvent({
+            owner: "${{ github.repository }}".split("/")[0],
+            repo: "${{ github.repository }}".split("/")[1],
+            event_type: "return_data_to_ubiquibot_kernel",
+            client_payload: {
+              state_id: "${{ inputs.stateId }}",
+              output: JSON.stringify(permitObj),
+            },
+            });
