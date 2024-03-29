@@ -1,55 +1,33 @@
 import { MaxUint256, PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
-import { BigNumber, ethers } from "ethers";
-import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
+import { ethers, keccak256, parseUnits, toUtf8Bytes } from "ethers";
 import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 import { decryptKeys } from "../utils/keys";
-import { PermitTransactionData } from "../types/permits";
+import { Permit } from "../types/permits";
 import { Context } from "../types/context";
 
-export async function generateErc20PermitSignature(context: Context, wallet: `0x${string}`, amount: number): Promise<PermitTransactionData | string> {
+export async function generateErc20PermitSignature(context: Context, username: string, amount: number): Promise<Permit> {
   const config = context.config;
   const logger = context.logger;
   const { evmNetworkId, evmPrivateEncrypted } = config;
+  const { user, wallet } = context.adapters.supabase;
 
-  if (!evmPrivateEncrypted || !evmNetworkId) {
-    logger.fatal("EVM configuration is not defined");
-    throw new Error("EVM configuration is not defined");
-  }
-
-  const { user } = context.adapters.supabase;
-
-  const beneficiary = wallet;
-  const userId = user.getUserIdByWallet(beneficiary);
+  const userId = await user.getUserIdByUsername(username);
+  const walletAddress = await wallet.getWalletByUserId(userId);
   let issueId: number | null = null;
-
   if ("issue" in context.payload) {
-    issueId = context.payload.issue.number;
+    issueId = context.payload.issue.id;
   } else if ("pull_request" in context.payload) {
-    issueId = context.payload.pull_request.number;
+    issueId = context.payload.pull_request.id;
   }
 
-  if (!beneficiary) {
-    logger.error("No beneficiary found for permit");
-    return "Permit not generated: No beneficiary found for permit";
-  }
-
-  if (!userId) {
-    logger.error("No wallet found for user");
-    return "Permit not generated: no wallet found for user";
-  }
-
-  if (!evmPrivateEncrypted) throw logger.warn("No bot wallet private key defined");
-  const { rpc, paymentToken } = getPayoutConfigByNetworkId(evmNetworkId);
+  const { rpc, token, decimals } = getPayoutConfigByNetworkId(evmNetworkId);
   const { privateKey } = await decryptKeys(evmPrivateEncrypted);
-
-  if (!rpc) throw logger.error("RPC is not defined");
   if (!privateKey) throw logger.error("Private key is not defined");
-  if (!paymentToken) throw logger.error("Payment token is not defined");
 
   let provider;
   let adminWallet;
   try {
-    provider = new ethers.providers.JsonRpcProvider(rpc);
+    provider = new ethers.JsonRpcProvider(rpc);
   } catch (error) {
     throw logger.debug("Failed to instantiate provider", error);
   }
@@ -62,40 +40,45 @@ export async function generateErc20PermitSignature(context: Context, wallet: `0x
 
   const permitTransferFromData: PermitTransferFrom = {
     permitted: {
-      token: paymentToken,
-      amount: ethers.utils.parseUnits(amount.toString(), 18),
+      token: token,
+      amount: parseUnits(amount.toString(), decimals),
     },
-    spender: beneficiary,
-    nonce: BigNumber.from(keccak256(toUtf8Bytes(`${userId}-${issueId}`))),
+    spender: walletAddress,
+    nonce: BigInt(keccak256(toUtf8Bytes(`${userId}-${issueId}`))),
     deadline: MaxUint256,
   };
 
   const { domain, types, values } = SignatureTransfer.getPermitData(permitTransferFromData, PERMIT2_ADDRESS, evmNetworkId);
 
-  const signature = await adminWallet._signTypedData(domain, types, values).catch((error) => {
-    throw logger.debug("Failed to sign typed data", error);
-  });
-
-  const transactionData = {
-    type: "erc20-permit",
-    permit: {
-      permitted: {
-        token: permitTransferFromData.permitted.token,
-        amount: permitTransferFromData.permitted.amount.toString(),
+  const signature = await adminWallet
+    .signTypedData(
+      {
+        name: domain.name,
+        version: domain.version,
+        chainId: domain.chainId ? domain.chainId.toString() : undefined,
+        verifyingContract: domain.verifyingContract,
+        salt: domain.salt?.toString(),
       },
-      nonce: permitTransferFromData.nonce.toString(),
-      deadline: permitTransferFromData.deadline.toString(),
-    },
-    transferDetails: {
-      to: permitTransferFromData.spender,
-      requestedAmount: permitTransferFromData.permitted.amount.toString(),
-    },
+      types,
+      values
+    )
+    .catch((error) => {
+      throw logger.debug("Failed to sign typed data", error);
+    });
+
+  const erc20Permit: Permit = {
+    tokenType: "erc20",
+    tokenAddress: permitTransferFromData.permitted.token,
+    beneficiary: permitTransferFromData.spender,
+    nonce: permitTransferFromData.nonce.toString(),
+    deadline: permitTransferFromData.deadline.toString(),
+    amount: permitTransferFromData.permitted.amount.toString(),
     owner: adminWallet.address,
     signature: signature,
     networkId: evmNetworkId,
-  } as PermitTransactionData;
+  };
 
-  logger.info("Generated ERC20 permit2 signature", transactionData);
+  logger.info("Generated ERC20 permit2 signature", erc20Permit);
 
-  return transactionData;
+  return erc20Permit;
 }

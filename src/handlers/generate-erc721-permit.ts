@@ -1,9 +1,18 @@
 import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
-import { BigNumber, ethers, utils } from "ethers";
+import { ethers } from "ethers";
 import { MaxUint256 } from "@uniswap/permit2-sdk";
-import { keccak256, toUtf8Bytes } from "ethers/lib/utils";
-import { Erc721PermitSignatureData, PermitTransactionData } from "../types/permits";
+import { keccak256, toUtf8Bytes } from "ethers";
+import { Permit } from "../types/permits";
 import { Context } from "../types/context";
+import { isIssueEvent } from "../types/typeguards";
+
+interface Erc721PermitSignatureData {
+  beneficiary: string;
+  deadline: bigint;
+  keys: string[];
+  nonce: bigint;
+  values: string[];
+}
 
 const SIGNING_DOMAIN_NAME = "NftReward-Domain";
 const SIGNING_DOMAIN_VERSION = "1";
@@ -18,17 +27,8 @@ const types = {
   ],
 };
 
-const keys = ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"];
-
-export async function generateErc721PermitSignature(
-  context: Context,
-  issueId: number,
-  contributionType: string,
-  username: string
-): Promise<PermitTransactionData | string> {
-  const NFT_MINTER_PRIVATE_KEY = process.env.NFT_MINTER_PRIVATE_KEY;
-  const NFT_CONTRACT_ADDRESS = process.env.NFT_CONTRACT_ADDRESS;
-
+export async function generateErc721PermitSignature(context: Context, username: string, contributionType: string): Promise<Permit> {
+  const { NFT_MINTER_PRIVATE_KEY, NFT_CONTRACT_ADDRESS } = context.env;
   const { evmNetworkId } = context.config;
   const adapters = context.adapters;
   const logger = context.logger;
@@ -38,14 +38,6 @@ export async function generateErc721PermitSignature(
   if (!rpc) {
     logger.error("RPC is not defined");
     throw new Error("RPC is not defined");
-  }
-  if (!NFT_MINTER_PRIVATE_KEY) {
-    logger.error("NFT minter private key is not defined");
-    throw new Error("NFT minter private key is not defined");
-  }
-  if (!NFT_CONTRACT_ADDRESS) {
-    logger.error("NFT contract address is not defined");
-    throw new Error("NFT contract address is not defined");
   }
 
   const beneficiary = await adapters.supabase.wallet.getWalletByUsername(username);
@@ -58,12 +50,15 @@ export async function generateErc721PermitSignature(
 
   const organizationName = context.payload.repository.owner.login;
   const repositoryName = context.payload.repository.name;
-  const issueNumber = issueId.toString();
+  let issueId = "";
+  if (isIssueEvent(context)) {
+    issueId = context.payload.issue.id.toString();
+  }
 
   let provider;
   let adminWallet;
   try {
-    provider = new ethers.providers.JsonRpcProvider(rpc);
+    provider = new ethers.JsonRpcProvider(rpc);
   } catch (error) {
     logger.error("Failed to instantiate provider", error);
     throw new Error("Failed to instantiate provider");
@@ -76,64 +71,53 @@ export async function generateErc721PermitSignature(
     throw new Error("Failed to instantiate wallet");
   }
 
+  const erc721Metadata = {
+    GITHUB_ORGANIZATION_NAME: organizationName,
+    GITHUB_REPOSITORY_NAME: repositoryName,
+    GITHUB_ISSUE_ID: issueId,
+    GITHUB_USERNAME: username,
+    GITHUB_CONTRIBUTION_TYPE: contributionType,
+  };
+
+  const metadata = Object.entries(erc721Metadata);
   const erc721SignatureData: Erc721PermitSignatureData = {
     beneficiary: beneficiary,
-    deadline: MaxUint256,
-    keys: keys.map((key) => utils.keccak256(utils.toUtf8Bytes(key))),
-    nonce: BigNumber.from(keccak256(toUtf8Bytes(`${userId}-${issueId}`))),
-    values: [organizationName, repositoryName, issueNumber, username, contributionType],
+    deadline: MaxUint256.toBigInt(),
+    keys: metadata.map(([key]) => keccak256(toUtf8Bytes(key))),
+    nonce: BigInt(keccak256(toUtf8Bytes(`${userId}-${issueId}`))),
+    values: metadata.map(([, value]) => value),
   };
 
-  const signature = await adminWallet
-    ._signTypedData(
-      {
-        name: SIGNING_DOMAIN_NAME,
-        version: SIGNING_DOMAIN_VERSION,
-        verifyingContract: NFT_CONTRACT_ADDRESS,
-        chainId: evmNetworkId,
-      },
-      types,
-      erc721SignatureData
-    )
-    .catch((error: unknown) => {
-      logger.error("Failed to sign typed data", error);
-      throw new Error("Failed to sign typed data");
-    });
+  const domain = {
+    name: SIGNING_DOMAIN_NAME,
+    version: SIGNING_DOMAIN_VERSION,
+    verifyingContract: NFT_CONTRACT_ADDRESS,
+    chainId: evmNetworkId,
+  };
 
-  const nftMetadata = {} as Record<string, string>;
-
-  keys.forEach((element, index) => {
-    nftMetadata[element] = erc721SignatureData.values[index];
+  const signature = await adminWallet.signTypedData(domain, types, erc721SignatureData).catch((error: unknown) => {
+    logger.error("Failed to sign typed data", error);
+    throw new Error("Failed to sign typed data");
   });
 
-  const erc721Data: PermitTransactionData = {
-    type: "erc721-permit",
-    permit: {
-      permitted: {
-        token: NFT_CONTRACT_ADDRESS,
-        amount: "1",
-      },
-      nonce: erc721SignatureData.nonce.toString(),
-      deadline: erc721SignatureData.deadline.toString(),
-    },
-    transferDetails: {
-      to: beneficiary,
-      requestedAmount: "1",
-    },
-    owner: adminWallet.address,
+  const erc721Permit: Permit = {
+    tokenType: "erc721",
+    tokenAddress: NFT_CONTRACT_ADDRESS,
+    beneficiary: beneficiary,
+    amount: "1",
+    nonce: erc721SignatureData.nonce.toString(),
+    deadline: erc721SignatureData.deadline.toString(),
     signature: signature,
+    owner: adminWallet.address,
     networkId: evmNetworkId,
-    nftMetadata: nftMetadata as PermitTransactionData["nftMetadata"],
-    request: {
-      beneficiary: erc721SignatureData.beneficiary,
-      deadline: erc721SignatureData.deadline.toString(),
+    erc721Request: {
       keys: erc721SignatureData.keys.map((key) => key.toString()),
-      nonce: erc721SignatureData.nonce.toString(),
       values: erc721SignatureData.values,
+      metadata: erc721Metadata,
     },
   };
 
-  console.info("Generated ERC721 permit signature", { erc721Data });
+  console.info("Generated ERC721 permit signature", { erc721Permit });
 
-  return erc721Data;
+  return erc721Permit;
 }

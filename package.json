@@ -9,8 +9,6 @@
     "node": ">=20.10.0"
   },
   "scripts": {
-    "start": "tsx build/esbuild-server.ts",
-    "build": "tsx build/esbuild-build.ts",
     "format": "run-s format:lint format:prettier format:cspell",
     "format:lint": "eslint --fix .",
     "format:prettier": "prettier --write .",
@@ -18,7 +16,6 @@
     "knip": "knip",
     "knip-ci": "knip --no-exit-code --reporter json",
     "prepare": "husky install",
-    "worker": "wrangler dev --port 8789",
     "test": "jest"
   },
   "keywords": [
@@ -40,7 +37,7 @@
     "blake2b": "^2.1.4",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.4.4",
-    "ethers": "^5.7.2",
+    "ethers": "^6.11.1",
     "libsodium-wrappers": "^0.7.13",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1"

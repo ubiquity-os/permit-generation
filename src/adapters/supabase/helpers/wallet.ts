@@ -15,8 +15,8 @@ export class Wallet extends Super {
       throw error;
     }
 
-    console.info("Successfully fetched wallet", { userId, address: data?.address });
-    return data?.address as `0x${string}` | undefined;
+    console.info("Successfully fetched wallet", { userId, address: data.address });
+    return data.address;
   }
 
   async getWalletByUsername(username: string) {

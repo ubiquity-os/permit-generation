@@ -45,32 +45,6 @@ export function getPriceFromLabels(labels: string[] | null): Decimal | null {
   return new Decimal(payoutLabel.replace("Price:", "").trim());
 }
 
-export function unpackInputs(context: Context): {
-  erc721: { userId?: number; username?: string; issueID: number; contribution_type: string } | null;
-  erc20: { token: `0x${string}`; amount: number; spender: `0x${string}`; networkId: number } | null;
-} {
-  const { userId, token, amount, spender, evmNetworkId: networkId, contribution_type, username, issueID } = context.config;
-
-  let erc721 = null;
-  let erc20 = null;
-
-  if (contribution_type && username && issueID) {
-    erc721 = {
-      username,
-      userId,
-      issueID,
-      contribution_type,
-    };
-  } else if (token && amount && spender && networkId) {
-    erc20 = { token, amount, spender, networkId };
-  }
-
-  return {
-    erc721,
-    erc20,
-  };
-}
-
 export async function getLabelsFromLinkedIssue(context: Context, pullRequestNumber: number): Promise<string[] | null> {
   const { octokit, logger } = context;
   const { owner, name } = context.payload.repository;
