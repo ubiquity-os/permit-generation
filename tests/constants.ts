@@ -20,6 +20,7 @@ export const mockContext = {
     },
     issue: {
       number: 123,
+      id: 123,
     },
     pull_request: {
       number: 123,

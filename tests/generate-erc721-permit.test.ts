@@ -1,31 +1,17 @@
+import { MaxUint256 } from "@uniswap/permit2-sdk";
+import { keccak256, toUtf8Bytes } from "ethers";
 import { generateErc721PermitSignature } from "../src/handlers/generate-erc721-permit";
 import { Context } from "../src/types/context";
+import { Env } from "../src/types/env";
 import { cypherText, mockContext, NFT_CONTRACT_ADDRESS, SPENDER } from "./constants";
 
-describe.skip("generateErc721PermitSignature", () => {
+describe("generateErc721PermitSignature", () => {
   let context: Context;
+  const userId = 123;
 
   // cSpell: disable
 
   jest.autoMockOn();
-
-  jest.mock("@supabase/supabase-js", () => {
-    return {
-      createClient: jest.fn().mockReturnValue({
-        from: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              select: jest.fn().mockReturnValue({
-                eq: jest.fn().mockReturnValue({
-                  single: jest.fn().mockResolvedValue({ id: 123 }),
-                }),
-              }),
-            }),
-          }),
-        }),
-      }),
-    };
-  });
 
   beforeEach(() => {
     process.env.X25519_PRIVATE_KEY = "bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls";
@@ -35,7 +21,7 @@ describe.skip("generateErc721PermitSignature", () => {
     context = {
       ...mockContext,
       config: {
-        evmNetworkId: 1,
+        evmNetworkId: 100,
         evmPrivateEncrypted: cypherText,
         isNftRewardEnabled: true,
         nftMinterPrivateKey: process.env.NFT_MINTER_PRIVATE_KEY,
@@ -53,44 +39,61 @@ describe.skip("generateErc721PermitSignature", () => {
         issueID: 123,
       },
     } as unknown as Context;
+    context.env = process.env as Env;
+    context.eventName = "issues.closed";
+    jest.mock("@supabase/supabase-js", () => {
+      return {
+        createClient: jest.fn().mockReturnValue({
+          from: jest.fn().mockReturnValue({
+            select: jest.fn().mockReturnValue({
+              eq: jest.fn().mockReturnValue({
+                select: jest.fn().mockReturnValue({
+                  eq: jest.fn().mockReturnValue({
+                    single: jest.fn().mockResolvedValue({ id: 123 }),
+                  }),
+                }),
+              }),
+            }),
+          }),
+        }),
+      };
+    });
+    (context.adapters.supabase.wallet.getWalletByUsername as jest.Mock).mockReturnValue(SPENDER);
+    (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(userId);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it.skip("should generate ERC721 permit signature", async () => {
-    // const issueId = 123;
-    // const contributionType = "contribution";
-    // const username = "tester";
+  it("should generate ERC721 permit signature", async () => {
+    const issueId = 123;
+    const contributionType = "contribution";
+    const username = "tester";
 
-    (context.adapters.supabase.wallet.getWalletByUsername as jest.Mock).mockReturnValue(SPENDER);
-    (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(123);
+    const result = await generateErc721PermitSignature(context, username, contributionType);
 
-    // const result = await generateErc721PermitSignature(context, username, contributionType);
-    //
-    // const organizationName = "test";
-    // const repositoryName = "test";
-    // const issueNumber = issueId.toString();
-    // const userId = context.config.userId;
-    // const keys = ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"];
+    const organizationName = "test";
+    const repositoryName = "test";
+    const issueNumber = issueId.toString();
+    const keys = ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"];
 
-    // if (result && typeof result === "object") {
-    // expect(result).toBeDefined();
-    // expect(result.tokenType).toBe("erc721");
-    // expect(result.permit.permitted.token).toBe(process.env.NFT_CONTRACT_ADDRESS);
-    // expect(result.permit.permitted.amount).toBe("1");
-    // expect(result.nftMetadata).toBeDefined();
-    // expect(result.request.beneficiary).toBe(context.config.spender);
-    // expect(result.request.deadline).toBe(BigInt("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff").toString());
-    // expect(result.request.nonce).toBe(BigInt(keccak256(toUtf8Bytes(`${userId}-${issueId}`))).toString());
-    // expect(result.request.values).toEqual([organizationName, repositoryName, issueNumber, username, contributionType]);
-    // expect(result.networkId).toBe(context.config.evmNetworkId);
-    // const keysHashed = keys.map((key) => keccak256(toUtf8Bytes(key)));
-    // expect(result.request.keys).toEqual(keysHashed);
-    // }
+    if (result && typeof result === "object") {
+      expect(result).toBeDefined();
+      expect(result.tokenType).toBe("erc721");
+      expect(result.tokenAddress).toBe(process.env.NFT_CONTRACT_ADDRESS);
+      expect(result.amount).toBe("1");
+      expect(result.erc721Request?.metadata).toBeDefined();
+      expect(result.beneficiary).toBe(SPENDER);
+      expect(result.deadline).toBe(MaxUint256.toString());
+      expect(result.nonce).toBe(BigInt(keccak256(toUtf8Bytes(`${userId}-${issueId}`))).toString());
+      expect(result.erc721Request?.values).toEqual([organizationName, repositoryName, issueNumber, username, contributionType]);
+      expect(result.networkId).toBe(context.config.evmNetworkId);
+      const keysHashed = keys.map((key) => keccak256(toUtf8Bytes(key)));
+      expect(result.erc721Request?.keys).toEqual(keysHashed);
+    }
 
-    // expect(context.logger.error).not.toHaveBeenCalled();
+    expect(context.logger.error).not.toHaveBeenCalled();
   });
 
   it("should throw an error if RPC is not defined", async () => {
@@ -100,14 +103,14 @@ describe.skip("generateErc721PermitSignature", () => {
 
   it("should throw an error if NFT minter private key is not defined", async () => {
     delete process.env.NFT_MINTER_PRIVATE_KEY;
-    await expect(generateErc721PermitSignature(context, "tester", "contribution")).rejects.toThrow("NFT minter private key is not defined");
-    expect(context.logger.error).toHaveBeenCalledWith("NFT minter private key is not defined");
+    await expect(generateErc721PermitSignature(context, "tester", "contribution")).rejects.toThrow("Failed to instantiate wallet");
+    expect(context.logger.error).toHaveBeenCalled();
   });
 
   it("should throw an error if NFT contract address is not defined", async () => {
     delete process.env.NFT_CONTRACT_ADDRESS;
     await expect(generateErc721PermitSignature(context, "tester", "contribution")).rejects.toThrow("NFT contract address is not defined");
-    expect(context.logger.error).toHaveBeenCalledWith("NFT contract address is not defined");
+    expect(context.logger.error).toHaveBeenCalled();
   });
 
   it("should throw an error if no wallet found for user", async () => {

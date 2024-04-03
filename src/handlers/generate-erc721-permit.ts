@@ -40,6 +40,12 @@ export async function generateErc721PermitSignature(context: Context, username: 
     throw new Error("RPC is not defined");
   }
 
+  if (!NFT_CONTRACT_ADDRESS) {
+    const errorMesage = "NFT contract address is not defined";
+    logger.error(errorMesage);
+    throw new Error(errorMesage);
+  }
+
   const beneficiary = await adapters.supabase.wallet.getWalletByUsername(username);
   if (!beneficiary) {
     logger.error("No wallet found for user");

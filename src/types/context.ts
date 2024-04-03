@@ -4,7 +4,7 @@ import { PermitGenerationSettings } from "./plugin-input";
 import { createAdapters } from "../adapters";
 import { Env } from "./env";
 
-export type SupportedEvents = "issue_comment.created" | "workflow_dispatch" | "pull_request.closed";
+export type SupportedEvents = "issue_comment.created" | "workflow_dispatch" | "pull_request.closed" | "issues.closed";
 
 export interface Context<T extends WebhookEventName = SupportedEvents> {
   eventName: T;
