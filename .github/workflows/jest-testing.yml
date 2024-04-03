@@ -20,9 +20,8 @@ jobs:
           fetch-depth: 0
       - name: Build & Run test suite
         run: |
-          npm i -g bun
-          bun install
-          bun test | tee ./coverage.txt && exit ${PIPESTATUS[0]}
+          yarn i --immutable --immutable-cache --check-cache
+          yarn test | tee ./coverage.txt && exit ${PIPESTATUS[0]}
       - name: Jest Coverage Comment
         # Ensures this step is run even on previous step failure (e.g. test failed)
         if: always()
