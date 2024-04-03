@@ -18,6 +18,8 @@ export async function generateErc20PermitSignature(context: Context, username: s
     issueId = context.payload.issue.id;
   } else if ("pull_request" in context.payload) {
     issueId = context.payload.pull_request.id;
+  } else {
+    throw new Error("Issue Id is missing");
   }
 
   if (!userId) {
