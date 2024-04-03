@@ -57,13 +57,13 @@ describe("generatePayoutPermit", () => {
     const result = await generatePayoutPermit(context, [
       {
         type: "erc20",
-        amount: 0,
+        amount: 100,
         username: "username",
         contributionType: "ISSUE",
       },
       {
         type: "erc20",
-        amount: 0,
+        amount: 100,
         username: "username",
         contributionType: "ISSUE",
       },
