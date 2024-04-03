@@ -18,6 +18,10 @@ export async function decryptKeys(cipherText: string): Promise<{ privateKey: str
     console.warn("Public key is null");
     return { privateKey: null, publicKey: null };
   }
+  if (!cipherText?.length) {
+    console.warn("No cipherText was provided");
+    return { privateKey: null, publicKey: null };
+  }
   const binaryPublic = sodium.from_base64(_public, sodium.base64_variants.URLSAFE_NO_PADDING);
   const binaryPrivate = sodium.from_base64(X25519_PRIVATE_KEY, sodium.base64_variants.URLSAFE_NO_PADDING);
 

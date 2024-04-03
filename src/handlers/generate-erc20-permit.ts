@@ -1,9 +1,9 @@
-import { MaxUint256, PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
-import { ethers, keccak256, parseUnits, toUtf8Bytes } from "ethers";
-import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
-import { decryptKeys } from "../utils/keys";
-import { Permit } from "../types/permits";
+import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
+import { ethers, keccak256, MaxInt256, parseUnits, toUtf8Bytes } from "ethers";
 import { Context } from "../types/context";
+import { Permit } from "../types/permits";
+import { decryptKeys } from "../utils/keys";
+import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 
 export async function generateErc20PermitSignature(context: Context, username: string, amount: number): Promise<Permit> {
   const config = context.config;
@@ -20,9 +20,22 @@ export async function generateErc20PermitSignature(context: Context, username: s
     issueId = context.payload.pull_request.id;
   }
 
+  if (!userId) {
+    throw new Error("User was not found");
+  }
+  if (!walletAddress) {
+    const errorMessage = "ERC 20 Permit generation error: Wallet was not found";
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
   const { rpc, token, decimals } = getPayoutConfigByNetworkId(evmNetworkId);
   const { privateKey } = await decryptKeys(evmPrivateEncrypted);
-  if (!privateKey) throw logger.error("Private key is not defined");
+  if (!privateKey) {
+    const errorMessage = "Private key is not defined";
+    logger.fatal(errorMessage);
+    throw new Error(errorMessage);
+  }
 
   let provider;
   let adminWallet;
@@ -45,7 +58,7 @@ export async function generateErc20PermitSignature(context: Context, username: s
     },
     spender: walletAddress,
     nonce: BigInt(keccak256(toUtf8Bytes(`${userId}-${issueId}`))),
-    deadline: MaxUint256,
+    deadline: MaxInt256,
   };
 
   const { domain, types, values } = SignatureTransfer.getPermitData(permitTransferFromData, PERMIT2_ADDRESS, evmNetworkId);
@@ -63,7 +76,9 @@ export async function generateErc20PermitSignature(context: Context, username: s
       values
     )
     .catch((error) => {
-      throw logger.debug("Failed to sign typed data", error);
+      const errorMessage = `Failed to sign typed data ${error}`;
+      logger.error(errorMessage);
+      throw new Error(errorMessage);
     });
 
   const erc20Permit: Permit = {

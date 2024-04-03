@@ -1,7 +1,9 @@
 import { Context } from "../src/types/context";
 
 export const NFT_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000003";
-export const SPENDER = "0x0000000000000000000000000000000000000001";
+export const SPENDER = "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d";
+
+export const WALLET_ADDRESS = "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd";
 
 // cSpell: disable
 export const cypherText =
@@ -40,13 +42,13 @@ export const mockContext = {
         deleteUser: jest.fn(),
         upsertUser: jest.fn(),
         getUserIdByWallet: jest.fn().mockReturnValue(123),
-        getUserIdByUsername: jest.fn(),
+        getUserIdByUsername: jest.fn().mockReturnValue(1),
         getUsernameById: jest.fn(),
       },
       wallet: {
         upsertWallet: jest.fn().mockImplementation(() => Promise.resolve()),
-        getWalletByUserId: jest.fn(),
-        getWalletByUsername: jest.fn(),
+        getWalletByUserId: jest.fn().mockReturnValue(WALLET_ADDRESS),
+        getWalletByUsername: jest.fn().mockReturnValue(WALLET_ADDRESS),
       },
     },
   },

@@ -38,7 +38,7 @@ describe("generateErc20PermitSignature", () => {
   beforeEach(() => {
     /**
    * 5. **Update GitHub Secrets**
-      - Copy the newly generated private key and update it on your GitHub Actions secret. 
+      - Copy the newly generated private key and update it on your GitHub Actions secret.
       Find the field labeled `x25519_PRIVATE_KEY` and replace its content with your generated x25519 private key.
    */
     // cSpell: ignore bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls
@@ -47,7 +47,7 @@ describe("generateErc20PermitSignature", () => {
     context = {
       ...mockContext,
       config: {
-        evmNetworkId: 1,
+        evmNetworkId: 100,
       },
     } as unknown as Context;
   });
@@ -65,22 +65,23 @@ describe("generateErc20PermitSignature", () => {
     expect(context.logger.info).toHaveBeenCalledWith("Generated ERC20 permit2 signature", expect.any(Object));
   });
 
-  it("should return error message when no wallet found for user", async () => {
-    const amount = 100;
-    context.config.evmPrivateEncrypted = cypherText;
+  it("should throw error when evmPrivateEncrypted is not defined", async () => {
+    const amount = 0;
 
-    (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(null);
-
-    const result = await generateErc20PermitSignature(context, SPENDER, amount);
-
-    expect(result).toBe("Permit not generated: no wallet found for user");
-    expect(context.logger.error).toHaveBeenCalledWith("No wallet found for user");
+    await expect(generateErc20PermitSignature(context, SPENDER, amount)).rejects.toThrow("Private key is not defined");
+    expect(context.logger.fatal).toHaveBeenCalledWith("Private key is not defined");
   });
 
-  it("should throw error when evmPrivateEncrypted is not defined", async () => {
-    const amount = 100;
+  it("should return error message when no wallet found for user", async () => {
+    const amount = 0;
+    context.config.evmPrivateEncrypted = cypherText;
 
-    await expect(generateErc20PermitSignature(context, SPENDER, amount)).rejects.toThrow("EVM configuration is not defined");
-    expect(context.logger.fatal).toHaveBeenCalledWith("EVM configuration is not defined");
+    (context.adapters.supabase.wallet.getWalletByUserId as jest.Mock).mockReturnValue(null);
+
+    await expect(async () => {
+      await generateErc20PermitSignature(context, SPENDER, amount);
+    }).rejects.toThrow();
+
+    expect(context.logger.error).toHaveBeenCalledWith("ERC 20 Permit generation error: Wallet was not found");
   });
 });

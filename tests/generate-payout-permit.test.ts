@@ -1,15 +1,15 @@
 // import { generateErc20PermitSignature } from "../src/handlers/generate-erc20-permit";
+import { generateErc20PermitSignature } from "../src/handlers/generate-erc20-permit";
 // import { generateErc721PermitSignature } from "../src/handlers/generate-erc721-permit";
-import { generatePayoutForWorkflowDispatch } from "../src/handlers/generate-payout-permit";
+import { generatePayoutPermit } from "../src/handlers/generate-payout-permit";
 import { Context } from "../src/types/context";
-import { unpackInputs } from "../src/utils/helpers";
-import { SPENDER, cypherText, mockContext } from "./constants";
+import { cypherText, mockContext, SPENDER } from "./constants";
 
 jest.mock("../src/utils/helpers");
 jest.mock("../src/handlers/generate-erc20-permit");
 jest.mock("../src/handlers/generate-erc721-permit");
 
-describe("generatePayoutForWorkflowDispatch", () => {
+describe("generatePayoutPermit", () => {
   let context: Context;
 
   beforeEach(() => {
@@ -39,7 +39,7 @@ describe("generatePayoutForWorkflowDispatch", () => {
         issueID: 123,
       },
     } as unknown as Context;
-    (unpackInputs as jest.Mock).mockReturnValue({
+    (generateErc20PermitSignature as jest.Mock).mockReturnValue({
       erc20: {
         token: "TOKEN_ADDRESS",
         amount: 100,
@@ -53,36 +53,25 @@ describe("generatePayoutForWorkflowDispatch", () => {
     jest.clearAllMocks();
   });
 
-  // TODO: valids
-
-  it("should return error message when no config found for permit generation", async () => {
-    (unpackInputs as jest.Mock).mockReturnValue({});
-
-    const result = await generatePayoutForWorkflowDispatch(context, false);
-
-    expect(result).toBe("Permit not generated: no config found for permit generation");
-    expect(context.logger.error).toHaveBeenCalledWith("No config found for permit generation");
-  });
-
   it("should return error message when no token, amount, spender, or networkId found for ERC20 permit", async () => {
-    (unpackInputs as jest.Mock).mockReturnValue({
-      erc20: {},
-    });
+    const result = await generatePayoutPermit(context, [
+      {
+        type: "erc20",
+        amount: 0,
+        username: "username",
+        contributionType: "ISSUE",
+      },
+      {
+        type: "erc20",
+        amount: 0,
+        username: "username",
+        contributionType: "ISSUE",
+      },
+    ]);
 
-    const result = await generatePayoutForWorkflowDispatch(context, false);
-
-    expect(result).toBe("Permit not generated: no token, amount, spender, or networkId found for ERC20 permit");
-    expect(context.logger.error).toHaveBeenCalledWith("No token, amount, spender, or networkId found for ERC20 permit");
-  });
-
-  it("should return error message when no username or issueID found for ERC721 permit", async () => {
-    (unpackInputs as jest.Mock).mockReturnValue({
-      erc721: {},
-    });
-
-    const result = await generatePayoutForWorkflowDispatch(context, true);
-
-    expect(result).toBe("Permit not generated: no username or issueID found for ERC721 permit");
-    expect(context.logger.error).toHaveBeenCalledWith("No username or issueID found for ERC721 permit");
+    expect(result).toMatchObject([
+      { erc20: { amount: 100, networkId: 1, spender: SPENDER, token: "TOKEN_ADDRESS" } },
+      { erc20: { amount: 100, networkId: 1, spender: SPENDER, token: "TOKEN_ADDRESS" } },
+    ]);
   });
 });

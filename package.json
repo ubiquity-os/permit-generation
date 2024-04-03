@@ -37,7 +37,7 @@
     "blake2b": "^2.1.4",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.4.4",
-    "ethers": "^6.11.1",
+    "ethers": "6.11.1",
     "libsodium-wrappers": "^0.7.13",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1"

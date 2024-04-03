@@ -7,6 +7,7 @@ import { PermitRequest } from "../types/plugin-input";
 /**
  * Generates a payout permit based on the provided context.
  * @param context - The context object containing the configuration and payload.
+ * @param permitRequests
  * @returns A Promise that resolves to the generated permit transaction data or an error message.
  */
 export async function generatePayoutPermit(context: Context, permitRequests: PermitRequest[]): Promise<Permit[]> {
