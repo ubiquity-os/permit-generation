@@ -26,7 +26,7 @@ export async function generateErc20PermitSignature(context: Context, username: s
     throw new Error("User was not found");
   }
   if (!walletAddress) {
-    const errorMessage = "ERC 20 Permit generation error: Wallet was not found";
+    const errorMessage = "ERC20 Permit generation error: Wallet not found";
     logger.error(errorMessage);
     throw new Error(errorMessage);
   }

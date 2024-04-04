@@ -82,6 +82,6 @@ describe("generateErc20PermitSignature", () => {
       await generateErc20PermitSignature(context, SPENDER, amount);
     }).rejects.toThrow();
 
-    expect(context.logger.error).toHaveBeenCalledWith("ERC 20 Permit generation error: Wallet was not found");
+    expect(context.logger.error).toHaveBeenCalledWith("ERC20 Permit generation error: Wallet not found");
   });
 });
