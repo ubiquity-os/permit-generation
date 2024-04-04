@@ -15,7 +15,8 @@
     "knip": "knip",
     "knip-ci": "knip --no-exit-code --reporter json",
     "prepare": "husky install",
-    "test": "jest"
+    "test": "jest",
+    "build": "rollup -c"
   },
   "keywords": [
     "typescript",
