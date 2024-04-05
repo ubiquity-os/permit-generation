@@ -56,13 +56,13 @@ describe("generatePayoutPermit", () => {
   it("should return error message when no token, amount, spender, or networkId found for ERC20 permit", async () => {
     const result = await generatePayoutPermit(context, [
       {
-        type: "erc20",
+        type: "ERC20",
         amount: 100,
         username: "username",
         contributionType: "ISSUE",
       },
       {
-        type: "erc20",
+        type: "ERC20",
         amount: 100,
         username: "username",
         contributionType: "ISSUE",

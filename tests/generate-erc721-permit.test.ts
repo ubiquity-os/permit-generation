@@ -80,7 +80,7 @@ describe("generateErc721PermitSignature", () => {
 
     if (result && typeof result === "object") {
       expect(result).toBeDefined();
-      expect(result.tokenType).toBe("erc721");
+      expect(result.tokenType).toBe("ERC721");
       expect(result.tokenAddress).toBe(process.env.NFT_CONTRACT_ADDRESS);
       expect(result.amount).toBe("1");
       expect(result.erc721Request?.metadata).toBeDefined();
