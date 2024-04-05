@@ -58,7 +58,7 @@ export async function generateErc721PermitSignature(context: Context, username: 
   const repositoryName = context.payload.repository.name;
   let issueId = "";
   if (isIssueEvent(context)) {
-    issueId = context.payload.issue.id.toString();
+    issueId = context.payload.issue.node_id;
   }
 
   let provider;
