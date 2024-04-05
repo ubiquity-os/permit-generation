@@ -15,9 +15,9 @@ export async function generateErc20PermitSignature(context: Context, username: s
   const walletAddress = await wallet.getWalletByUserId(userId);
   let issueId: string;
   if ("issue" in context.payload) {
-    issueId = context.payload.issue.node_id;
+    issueId = context.payload.issue.id.toString();
   } else if ("pull_request" in context.payload) {
-    issueId = context.payload.pull_request.node_id;
+    issueId = context.payload.pull_request.id.toString();
   } else {
     throw new Error("Issue Id is missing");
   }
