@@ -1,5 +1,6 @@
 import { EmitterWebhookEvent as WebhookEvent, EmitterWebhookEventName as WebhookEventName } from "@octokit/webhooks";
 import { SupportedEvents } from "./context";
+import { StaticDecode, Type as T } from "@sinclair/typebox";
 
 export interface PluginInputs<T extends WebhookEventName = SupportedEvents> {
   stateId: string;
@@ -10,19 +11,19 @@ export interface PluginInputs<T extends WebhookEventName = SupportedEvents> {
   ref: string;
 }
 
-export interface PermitGenerationSettings {
-  evmNetworkId: number;
-  evmPrivateEncrypted: string;
-  isNftRewardEnabled: boolean;
+export const permitRequestSchema = T.Object({
+  type: T.Union([T.Literal("ERC20"), T.Literal("ERC721")]),
+  username: T.String(),
+  amount: T.Number(),
+  contributionType: T.String(),
+});
 
-  // possible inputs from workflow_dispatch
-  token?: `0x${string}`;
-  amount?: number;
-  spender?: `0x${string}`;
-  userId?: number;
+export type PermitRequest = StaticDecode<typeof permitRequestSchema>;
 
-  // nft specific inputs
-  contribution_type?: string;
-  username?: string;
-  issueID?: number;
-}
+export const permitGenerationSettingsSchema = T.Object({
+  evmNetworkId: T.Number(),
+  evmPrivateEncrypted: T.String(),
+  permitRequests: T.Array(permitRequestSchema),
+});
+
+export type PermitGenerationSettings = StaticDecode<typeof permitGenerationSettingsSchema>;
