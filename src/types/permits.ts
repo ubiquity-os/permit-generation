@@ -1,4 +1,4 @@
-type TokenType = "erc20" | "erc721";
+type TokenType = "ERC20" | "ERC721";
 
 export interface Permit {
   tokenType: TokenType;

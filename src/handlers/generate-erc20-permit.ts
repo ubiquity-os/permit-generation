@@ -84,7 +84,7 @@ export async function generateErc20PermitSignature(context: Context, username: s
     });
 
   const erc20Permit: Permit = {
-    tokenType: "erc20",
+    tokenType: "ERC20",
     tokenAddress: permitTransferFromData.permitted.token,
     beneficiary: permitTransferFromData.spender,
     nonce: permitTransferFromData.nonce.toString(),

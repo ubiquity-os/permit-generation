@@ -18,10 +18,10 @@ export async function generatePayoutPermit(context: Context, permitRequests: Per
 
     let permit: Permit;
     switch (type) {
-      case "erc20":
+      case "ERC20":
         permit = await generateErc20PermitSignature(context, username, amount);
         break;
-      case "erc721":
+      case "ERC721":
         permit = await generateErc721PermitSignature(context, username, contributionType);
         break;
       default:

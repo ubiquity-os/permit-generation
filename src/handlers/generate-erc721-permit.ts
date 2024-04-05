@@ -107,7 +107,7 @@ export async function generateErc721PermitSignature(context: Context, username: 
   });
 
   const erc721Permit: Permit = {
-    tokenType: "erc721",
+    tokenType: "ERC721",
     tokenAddress: NFT_CONTRACT_ADDRESS,
     beneficiary: beneficiary,
     amount: "1",
