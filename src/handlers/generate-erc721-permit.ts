@@ -41,9 +41,9 @@ export async function generateErc721PermitSignature(context: Context, username: 
   }
 
   if (!NFT_CONTRACT_ADDRESS) {
-    const errorMesage = "NFT contract address is not defined";
-    logger.error(errorMesage);
-    throw new Error(errorMesage);
+    const errorMessage = "NFT contract address is not defined";
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
   }
 
   const beneficiary = await adapters.supabase.wallet.getWalletByUsername(username);
