@@ -26,7 +26,7 @@ describe("generateErc20PermitSignature", () => {
             eq: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
-                  single: jest.fn().mockReturnValueOnce({ id: 123 }),
+                  single: jest.fn().mockReturnValue({ id: 123 }),
                 }),
               }),
             }),

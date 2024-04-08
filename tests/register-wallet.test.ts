@@ -32,7 +32,6 @@ describe("registerWallet", () => {
   });
 
   it("should skip registration when address is null address", async () => {
-    context.payload.sender;
     expect(await registerWallet(context, "0x0000000000000000000000000000000000000000")).toBe(false);
     expect(context.logger.error).toHaveBeenCalledWith("Skipping to register a wallet address because user is trying to set their address to null address");
     expect(context.adapters.supabase.wallet.upsertWallet).not.toHaveBeenCalled();
