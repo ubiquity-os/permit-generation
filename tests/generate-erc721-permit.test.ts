@@ -4,6 +4,7 @@ import { generateErc721PermitSignature } from "../src/handlers/generate-erc721-p
 import { Context } from "../src/types/context";
 import { Env } from "../src/types/env";
 import { cypherText, mockContext, NFT_CONTRACT_ADDRESS, SPENDER } from "./constants";
+import { describe, expect, it, beforeEach, afterEach, jest } from "@jest/globals";
 
 describe("generateErc721PermitSignature", () => {
   let context: Context;
@@ -49,7 +50,7 @@ describe("generateErc721PermitSignature", () => {
               eq: jest.fn().mockReturnValue({
                 select: jest.fn().mockReturnValue({
                   eq: jest.fn().mockReturnValue({
-                    single: jest.fn().mockResolvedValue({ id: 123 }),
+                    single: jest.fn().mockReturnValueOnce({ id: 123 }),
                   }),
                 }),
               }),

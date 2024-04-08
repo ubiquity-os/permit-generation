@@ -1,6 +1,7 @@
 import { generateErc20PermitSignature } from "../src/handlers/generate-erc20-permit";
 import { Context } from "../src/types/context";
 import { SPENDER, mockContext } from "./constants";
+import { describe, expect, it, beforeEach, jest } from "@jest/globals";
 
 describe("generateErc20PermitSignature", () => {
   let context: Context;
@@ -25,7 +26,7 @@ describe("generateErc20PermitSignature", () => {
             eq: jest.fn().mockReturnValue({
               select: jest.fn().mockReturnValue({
                 eq: jest.fn().mockReturnValue({
-                  single: jest.fn().mockResolvedValue({ id: 123 }),
+                  single: jest.fn().mockReturnValueOnce({ id: 123 }),
                 }),
               }),
             }),

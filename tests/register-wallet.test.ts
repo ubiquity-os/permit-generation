@@ -1,6 +1,7 @@
 import { registerWallet } from "../src/handlers/register-wallet";
 import { Context } from "../src/types/context";
 import { mockContext } from "./constants";
+import { describe, expect, it, beforeEach, afterEach, jest } from "@jest/globals";
 
 describe("registerWallet", () => {
   let context: Context;
@@ -39,8 +40,8 @@ describe("registerWallet", () => {
 
   it("should handle error while registering wallet address", async () => {
     const address = "0x1234567890abcdef";
-    const error = new Error("An error");
-    (context.adapters.supabase.wallet.upsertWallet as jest.Mock).mockRejectedValue(error);
+    const error: Error = new Error("An error");
+    (context.adapters.supabase.wallet.upsertWallet as jest.Mock).mockRejectedValue(error as never);
 
     expect(await registerWallet(context, address)).toBe(false);
     expect(context.logger.error).toHaveBeenCalledWith("Error while registering wallet address", {
