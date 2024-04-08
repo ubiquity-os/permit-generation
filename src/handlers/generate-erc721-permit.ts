@@ -97,10 +97,10 @@ export async function generateErc721PermitSignature(
     throw new Error("RPC is not defined");
   }
 
-  if (!_nftContractAddress) {
-    const errorMesage = "NFT contract address is not defined";
-    _logger.error(errorMesage);
-    throw new Error(errorMesage);
+  if (!NFT_CONTRACT_ADDRESS) {
+    const errorMessage = "NFT contract address is not defined";
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
   }
 
   let provider;

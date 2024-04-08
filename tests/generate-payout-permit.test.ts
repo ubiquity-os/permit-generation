@@ -5,7 +5,6 @@ import { generatePayoutPermit } from "../src/handlers/generate-payout-permit";
 import { Context } from "../src/types/context";
 import { cypherText, mockContext, SPENDER } from "./constants";
 
-jest.mock("../src/utils/helpers");
 jest.mock("../src/handlers/generate-erc20-permit");
 jest.mock("../src/handlers/generate-erc721-permit");
 
