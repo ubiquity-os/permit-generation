@@ -6,6 +6,10 @@ const config: KnipConfig = {
   ignore: ["src/utils/config.ts", "src/utils/helpers.ts", "src/types/github.ts", "src/types/webhook-events.ts"],
   ignoreExportsUsedInFile: true,
   ignoreDependencies: ["ts-node"],
+  jest: {
+    config: ["jest.config.ts"],
+    entry: ["tests/*.ts"],
+  },
 };
 
 export default config;
