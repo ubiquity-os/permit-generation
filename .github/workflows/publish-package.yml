@@ -13,7 +13,7 @@ jobs:
       - uses: google-github-actions/release-please-action@v4
         with:
           release-type: node
-          package-name: @ubiquibot/permit-generation
+          package-name: "@ubiquibot/permit-generation"
           default-branch: main
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
