@@ -44,7 +44,7 @@ export const mockContext = {
         upsertUser: jest.fn(),
         getUserIdByWallet: jest.fn().mockReturnValue(123),
         getUserIdByUsername: jest.fn().mockReturnValue(1),
-        getUsernameById: jest.fn(),
+        getUserById: jest.fn(),
       },
       wallet: {
         upsertWallet: jest.fn().mockImplementation(() => Promise.resolve()),

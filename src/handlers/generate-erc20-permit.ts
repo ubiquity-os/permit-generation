@@ -28,7 +28,7 @@ export async function generateErc20PermitSignature(
 ): Promise<Permit> {
   let _logger: Logger;
   let _userId: number;
-  let _walletAddress: string;
+  let _walletAddress: string | null;
   let _issueId: number;
   let _evmNetworkId: number;
   let _evmPrivateEncrypted: string;
