@@ -5,7 +5,7 @@ const config: KnipConfig = {
   project: ["src/**/*.ts"],
   ignore: ["src/utils/config.ts", "src/utils/helpers.ts", "src/types/github.ts", "src/types/webhook-events.ts"],
   ignoreExportsUsedInFile: true,
-  ignoreDependencies: [],
+  ignoreDependencies: ["ts-node"],
 };
 
 export default config;
