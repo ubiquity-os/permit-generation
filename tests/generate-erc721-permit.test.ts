@@ -4,6 +4,7 @@ import { generateErc721PermitSignature } from "../src";
 import { Context } from "../src/types/context";
 import { Env } from "../src/types/env";
 import { cypherText, mockContext, NFT_CONTRACT_ADDRESS, SPENDER } from "./constants";
+import { describe, expect, it, beforeEach, afterEach, jest } from "@jest/globals";
 
 describe("generateErc721PermitSignature", () => {
   let context: Context;
@@ -48,7 +49,7 @@ describe("generateErc721PermitSignature", () => {
               eq: jest.fn().mockReturnValue({
                 select: jest.fn().mockReturnValue({
                   eq: jest.fn().mockReturnValue({
-                    single: jest.fn().mockResolvedValue({ id: 123 }),
+                    single: jest.fn().mockReturnValue({ id: 123 }),
                   }),
                 }),
               }),
@@ -97,18 +98,18 @@ describe("generateErc721PermitSignature", () => {
 
   it("should throw an error if RPC is not defined", async () => {
     context.config.evmNetworkId = 123;
-    await expect(generateErc721PermitSignature(123, "contribution", context)).rejects.toThrow("No config setup for" + " evmNetworkId: 123");
+    await expect(generateErc721PermitSignature(123, "contribution", context)).rejects.toThrow("No config setup for evmNetworkId: 123");
   });
 
   it("should throw an error if NFT minter private key is not defined", async () => {
     delete process.env.NFT_MINTER_PRIVATE_KEY;
-    await expect(generateErc721PermitSignature(123, "contribution", context)).rejects.toThrow("Failed to instantiate" + " wallet");
+    await expect(generateErc721PermitSignature(123, "contribution", context)).rejects.toThrow("Failed to instantiate wallet");
     expect(context.logger.error).toHaveBeenCalled();
   });
 
   it("should throw an error if NFT contract address is not defined", async () => {
     delete process.env.NFT_CONTRACT_ADDRESS;
-    await expect(generateErc721PermitSignature(123, "contribution", context)).rejects.toThrow("NFT contract address is" + " not defined");
+    await expect(generateErc721PermitSignature(123, "contribution", context)).rejects.toThrow("NFT contract address is not defined");
     expect(context.logger.error).toHaveBeenCalled();
   });
 
@@ -120,7 +121,7 @@ describe("generateErc721PermitSignature", () => {
 
     (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(null);
 
-    await expect(generateErc721PermitSignature(123, "contribution", context)).rejects.toThrow("No wallet found for" + " user");
+    await expect(generateErc721PermitSignature(123, "contribution", context)).rejects.toThrow("No wallet found for user");
     expect(context.logger.error).toHaveBeenCalledWith("No wallet found for user");
   });
 });

@@ -104,9 +104,9 @@ export async function generateErc721PermitSignature(
   }
 
   if (!_nftContractAddress) {
-    const errorMesage = "NFT contract address is not defined";
-    _logger.error(errorMesage);
-    throw new Error(errorMesage);
+    const errorMessage = "NFT contract address is not defined";
+    _logger.error(errorMessage);
+    throw new Error(errorMessage);
   }
 
   let provider;
