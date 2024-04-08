@@ -1,10 +1,9 @@
-import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
-import { ethers } from "ethers";
 import { MaxUint256 } from "@uniswap/permit2-sdk";
-import { keccak256, toUtf8Bytes } from "ethers";
-import { Permit } from "../types/permits";
+import { ethers, keccak256, toUtf8Bytes } from "ethers";
 import { Context, Logger } from "../types/context";
+import { Permit, TokenType } from "../types";
 import { isIssueEvent } from "../types/typeguards";
+import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 
 interface Erc721PermitSignatureData {
   beneficiary: string;
@@ -31,18 +30,18 @@ export interface PermitPayload {
   evmNetworkId: number;
   nftMinterPrivateKey: string;
   nftContractAddress: string;
-  userId: string;
   walletAddress: string;
   logger: Logger;
   issueId: string;
   organizationName: string;
   repositoryName: string;
+  userName: string;
 }
 
-export async function generateErc721PermitSignature(username: string, contributionType: string, permitPayload: PermitPayload): Promise<Permit>;
-export async function generateErc721PermitSignature(username: string, contributionType: string, context: Context): Promise<Permit>;
+export async function generateErc721PermitSignature(userId: number, contributionType: string, permitPayload: PermitPayload): Promise<Permit>;
+export async function generateErc721PermitSignature(userId: number, contributionType: string, context: Context): Promise<Permit>;
 export async function generateErc721PermitSignature(
-  username: string,
+  userId: number,
   contributionType: string,
   contextOrPermitPayload: Context | PermitPayload
 ): Promise<Permit> {
@@ -50,11 +49,12 @@ export async function generateErc721PermitSignature(
   let _nftContractAddress: string;
   let _evmNetworkId: number;
   let _nftMinterPrivateKey: string;
-  let _userId: string;
+  let _userId: number;
   let _walletAddress: string;
   let _issueId: string;
   let _organizationName: string;
   let _repositoryName: string;
+  let _username: string;
 
   if ("evmNetworkId" in contextOrPermitPayload) {
     _logger = contextOrPermitPayload.logger;
@@ -62,10 +62,11 @@ export async function generateErc721PermitSignature(
     _nftMinterPrivateKey = contextOrPermitPayload.nftMinterPrivateKey;
     _evmNetworkId = contextOrPermitPayload.evmNetworkId;
     _walletAddress = contextOrPermitPayload.walletAddress;
-    _userId = contextOrPermitPayload.userId;
+    _userId = userId;
     _issueId = contextOrPermitPayload.issueId;
     _organizationName = contextOrPermitPayload.organizationName;
     _repositoryName = contextOrPermitPayload.repositoryName;
+    _username = contextOrPermitPayload.userName;
   } else {
     const { NFT_MINTER_PRIVATE_KEY, NFT_CONTRACT_ADDRESS } = contextOrPermitPayload.env;
     const { evmNetworkId } = contextOrPermitPayload.config;
@@ -74,13 +75,13 @@ export async function generateErc721PermitSignature(
     _nftContractAddress = NFT_CONTRACT_ADDRESS;
     _evmNetworkId = evmNetworkId;
     _nftMinterPrivateKey = NFT_MINTER_PRIVATE_KEY;
-    const walletAddress = await adapters.supabase.wallet.getWalletByUsername(username);
+    _userId = userId;
+    const walletAddress = await adapters.supabase.wallet.getWalletByUserId(_userId);
     if (!walletAddress) {
       _logger.error("No wallet found for user");
       throw new Error("No wallet found for user");
     }
     _walletAddress = walletAddress;
-    _userId = await adapters.supabase.user.getUserIdByWallet(_walletAddress);
     if (isIssueEvent(contextOrPermitPayload)) {
       _issueId = contextOrPermitPayload.payload.issue.id.toString();
     } else {
@@ -88,6 +89,11 @@ export async function generateErc721PermitSignature(
     }
     _organizationName = contextOrPermitPayload.payload.repository.owner.login;
     _repositoryName = contextOrPermitPayload.payload.repository.name;
+    const { data: userData } = await contextOrPermitPayload.octokit.request("GET /user/:id", { id: _userId });
+    if (!userData) {
+      throw new Error(`GitHub user was not found for id ${_userId}`);
+    }
+    _username = userData.login;
   }
 
   const { rpc } = getPayoutConfigByNetworkId(_evmNetworkId);
@@ -123,7 +129,7 @@ export async function generateErc721PermitSignature(
     GITHUB_ORGANIZATION_NAME: _organizationName,
     GITHUB_REPOSITORY_NAME: _repositoryName,
     GITHUB_ISSUE_ID: _issueId,
-    GITHUB_USERNAME: username,
+    GITHUB_USERNAME: _username,
     GITHUB_CONTRIBUTION_TYPE: contributionType,
   };
 
@@ -149,7 +155,7 @@ export async function generateErc721PermitSignature(
   });
 
   const erc721Permit: Permit = {
-    tokenType: "ERC721",
+    tokenType: TokenType.ERC721,
     tokenAddress: _nftContractAddress,
     beneficiary: _walletAddress,
     amount: "1",

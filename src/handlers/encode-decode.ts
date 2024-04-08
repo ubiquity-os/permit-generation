@@ -1,4 +1,4 @@
-import { Permit } from "../types/permits";
+import { Permit, TokenType } from "../types";
 
 /**
  * Returns a base64 encoded string containing all the permit data
@@ -7,7 +7,7 @@ export function encodePermits(permits: Permit[]) {
   return Buffer.from(
     JSON.stringify(
       permits.map((permit) => {
-        if (permit.tokenType === "ERC20") {
+        if (permit.tokenType === TokenType.ERC20) {
           return {
             type: "erc20-permit",
             permit: {

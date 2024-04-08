@@ -19,17 +19,6 @@ export class User extends Super {
     return data;
   }
 
-  async getUserIdByUsername(username: string) {
-    const { data, error } = await this.supabase.from("users").select("id").eq("username", username).single();
-    if (error) {
-      console.error(FAILED_TO_GET_USER, { username, error });
-      throw error;
-    }
-
-    console.log(SUCCESSFULLY_FETCHED_USER, { username, userId: data?.id });
-    return data?.id;
-  }
-
   async getUserIdByWallet(wallet: string) {
     const { data, error } = await this.supabase.from("wallets").select("id").eq("address", wallet).single();
     if (error) {

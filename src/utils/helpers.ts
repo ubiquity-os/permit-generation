@@ -1,26 +1,6 @@
 import Decimal from "decimal.js";
 import { Context } from "../types/context";
 
-export async function getWalletRecord(context: Context, senderID?: number, username?: string) {
-  const { wallet } = context.adapters.supabase;
-  let walletRecord = null;
-
-  if (senderID) {
-    walletRecord = await wallet.getWalletByUserId(senderID);
-  }
-
-  if (username) {
-    walletRecord = await wallet.getWalletByUsername(username);
-  }
-
-  if (!walletRecord) {
-    context.logger.error("No wallet found for user");
-    return null;
-  }
-
-  return walletRecord;
-}
-
 export async function handleNoWalletFound(context: Context, issueNumber: number, userLogin: string) {
   const { logger, octokit } = context;
   const repository = context.payload.repository;

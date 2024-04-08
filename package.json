@@ -32,7 +32,7 @@
     "@octokit/webhooks": "^13.1.0",
     "@octokit/webhooks-types": "^7.3.1",
     "@sinclair/typebox": "^0.32.5",
-    "@supabase/supabase-js": "^2.39.7",
+    "@supabase/supabase-js": "2.42.0",
     "@uniswap/permit2-sdk": "^1.2.0",
     "blake2b": "^2.1.4",
     "decimal.js": "^10.4.3",

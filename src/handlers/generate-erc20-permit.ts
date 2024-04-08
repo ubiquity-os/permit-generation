@@ -1,34 +1,32 @@
 import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
 import { ethers, keccak256, MaxInt256, parseUnits, toUtf8Bytes } from "ethers";
 import { Context, Logger } from "../types/context";
-import { Permit } from "../types/permits";
+import { Permit, TokenType } from "../types";
 import { decryptKeys } from "../utils/keys";
 import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 
 export async function generateErc20PermitSignature(
-  username: string,
+  userId: number,
   amount: number,
   evmNetworkId: number,
   evmPrivateEncrypted: string,
-  userId: number,
   walletAddress: string,
   issueId: number,
   logger: Logger
 ): Promise<Permit>;
-export async function generateErc20PermitSignature(username: string, amount: number, context: Context): Promise<Permit>;
+export async function generateErc20PermitSignature(userId: number, amount: number, context: Context): Promise<Permit>;
 export async function generateErc20PermitSignature(
-  username: string,
+  userId: number,
   amount: number,
   contextOrNetworkId: Context | number,
   evmPrivateEncrypted?: string,
-  userId?: number,
   walletAddress?: string,
   issueId?: number,
   logger?: Logger
 ): Promise<Permit> {
   let _logger: Logger;
   let _userId: number;
-  let _walletAddress: string | null;
+  let _walletAddress: string | null | undefined;
   let _issueId: number;
   let _evmNetworkId: number;
   let _evmPrivateEncrypted: string;
@@ -44,8 +42,8 @@ export async function generateErc20PermitSignature(
     const config = contextOrNetworkId.config;
     _logger = contextOrNetworkId.logger;
     const { evmNetworkId, evmPrivateEncrypted } = config;
-    const { user, wallet } = contextOrNetworkId.adapters.supabase;
-    _userId = await user.getUserIdByUsername(username);
+    const { wallet } = contextOrNetworkId.adapters.supabase;
+    _userId = userId;
     _walletAddress = await wallet.getWalletByUserId(_userId);
     _evmNetworkId = evmNetworkId;
     _evmPrivateEncrypted = evmPrivateEncrypted;
@@ -120,7 +118,7 @@ export async function generateErc20PermitSignature(
     });
 
   const erc20Permit: Permit = {
-    tokenType: "ERC20",
+    tokenType: TokenType.ERC20,
     tokenAddress: permitTransferFromData.permitted.token,
     beneficiary: permitTransferFromData.spender,
     nonce: permitTransferFromData.nonce.toString(),
