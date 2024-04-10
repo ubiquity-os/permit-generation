@@ -1,5 +1,5 @@
 import { MaxUint256 } from "@uniswap/permit2-sdk";
-import { keccak256, toUtf8Bytes } from "ethers";
+import { BaseWallet, keccak256, toUtf8Bytes, TypedDataDomain, TypedDataField } from "ethers";
 import { generateErc721PermitSignature } from "../src";
 import { Context } from "../src/types/context";
 import { Env } from "../src/types/env";
@@ -38,6 +38,11 @@ describe("generateErc721PermitSignature", () => {
         contribution_type: "contribution",
         issueID: 123,
       },
+      octokit: {
+        request() {
+          return { data: { id: 1, login: 123 } };
+        },
+      },
     } as unknown as Context;
     context.env = process.env as Env;
     context.eventName = "issues.closed";
@@ -60,6 +65,12 @@ describe("generateErc721PermitSignature", () => {
     });
     (context.adapters.supabase.wallet.getWalletByUserId as jest.Mock).mockReturnValue(SPENDER);
     (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(userId);
+    jest
+      .spyOn(BaseWallet.prototype, "signTypedData")
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .mockImplementation((domain: TypedDataDomain, types: Record<string, TypedDataField[]>, value: Record<string, unknown>) => {
+        return Promise.resolve("0x0");
+      });
   });
 
   afterEach(() => {

@@ -151,7 +151,7 @@ export async function generateErc721PermitSignature(
 
   const signature = await adminWallet.signTypedData(domain, types, erc721SignatureData).catch((error: unknown) => {
     _logger.error("Failed to sign typed data", error);
-    throw new Error("Failed to sign typed data");
+    throw new Error(`Failed to sign typed data: ${error}`);
   });
 
   const erc721Permit: Permit = {
