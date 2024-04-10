@@ -12,7 +12,7 @@ describe("Encoding / Decoding tests", () => {
       signature: "0x1",
       tokenAddress: "0x1",
       tokenType: TokenType.ERC20,
-      amount: "100",
+      amount: 100,
     };
     const permitErc721: Permit = {
       beneficiary: "ubiquity2",
@@ -23,7 +23,7 @@ describe("Encoding / Decoding tests", () => {
       signature: "0x2",
       tokenAddress: "0x2",
       tokenType: TokenType.ERC721,
-      amount: "101",
+      amount: 101.5,
       erc721Request: {
         metadata: {
           GITHUB_ORGANIZATION_NAME: "",

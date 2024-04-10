@@ -1,48 +1,76 @@
-import { Static, Type } from "@sinclair/typebox";
+import { StaticDecode, Type as T } from "@sinclair/typebox";
+import { BigNumberish } from "ethers";
 
-const permit = Type.Object({
-  permitted: Type.Object({
-    token: Type.String(),
-    amount: Type.String(),
+const bigNumberT = T.Transform(T.Union([T.RegExp(/^\d+$/), T.Number()]))
+  .Decode((value) => BigInt(value) as BigNumberish)
+  .Encode((value) => value.toString());
+
+const networkIdT = T.Number();
+
+const addressT = T.Transform(T.RegExp(/^0x[a-fA-F0-9]{40}$/))
+  .Decode((value) => value.toLowerCase())
+  .Encode((value) => value);
+
+const signatureT = T.Transform(T.RegExp(/^0x[a-fA-F0-9]+$/))
+  .Decode((value) => value.toLowerCase())
+  .Encode((value) => value);
+
+const erc20PermitT = T.Object({
+  type: T.Literal("erc20-permit"),
+  permit: T.Object({
+    permitted: T.Object({
+      token: addressT,
+      amount: bigNumberT,
+    }),
+    nonce: bigNumberT,
+    deadline: bigNumberT,
   }),
-  nonce: Type.String(),
-  deadline: Type.String(),
+  transferDetails: T.Object({
+    to: addressT,
+    requestedAmount: bigNumberT,
+  }),
+  owner: addressT,
+  signature: signatureT,
+  networkId: T.Number(),
 });
 
-const transferDetails = Type.Object({
-  to: Type.String(),
-  requestedAmount: Type.String(),
+export type Erc20Permit = StaticDecode<typeof erc20PermitT>;
+
+const erc721PermitT = T.Object({
+  type: T.Literal("erc721-permit"),
+  permit: T.Object({
+    permitted: T.Object({
+      token: addressT,
+      amount: bigNumberT,
+    }),
+    nonce: bigNumberT,
+    deadline: bigNumberT,
+  }),
+  transferDetails: T.Object({
+    to: addressT,
+    requestedAmount: bigNumberT,
+  }),
+  owner: addressT,
+  signature: signatureT,
+  networkId: networkIdT,
+  nftMetadata: T.Object({
+    GITHUB_ORGANIZATION_NAME: T.String(),
+    GITHUB_REPOSITORY_NAME: T.String(),
+    GITHUB_ISSUE_ID: T.String(),
+    GITHUB_USERNAME: T.String(),
+    GITHUB_CONTRIBUTION_TYPE: T.String(),
+  }),
+  request: T.Object({
+    beneficiary: addressT,
+    deadline: bigNumberT,
+    keys: T.Array(T.String()),
+    nonce: bigNumberT,
+    values: T.Array(T.String()),
+  }),
 });
 
-const metadata = Type.Object({
-  GITHUB_ORGANIZATION_NAME: Type.String(),
-  GITHUB_REPOSITORY_NAME: Type.String(),
-  GITHUB_ISSUE_ID: Type.String(),
-  GITHUB_USERNAME: Type.String(),
-  GITHUB_CONTRIBUTION_TYPE: Type.String(),
-});
+export type Erc721Permit = StaticDecode<typeof erc721PermitT>;
 
-const permitType = Type.Union([Type.Literal("erc20-permit"), Type.Literal("erc721-permit")]);
+export const claimTxT = T.Union([erc20PermitT, erc721PermitT]);
 
-const request = Type.Object({
-  beneficiary: Type.String(),
-  deadline: Type.String(),
-  keys: Type.Optional(Type.Array(Type.String())),
-  nonce: Type.String(),
-  values: Type.Optional(Type.Array(Type.String())),
-});
-
-const ercPermit = Type.Object({
-  type: permitType,
-  permit: permit,
-  transferDetails: transferDetails,
-  owner: Type.String(),
-  signature: Type.String(),
-  networkId: Type.Number(),
-  nftMetadata: Type.Optional(metadata),
-  request: Type.Optional(request),
-});
-
-type ErcPermitType = Static<typeof ercPermit>;
-
-export default ErcPermitType;
+export type RewardPermit = StaticDecode<typeof claimTxT>;

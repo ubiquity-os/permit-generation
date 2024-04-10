@@ -1,3 +1,5 @@
+import { BigNumberish } from "ethers";
+
 export enum TokenType {
   ERC20 = "ERC20",
   ERC721 = "ERC721",
@@ -7,9 +9,9 @@ export interface Permit {
   tokenType: TokenType;
   tokenAddress: string;
   beneficiary: string;
-  amount: string;
-  nonce: string;
-  deadline: string;
+  amount: BigNumberish;
+  nonce: BigNumberish;
+  deadline: BigNumberish;
   owner: string;
   signature: string;
   networkId: number;
