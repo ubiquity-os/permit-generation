@@ -5,52 +5,42 @@ import { Permit, TokenType } from "../types";
 import { decryptKeys } from "../utils/keys";
 import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 
-export async function generateErc20PermitSignature(
-  userId: number,
-  amount: number,
-  evmNetworkId: number,
-  evmPrivateEncrypted: string,
-  walletAddress: string,
-  issueId: number,
-  logger: Logger
-): Promise<Permit>;
-export async function generateErc20PermitSignature(userId: number, amount: number, context: Context): Promise<Permit>;
-export async function generateErc20PermitSignature(
-  userId: number,
-  amount: number,
-  contextOrNetworkId: Context | number,
-  evmPrivateEncrypted?: string,
-  walletAddress?: string,
-  issueId?: number,
-  logger?: Logger
-): Promise<Permit> {
+export interface Payload {
+  evmNetworkId: number;
+  evmPrivateEncrypted: string;
+  walletAddress: string;
+  issueId: number;
+  logger: Logger;
+}
+
+export async function generateErc20PermitSignature(payload: Payload, userId: number, amount: number): Promise<Permit>;
+export async function generateErc20PermitSignature(context: Context, userId: number, amount: number): Promise<Permit>;
+export async function generateErc20PermitSignature(contextOrPayload: Context | Payload, userId: number, amount: number): Promise<Permit> {
   let _logger: Logger;
-  let _userId: number;
+  const _userId = userId;
   let _walletAddress: string | null | undefined;
   let _issueId: number;
   let _evmNetworkId: number;
   let _evmPrivateEncrypted: string;
 
-  if (typeof contextOrNetworkId === "number") {
-    _logger = logger as Logger;
-    _userId = userId as number;
-    _walletAddress = walletAddress as string;
-    _evmNetworkId = contextOrNetworkId;
-    _evmPrivateEncrypted = evmPrivateEncrypted as string;
-    _issueId = issueId as number;
+  if ("issueId" in contextOrPayload) {
+    _logger = contextOrPayload.logger as Logger;
+    _walletAddress = contextOrPayload.walletAddress;
+    _evmNetworkId = contextOrPayload.evmNetworkId;
+    _evmPrivateEncrypted = contextOrPayload.evmPrivateEncrypted;
+    _issueId = contextOrPayload.issueId;
   } else {
-    const config = contextOrNetworkId.config;
-    _logger = contextOrNetworkId.logger;
+    const config = contextOrPayload.config;
+    _logger = contextOrPayload.logger;
     const { evmNetworkId, evmPrivateEncrypted } = config;
-    const { wallet } = contextOrNetworkId.adapters.supabase;
-    _userId = userId;
+    const { wallet } = contextOrPayload.adapters.supabase;
     _walletAddress = await wallet.getWalletByUserId(_userId);
     _evmNetworkId = evmNetworkId;
     _evmPrivateEncrypted = evmPrivateEncrypted;
-    if ("issue" in contextOrNetworkId.payload) {
-      _issueId = contextOrNetworkId.payload.issue.id;
-    } else if ("pull_request" in contextOrNetworkId.payload) {
-      _issueId = contextOrNetworkId.payload.pull_request.id;
+    if ("issue" in contextOrPayload.payload) {
+      _issueId = contextOrPayload.payload.issue.id;
+    } else if ("pull_request" in contextOrPayload.payload) {
+      _issueId = contextOrPayload.payload.pull_request.id;
     } else {
       throw new Error("Issue Id is missing");
     }

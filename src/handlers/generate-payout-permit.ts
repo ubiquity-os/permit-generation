@@ -1,4 +1,4 @@
-import { Permit } from "../types/permits";
+import { Permit } from "../types";
 import { Context } from "../types/context";
 import { generateErc20PermitSignature } from "./generate-erc20-permit";
 import { generateErc721PermitSignature } from "./generate-erc721-permit";
@@ -19,10 +19,10 @@ export async function generatePayoutPermit(context: Context, permitRequests: Per
     let permit: Permit;
     switch (type) {
       case "ERC20":
-        permit = await generateErc20PermitSignature(userId, amount, context);
+        permit = await generateErc20PermitSignature(context, userId, amount);
         break;
       case "ERC721":
-        permit = await generateErc721PermitSignature(userId, contributionType, context);
+        permit = await generateErc721PermitSignature(context, userId, contributionType);
         break;
       default:
         context.logger.error(`Invalid permit type: ${type}`);

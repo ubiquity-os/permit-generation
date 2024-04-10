@@ -38,12 +38,12 @@ export interface PermitPayload {
   userName: string;
 }
 
-export async function generateErc721PermitSignature(userId: number, contributionType: string, permitPayload: PermitPayload): Promise<Permit>;
-export async function generateErc721PermitSignature(userId: number, contributionType: string, context: Context): Promise<Permit>;
+export async function generateErc721PermitSignature(permitPayload: PermitPayload, userId: number, contributionType: string): Promise<Permit>;
+export async function generateErc721PermitSignature(context: Context, userId: number, contributionType: string): Promise<Permit>;
 export async function generateErc721PermitSignature(
+  contextOrPermitPayload: Context | PermitPayload,
   userId: number,
-  contributionType: string,
-  contextOrPermitPayload: Context | PermitPayload
+  contributionType: string
 ): Promise<Permit> {
   let _logger: Logger;
   let _nftContractAddress: string;
