@@ -34,8 +34,6 @@ const erc20PermitT = T.Object({
   networkId: T.Number(),
 });
 
-export type Erc20Permit = StaticDecode<typeof erc20PermitT>;
-
 const erc721PermitT = T.Object({
   type: T.Literal("erc721-permit"),
   permit: T.Object({
@@ -68,8 +66,6 @@ const erc721PermitT = T.Object({
     values: T.Array(T.String()),
   }),
 });
-
-export type Erc721Permit = StaticDecode<typeof erc721PermitT>;
 
 export const claimTxT = T.Union([erc20PermitT, erc721PermitT]);
 
