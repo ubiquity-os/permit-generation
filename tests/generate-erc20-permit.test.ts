@@ -69,7 +69,7 @@ describe("generateErc20PermitSignature", () => {
   it("should throw error when evmPrivateEncrypted is not defined", async () => {
     const amount = 0;
 
-    await expect(generateErc20PermitSignature(context, SPENDER, amount)).rejects.toThrow("Private key is not" + " defined");
+    await expect(generateErc20PermitSignature(context, SPENDER, amount)).rejects.toThrow("Private key is not defined");
     expect(context.logger.fatal).toHaveBeenCalledWith("Private key is not defined");
   });
 
