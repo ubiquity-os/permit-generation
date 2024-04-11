@@ -23,7 +23,7 @@ describe("Encoding / Decoding tests", () => {
       signature: "0x2",
       tokenAddress: "0x2",
       tokenType: TokenType.ERC721,
-      amount: 101.5,
+      amount: "1",
       erc721Request: {
         metadata: {
           GITHUB_ORGANIZATION_NAME: "",

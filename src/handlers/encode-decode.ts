@@ -69,25 +69,39 @@ export function decodePermits(base64: string) {
   const result: Permit[] = [];
   for (const obj of objs) {
     const tokenType = obj.type === "erc20-permit" ? TokenType.ERC20 : TokenType.ERC721;
-    result.push({
-      amount: obj.permit.permitted.amount,
-      beneficiary: obj.transferDetails.to,
-      deadline: obj.permit.deadline,
-      networkId: obj.networkId,
-      nonce: obj.permit.nonce,
-      owner: obj.owner,
-      signature: obj.signature,
-      tokenAddress: obj.permit.permitted.token,
-      tokenType,
-      ...(obj.type === "erc721-permit" &&
-        obj.nftMetadata && {
-          erc721Request: {
-            metadata: obj.nftMetadata,
-            keys: obj.request?.keys ?? [],
-            values: obj.request?.values ?? [],
-          },
-        }),
-    });
+    if (tokenType === TokenType.ERC721) {
+      result.push({
+        amount: obj.permit.permitted.amount as "0" | "1",
+        beneficiary: obj.transferDetails.to,
+        deadline: obj.permit.deadline,
+        networkId: obj.networkId,
+        nonce: obj.permit.nonce,
+        owner: obj.owner,
+        signature: obj.signature,
+        tokenAddress: obj.permit.permitted.token,
+        tokenType,
+        ...(obj.type === "erc721-permit" &&
+          obj.nftMetadata && {
+            erc721Request: {
+              metadata: obj.nftMetadata,
+              keys: obj.request?.keys ?? [],
+              values: obj.request?.values ?? [],
+            },
+          }),
+      });
+    } else {
+      result.push({
+        amount: obj.permit.permitted.amount,
+        beneficiary: obj.transferDetails.to,
+        deadline: obj.permit.deadline,
+        networkId: obj.networkId,
+        nonce: obj.permit.nonce,
+        owner: obj.owner,
+        signature: obj.signature,
+        tokenAddress: obj.permit.permitted.token,
+        tokenType,
+      });
+    }
   }
   return result;
 }
