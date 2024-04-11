@@ -4,7 +4,7 @@ const config: KnipConfig = {
   entry: ["src/main.ts"],
   project: ["src/**/*.ts"],
   ignore: [],
-  ignoreBinaries: ["publish", "src/adapters/supabase/types/database.ts"],
+  ignoreBinaries: ["publish"],
   ignoreExportsUsedInFile: true,
   ignoreDependencies: ["ts-node"],
   jest: {
