@@ -28,7 +28,7 @@ export async function generatePermitsFromContext() {
     ref: webhookPayload.ref,
   };
   const octokit = new Octokit({ auth: inputs.authToken });
-  const supabaseClient = createClient<Database>(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+  const supabaseClient = createClient<Database>(env.SUPABASE_URL, env.SUPABASE_KEY);
 
   const context: Context = {
     eventName: inputs.eventName,
