@@ -1,4 +1,4 @@
-import { generateErc20PermitSignature } from "../src/handlers/generate-erc20-permit";
+import { generateErc20PermitSignature } from "../src";
 import { Context } from "../src/types/context";
 import { SPENDER, mockContext } from "./constants";
 import { describe, expect, it, beforeEach, jest } from "@jest/globals";
@@ -49,6 +49,14 @@ describe("generateErc20PermitSignature", () => {
       ...mockContext,
       config: {
         evmNetworkId: 100,
+      },
+      octokit: {
+        request() {
+          return { data: { id: 1, login: "123" } };
+        },
+        users: {
+          getByUsername: jest.fn().mockReturnValue({ data: { id: 123 } }),
+        },
       },
     } as unknown as Context;
   });

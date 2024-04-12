@@ -40,7 +40,10 @@ describe("generateErc721PermitSignature", () => {
       },
       octokit: {
         request() {
-          return { data: { id: 1, login: 123 } };
+          return { data: { id: 1, login: "123" } };
+        },
+        users: {
+          getByUsername: jest.fn().mockReturnValue({ data: { id: userId } }),
         },
       },
     } as unknown as Context;
@@ -80,7 +83,7 @@ describe("generateErc721PermitSignature", () => {
   it("should generate ERC721 permit signature", async () => {
     const issueId = 123;
     const contributionType = "contribution";
-    const userId = 123;
+    const userId = "123";
 
     const result = await generateErc721PermitSignature(context, userId, contributionType);
 
@@ -109,18 +112,18 @@ describe("generateErc721PermitSignature", () => {
 
   it("should throw an error if RPC is not defined", async () => {
     context.config.evmNetworkId = 123;
-    await expect(generateErc721PermitSignature(context, 123, "contribution")).rejects.toThrow("No config" + " setup for evmNetworkId: 123");
+    await expect(generateErc721PermitSignature(context, "123", "contribution")).rejects.toThrow("No config" + " setup for evmNetworkId: 123");
   });
 
   it("should throw an error if NFT minter private key is not defined", async () => {
     delete process.env.NFT_MINTER_PRIVATE_KEY;
-    await expect(generateErc721PermitSignature(context, 123, "contribution")).rejects.toThrow("Failed to" + " instantiate wallet");
+    await expect(generateErc721PermitSignature(context, "123", "contribution")).rejects.toThrow("Failed to" + " instantiate wallet");
     expect(context.logger.error).toHaveBeenCalled();
   });
 
   it("should throw an error if NFT contract address is not defined", async () => {
     delete process.env.NFT_CONTRACT_ADDRESS;
-    await expect(generateErc721PermitSignature(context, 123, "contribution")).rejects.toThrow("NFT contract" + " address" + " is not defined");
+    await expect(generateErc721PermitSignature(context, "123", "contribution")).rejects.toThrow("NFT contract" + " address" + " is not defined");
     expect(context.logger.error).toHaveBeenCalled();
   });
 
@@ -132,7 +135,7 @@ describe("generateErc721PermitSignature", () => {
 
     (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(null);
 
-    await expect(generateErc721PermitSignature(context, 123, "contribution")).rejects.toThrow("No wallet" + " found" + " for" + " user");
+    await expect(generateErc721PermitSignature(context, "123", "contribution")).rejects.toThrow("No wallet" + " found" + " for" + " user");
     expect(context.logger.error).toHaveBeenCalledWith("No wallet found for user");
   });
 });

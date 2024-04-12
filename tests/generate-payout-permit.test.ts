@@ -58,13 +58,13 @@ describe("generatePayoutPermit", () => {
       {
         type: "ERC20",
         amount: 100,
-        userId: 123,
+        username: "123",
         contributionType: "ISSUE",
       },
       {
         type: "ERC20",
         amount: 100,
-        userId: 123,
+        username: "123",
         contributionType: "ISSUE",
       },
     ]);

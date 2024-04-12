@@ -13,7 +13,7 @@ export interface PluginInputs<T extends WebhookEventName = SupportedEvents> {
 
 export const permitRequestSchema = T.Object({
   type: T.Union([T.Literal("ERC20"), T.Literal("ERC721")]),
-  userId: T.Number(),
+  username: T.String(),
   amount: T.Number(),
   contributionType: T.String(),
 });
