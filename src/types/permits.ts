@@ -1,15 +1,30 @@
-type TokenType = "ERC20" | "ERC721";
+import { BigNumberish } from "ethers";
 
-export interface Permit {
+export enum TokenType {
+  ERC20 = "ERC20",
+  ERC721 = "ERC721",
+}
+
+interface CommonFields {
   tokenType: TokenType;
   tokenAddress: string;
   beneficiary: string;
-  amount: string;
-  nonce: string;
-  deadline: string;
+  nonce: BigNumberish;
+  deadline: BigNumberish;
   owner: string;
   signature: string;
   networkId: number;
+}
+
+interface ERC20Permit extends CommonFields {
+  tokenType: TokenType.ERC20;
+  amount: BigNumberish;
+  erc721Request?: never;
+}
+
+interface ERC721Permit extends CommonFields {
+  tokenType: TokenType.ERC721;
+  amount: "0" | "1";
   erc721Request?: {
     keys: string[];
     values: string[];
@@ -22,3 +37,5 @@ export interface Permit {
     };
   };
 }
+
+export type Permit = ERC20Permit | ERC721Permit;

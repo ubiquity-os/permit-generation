@@ -1,6 +1,6 @@
 {
   "name": "@ubiquibot/permit-generation",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "ECR20 / ECR721 permit generation for automated payments.",
   "author": "Ubiquity DAO",
   "license": "MIT",
@@ -31,7 +31,7 @@
     "@octokit/rest": "^20.0.2",
     "@octokit/webhooks": "^13.1.0",
     "@sinclair/typebox": "^0.32.5",
-    "@supabase/supabase-js": "^2.39.7",
+    "@supabase/supabase-js": "2.42.0",
     "@uniswap/permit2-sdk": "^1.2.0",
     "dotenv": "^16.4.4",
     "ethers": "6.11.1",

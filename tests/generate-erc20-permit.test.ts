@@ -1,4 +1,4 @@
-import { generateErc20PermitSignature } from "../src/handlers/generate-erc20-permit";
+import { generateErc20PermitSignature } from "../src";
 import { Context } from "../src/types/context";
 import { SPENDER, mockContext } from "./constants";
 import { describe, expect, it, beforeEach, jest } from "@jest/globals";
@@ -50,6 +50,14 @@ describe("generateErc20PermitSignature", () => {
       config: {
         evmNetworkId: 100,
       },
+      octokit: {
+        request() {
+          return { data: { id: 1, login: "123" } };
+        },
+        users: {
+          getByUsername: jest.fn().mockReturnValue({ data: { id: 123 } }),
+        },
+      },
     } as unknown as Context;
   });
 
@@ -58,7 +66,7 @@ describe("generateErc20PermitSignature", () => {
 
     context.config.evmPrivateEncrypted = cypherText;
 
-    const result = await generateErc20PermitSignature(SPENDER, amount, context);
+    const result = await generateErc20PermitSignature(context, SPENDER, amount);
 
     expect(result).toBeDefined();
     expect(result).not.toContain("Permit not generated");
@@ -69,7 +77,7 @@ describe("generateErc20PermitSignature", () => {
   it("should throw error when evmPrivateEncrypted is not defined", async () => {
     const amount = 0;
 
-    await expect(generateErc20PermitSignature(SPENDER, amount, context)).rejects.toThrow("Private key is not" + " defined");
+    await expect(generateErc20PermitSignature(context, SPENDER, amount)).rejects.toThrow("Private key is not defined");
     expect(context.logger.fatal).toHaveBeenCalledWith("Private key is not defined");
   });
 
@@ -80,7 +88,7 @@ describe("generateErc20PermitSignature", () => {
     (context.adapters.supabase.wallet.getWalletByUserId as jest.Mock).mockReturnValue(null);
 
     await expect(async () => {
-      await generateErc20PermitSignature(SPENDER, amount, context);
+      await generateErc20PermitSignature(context, SPENDER, amount);
     }).rejects.toThrow();
 
     expect(context.logger.error).toHaveBeenCalledWith("ERC20 Permit generation error: Wallet not found");

@@ -1,7 +1,7 @@
 // import { generateErc20PermitSignature } from "../src/handlers/generate-erc20-permit";
-import { generateErc20PermitSignature } from "../src/handlers/generate-erc20-permit";
+import { generateErc20PermitSignature } from "../src";
 // import { generateErc721PermitSignature } from "../src/handlers/generate-erc721-permit";
-import { generatePayoutPermit } from "../src/handlers/generate-payout-permit";
+import { generatePayoutPermit } from "../src";
 import { Context } from "../src/types/context";
 import { cypherText, mockContext, SPENDER } from "./constants";
 import { describe, expect, it, beforeEach, afterEach, jest } from "@jest/globals";
@@ -58,13 +58,13 @@ describe("generatePayoutPermit", () => {
       {
         type: "ERC20",
         amount: 100,
-        username: "username",
+        username: "123",
         contributionType: "ISSUE",
       },
       {
         type: "ERC20",
         amount: 100,
-        username: "username",
+        username: "123",
         contributionType: "ISSUE",
       },
     ]);

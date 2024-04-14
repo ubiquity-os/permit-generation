@@ -1,64 +1,60 @@
 import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
 import { ethers, keccak256, MaxInt256, parseUnits, toUtf8Bytes } from "ethers";
 import { Context, Logger } from "../types/context";
-import { Permit } from "../types/permits";
+import { Permit, TokenType } from "../types";
 import { decryptKeys } from "../utils/keys";
 import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 
-export async function generateErc20PermitSignature(
-  username: string,
-  amount: number,
-  evmNetworkId: number,
-  evmPrivateEncrypted: string,
-  userId: number,
-  walletAddress: string,
-  issueId: number,
-  logger: Logger
-): Promise<Permit>;
-export async function generateErc20PermitSignature(username: string, amount: number, context: Context): Promise<Permit>;
-export async function generateErc20PermitSignature(
-  username: string,
-  amount: number,
-  contextOrNetworkId: Context | number,
-  evmPrivateEncrypted?: string,
-  userId?: number,
-  walletAddress?: string,
-  issueId?: number,
-  logger?: Logger
-): Promise<Permit> {
+export interface Payload {
+  evmNetworkId: number;
+  evmPrivateEncrypted: string;
+  walletAddress: string;
+  issueId: number;
+  logger: Logger;
+  userId: number;
+}
+
+export async function generateErc20PermitSignature(payload: Payload, username: string, amount: number): Promise<Permit>;
+export async function generateErc20PermitSignature(context: Context, username: string, amount: number): Promise<Permit>;
+export async function generateErc20PermitSignature(contextOrPayload: Context | Payload, username: string, amount: number): Promise<Permit> {
   let _logger: Logger;
-  let _userId: number;
-  let _walletAddress: string;
+  const _username = username;
+  let _walletAddress: string | null | undefined;
   let _issueId: number;
   let _evmNetworkId: number;
   let _evmPrivateEncrypted: string;
+  let _userId: number;
 
-  if (typeof contextOrNetworkId === "number") {
-    _logger = logger as Logger;
-    _userId = userId as number;
-    _walletAddress = walletAddress as string;
-    _evmNetworkId = contextOrNetworkId;
-    _evmPrivateEncrypted = evmPrivateEncrypted as string;
-    _issueId = issueId as number;
+  if ("issueId" in contextOrPayload) {
+    _logger = contextOrPayload.logger as Logger;
+    _walletAddress = contextOrPayload.walletAddress;
+    _evmNetworkId = contextOrPayload.evmNetworkId;
+    _evmPrivateEncrypted = contextOrPayload.evmPrivateEncrypted;
+    _issueId = contextOrPayload.issueId;
+    _userId = contextOrPayload.userId;
   } else {
-    const config = contextOrNetworkId.config;
-    _logger = contextOrNetworkId.logger;
+    const config = contextOrPayload.config;
+    _logger = contextOrPayload.logger;
     const { evmNetworkId, evmPrivateEncrypted } = config;
-    const { user, wallet } = contextOrNetworkId.adapters.supabase;
-    _userId = await user.getUserIdByUsername(username);
+    const { data: userData } = await contextOrPayload.octokit.users.getByUsername({ username: _username });
+    if (!userData) {
+      throw new Error(`GitHub user was not found for id ${_username}`);
+    }
+    _userId = userData.id;
+    const { wallet } = contextOrPayload.adapters.supabase;
     _walletAddress = await wallet.getWalletByUserId(_userId);
     _evmNetworkId = evmNetworkId;
     _evmPrivateEncrypted = evmPrivateEncrypted;
-    if ("issue" in contextOrNetworkId.payload) {
-      _issueId = contextOrNetworkId.payload.issue.id;
-    } else if ("pull_request" in contextOrNetworkId.payload) {
-      _issueId = contextOrNetworkId.payload.pull_request.id;
+    if ("issue" in contextOrPayload.payload) {
+      _issueId = contextOrPayload.payload.issue.id;
+    } else if ("pull_request" in contextOrPayload.payload) {
+      _issueId = contextOrPayload.payload.pull_request.id;
     } else {
       throw new Error("Issue Id is missing");
     }
   }
 
-  if (!_userId) {
+  if (!_username) {
     throw new Error("User was not found");
   }
   if (!_walletAddress) {
@@ -80,13 +76,17 @@ export async function generateErc20PermitSignature(
   try {
     provider = new ethers.JsonRpcProvider(rpc);
   } catch (error) {
-    throw _logger.debug("Failed to instantiate provider", error);
+    const errorMessage = `Failed to instantiate provider: ${error}`;
+    _logger.debug(errorMessage);
+    throw new Error(errorMessage);
   }
 
   try {
     adminWallet = new ethers.Wallet(privateKey, provider);
   } catch (error) {
-    throw _logger.debug("Failed to instantiate wallet", error);
+    const errorMessage = `Failed to instantiate wallet: ${error}`;
+    _logger.debug(errorMessage);
+    throw new Error(errorMessage);
   }
 
   const permitTransferFromData: PermitTransferFrom = {
@@ -120,7 +120,7 @@ export async function generateErc20PermitSignature(
     });
 
   const erc20Permit: Permit = {
-    tokenType: "ERC20",
+    tokenType: TokenType.ERC20,
     tokenAddress: permitTransferFromData.permitted.token,
     beneficiary: permitTransferFromData.spender,
     nonce: permitTransferFromData.nonce.toString(),
