@@ -1,7 +1,8 @@
 import { Context } from "../src/types/context";
+import { jest } from "@jest/globals";
 
 export const NFT_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000003";
-export const SPENDER = "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d";
+export const SPENDER = "123";
 
 export const WALLET_ADDRESS = "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd";
 
@@ -44,7 +45,7 @@ export const mockContext = {
         upsertUser: jest.fn(),
         getUserIdByWallet: jest.fn().mockReturnValue(123),
         getUserIdByUsername: jest.fn().mockReturnValue(1),
-        getUsernameById: jest.fn(),
+        getUserById: jest.fn(),
       },
       wallet: {
         upsertWallet: jest.fn().mockImplementation(() => Promise.resolve()),

@@ -9,49 +9,31 @@ export class Wallet extends Super {
   }
 
   async getWalletByUserId(userId: number) {
-    const { data, error } = await this.supabase.from("wallets").select("address").eq("user_id", userId).single();
+    const { data, error } = await this.supabase.from("users").select("wallets(*)").eq("id", userId).single();
     if (error) {
       console.error("Failed to get wallet", { userId, error });
       throw error;
     }
 
-    console.info("Successfully fetched wallet", { userId, address: data.address });
-    return data.address;
-  }
-
-  async getWalletByUsername(username: string) {
-    const { data, error } = await this.supabase.from("users").select("id").eq("username", username).single();
-    if (error) {
-      console.error("Failed to get user", { username, error });
-      throw error;
-    }
-
-    const userId = data?.id;
-
-    if (!userId) {
-      console.error("Failed to get user", { username });
-      throw new Error("User not found");
-    }
-
-    const { data: walletData, error: walletError } = await this.supabase.from("wallets").select("address").eq("user_id", userId).single();
-
-    if (walletError) {
-      console.error("Failed to get wallet", { userId, error });
-      throw walletError;
-    }
-
-    console.info("Successfully fetched wallet", { userId, address: walletData?.address });
-
-    return walletData?.address as `0x${string}` | undefined;
+    console.info("Successfully fetched wallet", { userId, address: data.wallets?.address });
+    return data.wallets?.address;
   }
 
   async upsertWallet(userId: number, address: string) {
-    const { error } = await this.supabase.from("wallets").upsert([{ user_id: userId.toString(), address }]);
-    if (error) {
-      console.error("Failed to upsert wallet", { userId, address, error });
-      throw error;
+    const { error: walletError, data } = await this.supabase.from("wallets").upsert([{ address }]).select().single();
+
+    if (walletError) {
+      console.error("Failed to upsert wallet", { userId, address, walletError });
+      throw walletError;
     }
 
-    console.info("Successfully upserted wallet", { userId, address });
+    const { error: userError } = await this.supabase.from("users").upsert([{ id: userId, wallet_id: data.id }]);
+
+    if (userError) {
+      console.error("Failed to upsert user with new wallet", { userId, address, userError });
+      throw userError;
+    }
+
+    console.info("Successfully upsert wallet", { userId, address });
   }
 }

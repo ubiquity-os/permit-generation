@@ -1,4 +1,4 @@
-import { Permit } from "../types/permits";
+import { Permit } from "../types";
 import { Context } from "../types/context";
 import { generateErc20PermitSignature } from "./generate-erc20-permit";
 import { generateErc721PermitSignature } from "./generate-erc721-permit";

@@ -1,41 +1,73 @@
 import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
 import { ethers, keccak256, MaxInt256, parseUnits, toUtf8Bytes } from "ethers";
-import { Context } from "../types/context";
-import { Permit } from "../types/permits";
+import { Context, Logger } from "../types/context";
+import { Permit, TokenType } from "../types";
 import { decryptKeys } from "../utils/keys";
 import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 
-export async function generateErc20PermitSignature(context: Context, username: string, amount: number): Promise<Permit> {
-  const config = context.config;
-  const logger = context.logger;
-  const { evmNetworkId, evmPrivateEncrypted } = config;
-  const { user, wallet } = context.adapters.supabase;
+export interface Payload {
+  evmNetworkId: number;
+  evmPrivateEncrypted: string;
+  walletAddress: string;
+  issueId: number;
+  logger: Logger;
+  userId: number;
+}
 
-  const userId = await user.getUserIdByUsername(username);
-  const walletAddress = await wallet.getWalletByUserId(userId);
-  let issueId: string;
-  if ("issue" in context.payload) {
-    issueId = context.payload.issue.id.toString();
-  } else if ("pull_request" in context.payload) {
-    issueId = context.payload.pull_request.id.toString();
+export async function generateErc20PermitSignature(payload: Payload, username: string, amount: number): Promise<Permit>;
+export async function generateErc20PermitSignature(context: Context, username: string, amount: number): Promise<Permit>;
+export async function generateErc20PermitSignature(contextOrPayload: Context | Payload, username: string, amount: number): Promise<Permit> {
+  let _logger: Logger;
+  const _username = username;
+  let _walletAddress: string | null | undefined;
+  let _issueId: number;
+  let _evmNetworkId: number;
+  let _evmPrivateEncrypted: string;
+  let _userId: number;
+
+  if ("issueId" in contextOrPayload) {
+    _logger = contextOrPayload.logger as Logger;
+    _walletAddress = contextOrPayload.walletAddress;
+    _evmNetworkId = contextOrPayload.evmNetworkId;
+    _evmPrivateEncrypted = contextOrPayload.evmPrivateEncrypted;
+    _issueId = contextOrPayload.issueId;
+    _userId = contextOrPayload.userId;
   } else {
-    throw new Error("Issue Id is missing");
+    const config = contextOrPayload.config;
+    _logger = contextOrPayload.logger;
+    const { evmNetworkId, evmPrivateEncrypted } = config;
+    const { data: userData } = await contextOrPayload.octokit.users.getByUsername({ username: _username });
+    if (!userData) {
+      throw new Error(`GitHub user was not found for id ${_username}`);
+    }
+    _userId = userData.id;
+    const { wallet } = contextOrPayload.adapters.supabase;
+    _walletAddress = await wallet.getWalletByUserId(_userId);
+    _evmNetworkId = evmNetworkId;
+    _evmPrivateEncrypted = evmPrivateEncrypted;
+    if ("issue" in contextOrPayload.payload) {
+      _issueId = contextOrPayload.payload.issue.id;
+    } else if ("pull_request" in contextOrPayload.payload) {
+      _issueId = contextOrPayload.payload.pull_request.id;
+    } else {
+      throw new Error("Issue Id is missing");
+    }
   }
 
-  if (!userId) {
+  if (!_username) {
     throw new Error("User was not found");
   }
-  if (!walletAddress) {
+  if (!_walletAddress) {
     const errorMessage = "ERC20 Permit generation error: Wallet not found";
-    logger.error(errorMessage);
+    _logger.error(errorMessage);
     throw new Error(errorMessage);
   }
 
-  const { rpc, token, decimals } = getPayoutConfigByNetworkId(evmNetworkId);
-  const { privateKey } = await decryptKeys(evmPrivateEncrypted);
+  const { rpc, token, decimals } = getPayoutConfigByNetworkId(_evmNetworkId);
+  const { privateKey } = await decryptKeys(_evmPrivateEncrypted);
   if (!privateKey) {
     const errorMessage = "Private key is not defined";
-    logger.fatal(errorMessage);
+    _logger.fatal(errorMessage);
     throw new Error(errorMessage);
   }
 
@@ -44,13 +76,17 @@ export async function generateErc20PermitSignature(context: Context, username: s
   try {
     provider = new ethers.JsonRpcProvider(rpc);
   } catch (error) {
-    throw logger.debug("Failed to instantiate provider", error);
+    const errorMessage = `Failed to instantiate provider: ${error}`;
+    _logger.debug(errorMessage);
+    throw new Error(errorMessage);
   }
 
   try {
     adminWallet = new ethers.Wallet(privateKey, provider);
   } catch (error) {
-    throw logger.debug("Failed to instantiate wallet", error);
+    const errorMessage = `Failed to instantiate wallet: ${error}`;
+    _logger.debug(errorMessage);
+    throw new Error(errorMessage);
   }
 
   const permitTransferFromData: PermitTransferFrom = {
@@ -58,12 +94,12 @@ export async function generateErc20PermitSignature(context: Context, username: s
       token: token,
       amount: parseUnits(amount.toString(), decimals),
     },
-    spender: walletAddress,
-    nonce: BigInt(keccak256(toUtf8Bytes(`${userId}-${issueId}`))),
+    spender: _walletAddress,
+    nonce: BigInt(keccak256(toUtf8Bytes(`${_userId}-${_issueId}`))),
     deadline: MaxInt256,
   };
 
-  const { domain, types, values } = SignatureTransfer.getPermitData(permitTransferFromData, PERMIT2_ADDRESS, evmNetworkId);
+  const { domain, types, values } = SignatureTransfer.getPermitData(permitTransferFromData, PERMIT2_ADDRESS, _evmNetworkId);
 
   const signature = await adminWallet
     .signTypedData(
@@ -79,12 +115,12 @@ export async function generateErc20PermitSignature(context: Context, username: s
     )
     .catch((error) => {
       const errorMessage = `Failed to sign typed data ${error}`;
-      logger.error(errorMessage);
+      _logger.error(errorMessage);
       throw new Error(errorMessage);
     });
 
   const erc20Permit: Permit = {
-    tokenType: "ERC20",
+    tokenType: TokenType.ERC20,
     tokenAddress: permitTransferFromData.permitted.token,
     beneficiary: permitTransferFromData.spender,
     nonce: permitTransferFromData.nonce.toString(),
@@ -92,10 +128,10 @@ export async function generateErc20PermitSignature(context: Context, username: s
     amount: permitTransferFromData.permitted.amount.toString(),
     owner: adminWallet.address,
     signature: signature,
-    networkId: evmNetworkId,
+    networkId: _evmNetworkId,
   };
 
-  logger.info("Generated ERC20 permit2 signature", erc20Permit);
+  _logger.info("Generated ERC20 permit2 signature", erc20Permit);
 
   return erc20Permit;
 }

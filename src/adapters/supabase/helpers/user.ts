@@ -8,41 +8,30 @@ export class User extends Super {
     super(supabase, context);
   }
 
-  async getUsernameById(userId: number) {
-    const { data, error } = await this.supabase.from("users").select("username").eq("user_id", userId).single();
+  async getUserById(userId: number) {
+    const { data, error } = await this.supabase.from("users").select("*").eq("id", userId).single();
     if (error) {
       console.error(FAILED_TO_GET_USER, { userId, error });
       throw error;
     }
 
-    console.log(SUCCESSFULLY_FETCHED_USER, { userId, username: data?.username });
-    return data?.username;
-  }
-
-  async getUserIdByUsername(username: string) {
-    const { data, error } = await this.supabase.from("users").select("user_id").eq("username", username).single();
-    if (error) {
-      console.error(FAILED_TO_GET_USER, { username, error });
-      throw error;
-    }
-
-    console.log(SUCCESSFULLY_FETCHED_USER, { username, userId: data?.user_id });
-    return data?.user_id;
+    console.log(SUCCESSFULLY_FETCHED_USER, { userId, ...data });
+    return data;
   }
 
   async getUserIdByWallet(wallet: string) {
-    const { data, error } = await this.supabase.from("wallets").select("user_id").eq("address", wallet).single();
+    const { data, error } = await this.supabase.from("wallets").select("id").eq("address", wallet).single();
     if (error) {
       console.error(FAILED_TO_GET_USER, { wallet, error });
       throw error;
     }
 
-    console.log(SUCCESSFULLY_FETCHED_USER, { wallet, userId: data?.user_id });
-    return data?.user_id;
+    console.log(SUCCESSFULLY_FETCHED_USER, { wallet, userId: data?.id });
+    return data?.id.toString();
   }
 
   async upsertUser(userId: number, username: string) {
-    const { error } = await this.supabase.from("users").upsert({ user_id: userId, username }).select();
+    const { error } = await this.supabase.from("users").upsert({ id: userId, username }).select();
     if (error) {
       console.error("Failed to upsert user", { userId, username, error });
       throw error;
