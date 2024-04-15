@@ -61,11 +61,25 @@ export async function generatePermitsFromContext() {
   if (context.eventName === "issue_comment.created") {
     await handleSlashCommands(context, octokit);
   } else {
-    // TODO: return permits to kernel
-    return await generatePayoutPermit(context, settings.permitRequests);
+    const permits = await generatePayoutPermit(context, settings.permitRequests);
+    await returnDataToKernel(env.GITHUB_TOKEN, inputs.stateId, permits);
+    return JSON.stringify(permits);
   }
 
   return null;
+}
+
+async function returnDataToKernel(repoToken: string, stateId: string, output: object) {
+  const octokit = new Octokit({ auth: repoToken });
+  await octokit.repos.createDispatchEvent({
+    owner: github.context.repo.owner,
+    repo: github.context.repo.repo,
+    event_type: "return_data_to_ubiquibot_kernel",
+    client_payload: {
+      state_id: stateId,
+      output: JSON.stringify(output),
+    },
+  });
 }
 
 async function handleSlashCommands(context: Context, octokit: Octokit) {
