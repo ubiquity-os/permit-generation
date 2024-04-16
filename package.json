@@ -1,6 +1,6 @@
 {
   "name": "@ubiquibot/permit-generation",
-  "version": "1.0.2",
+  "version": "1.2.0",
   "description": "ECR20 / ECR721 permit generation for automated payments.",
   "author": "Ubiquity DAO",
   "license": "MIT",
@@ -64,7 +64,7 @@
     "lint-staged": "^15.2.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.2.5",
-    "rollup": "4.14.0",
+    "rollup": "4.14.3",
     "rollup-plugin-dts-bundle-generator": "1.4.0",
     "rollup-plugin-typescript2": "0.36.0",
     "ts-jest": "29.1.2",
@@ -87,11 +87,13 @@
     ]
   },
   "files": [
-    "dist/*",
+    "types/*",
+    "handlers/*",
+    "core/*",
     "README.md",
     "package.json"
   ],
-  "module": "dist/index.esm.js",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts"
+  "module": "core/index.esm.js",
+  "main": "core/index.js",
+  "typings": "types/index.d.ts"
 }

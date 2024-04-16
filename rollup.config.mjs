@@ -6,11 +6,56 @@ import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import terser from "@rollup/plugin-terser";
 
-export default {
-  input: "src/index.ts",
-  output: {
-    dir: "dist",
-    format: "cjs",
+const config = [
+  {
+    input: "src/types/index.ts",
+    output: {
+      dir: "types",
+      format: "cjs",
+    },
+    plugins: [
+      nodeResolve({ browser: true }),
+      commonjs(),
+      typescript(),
+      yaml(),
+      json(),
+      generateDtsBundle(),
+      terser(),
+    ],
   },
-  plugins: [nodeResolve(), commonjs(), typescript(), yaml(), json(), generateDtsBundle(), terser()],
-};
+  {
+    input: "src/handlers/index.ts",
+    output: {
+      dir: "handlers",
+      format: "cjs",
+    },
+    plugins: [
+      nodeResolve({ browser: true }),
+      commonjs(),
+      typescript(),
+      yaml(),
+      json(),
+      generateDtsBundle(),
+      terser(),
+    ],
+  },
+  {
+    input: "src/index.ts",
+    output: {
+      dir: "core",
+      format: "esm",
+      preserveModules: true,
+    },
+    plugins: [
+      nodeResolve(),
+      commonjs(),
+      typescript(),
+      yaml(),
+      json(),
+      generateDtsBundle(),
+      terser(),
+    ],
+  },
+];
+
+export default config;

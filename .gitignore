@@ -11,3 +11,7 @@ static/dist
 /coverage
 junit.xml
 dist
+
+/core
+/types
+/handlers

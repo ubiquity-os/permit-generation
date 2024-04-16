@@ -1,5 +1,6 @@
 import { describe, expect, it } from "@jest/globals";
-import { decodePermits, encodePermits, Permit, TokenType } from "../src";
+import { decodePermits, encodePermits } from "../src/handlers/encode-decode";
+import { Permit, TokenType } from "../src/types";
 
 describe("Encoding / Decoding tests", () => {
   it("Should properly encode and decode a list of permits", () => {
