@@ -12,6 +12,6 @@ static/dist
 junit.xml
 dist
 
-core
-types
-handlers
+/core
+/types
+/handlers
