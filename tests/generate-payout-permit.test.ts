@@ -1,7 +1,6 @@
 // import { generateErc20PermitSignature } from "../src/handlers/generate-erc20-permit";
-import { generateErc20PermitSignature } from "../src";
+import { generateErc20PermitSignature, generatePayoutPermit } from "../src";
 // import { generateErc721PermitSignature } from "../src/handlers/generate-erc721-permit";
-import { generatePayoutPermit } from "../src";
 import { Context } from "../src/types/context";
 import { cypherText, mockContext, SPENDER } from "./constants";
 import { describe, expect, it, beforeEach, afterEach, jest } from "@jest/globals";
