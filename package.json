@@ -1,6 +1,6 @@
 {
   "name": "@ubiquibot/permit-generation",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "ECR20 / ECR721 permit generation for automated payments.",
   "author": "Ubiquity DAO",
   "license": "MIT",
@@ -65,6 +65,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^3.2.5",
     "rollup": "4.14.3",
+    "rollup-plugin-delete": "2.0.0",
     "rollup-plugin-dts-bundle-generator": "1.4.0",
     "rollup-plugin-typescript2": "0.36.0",
     "ts-jest": "29.1.2",
@@ -87,13 +88,30 @@
     ]
   },
   "files": [
-    "types/*",
-    "handlers/*",
-    "core/*",
+    "dist/types/*",
+    "dist/handlers/*",
+    "dist/core/*",
     "README.md",
     "package.json"
   ],
   "module": "core/index.esm.js",
   "main": "core/index.js",
-  "typings": "types/index.d.ts"
+  "typings": "types/index.d.ts",
+  "exports": {
+    "./core": {
+      "require": "./dist/core/index.js",
+      "import": "./dist/core/index.js",
+      "types": "./dist/core/index.d.ts"
+    },
+    "./types": {
+      "require": "./dist/types/index.js",
+      "import": "./dist/types/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./handlers": {
+      "require": "./dist/handlers/index.js",
+      "import": "./dist/handlers/index.js",
+      "types": "./dist/handlers/index.d.ts"
+    }
+  }
 }
