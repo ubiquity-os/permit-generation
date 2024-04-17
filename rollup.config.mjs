@@ -5,15 +5,18 @@ import nodeResolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import json from "@rollup/plugin-json";
 import terser from "@rollup/plugin-terser";
+import del from "rollup-plugin-delete";
 
+/** @type {import("rollup").RollupOptions[]} */
 const config = [
   {
     input: "src/types/index.ts",
     output: {
-      dir: "types",
+      dir: "dist/types",
       format: "cjs",
     },
     plugins: [
+      del({ targets: ["dist/*"] }),
       nodeResolve({ browser: true }),
       commonjs(),
       typescript(),
@@ -26,7 +29,7 @@ const config = [
   {
     input: "src/handlers/index.ts",
     output: {
-      dir: "handlers",
+      dir: "dist/handlers",
       format: "cjs",
     },
     plugins: [
@@ -42,7 +45,7 @@ const config = [
   {
     input: "src/index.ts",
     output: {
-      dir: "core",
+      dir: "dist/core",
       format: "cjs",
     },
     plugins: [
