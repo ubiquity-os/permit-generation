@@ -43,8 +43,7 @@ const config = [
     input: "src/index.ts",
     output: {
       dir: "core",
-      format: "esm",
-      preserveModules: true,
+      format: "cjs",
     },
     plugins: [
       nodeResolve(),
