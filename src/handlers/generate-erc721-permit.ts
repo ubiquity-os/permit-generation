@@ -1,7 +1,7 @@
 import { MaxUint256 } from "@uniswap/permit2-sdk";
 import { ethers, keccak256, toUtf8Bytes } from "ethers";
 import { Context, Logger } from "../types/context";
-import { Permit, TokenType } from "../types";
+import { PermitReward, TokenType } from "../types";
 import { isIssueEvent } from "../types/typeguards";
 import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 
@@ -38,13 +38,13 @@ export interface PermitPayload {
   userId: number;
 }
 
-export async function generateErc721PermitSignature(permitPayload: PermitPayload, username: string, contributionType: string): Promise<Permit>;
-export async function generateErc721PermitSignature(context: Context, username: string, contributionType: string): Promise<Permit>;
+export async function generateErc721PermitSignature(permitPayload: PermitPayload, username: string, contributionType: string): Promise<PermitReward>;
+export async function generateErc721PermitSignature(context: Context, username: string, contributionType: string): Promise<PermitReward>;
 export async function generateErc721PermitSignature(
   contextOrPermitPayload: Context | PermitPayload,
   username: string,
   contributionType: string
-): Promise<Permit> {
+): Promise<PermitReward> {
   let _logger: Logger;
   let _nftContractAddress: string;
   let _evmNetworkId: number;
@@ -153,7 +153,7 @@ export async function generateErc721PermitSignature(
     throw new Error(`Failed to sign typed data: ${error}`);
   });
 
-  const erc721Permit: Permit = {
+  const erc721Permit: PermitReward = {
     tokenType: TokenType.ERC721,
     tokenAddress: _nftContractAddress,
     beneficiary: _walletAddress,

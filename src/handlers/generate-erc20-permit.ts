@@ -1,7 +1,7 @@
 import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
 import { ethers, keccak256, MaxInt256, parseUnits, toUtf8Bytes } from "ethers";
 import { Context, Logger } from "../types/context";
-import { Permit, TokenType } from "../types";
+import { PermitReward, TokenType } from "../types";
 import { decryptKeys } from "../utils/keys";
 import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
 
@@ -14,9 +14,9 @@ export interface Payload {
   userId: number;
 }
 
-export async function generateErc20PermitSignature(payload: Payload, username: string, amount: number): Promise<Permit>;
-export async function generateErc20PermitSignature(context: Context, username: string, amount: number): Promise<Permit>;
-export async function generateErc20PermitSignature(contextOrPayload: Context | Payload, username: string, amount: number): Promise<Permit> {
+export async function generateErc20PermitSignature(payload: Payload, username: string, amount: number): Promise<PermitReward>;
+export async function generateErc20PermitSignature(context: Context, username: string, amount: number): Promise<PermitReward>;
+export async function generateErc20PermitSignature(contextOrPayload: Context | Payload, username: string, amount: number): Promise<PermitReward> {
   let _logger: Logger;
   const _username = username;
   let _walletAddress: string | null | undefined;
@@ -119,7 +119,7 @@ export async function generateErc20PermitSignature(contextOrPayload: Context | P
       throw new Error(errorMessage);
     });
 
-  const erc20Permit: Permit = {
+  const erc20Permit: PermitReward = {
     tokenType: TokenType.ERC20,
     tokenAddress: permitTransferFromData.permitted.token,
     beneficiary: permitTransferFromData.spender,

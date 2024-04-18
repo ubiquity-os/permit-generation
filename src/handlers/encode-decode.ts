@@ -1,10 +1,10 @@
-import { Permit, TokenType } from "../types";
+import { PermitReward, TokenType } from "../types";
 import { RewardPermit } from "./permit-type";
 
 /**
  * Returns a base64 encoded string containing all the permit data
  */
-export function encodePermits(permits: Permit[]) {
+export function encodePermits(permits: PermitReward[]) {
   const permitsDto = permits
     .map((permit) => {
       if (permit.tokenType === TokenType.ERC20) {
@@ -66,7 +66,7 @@ export function encodePermits(permits: Permit[]) {
 export function decodePermits(base64: string) {
   const decoded = atob(base64);
   const objs: Array<RewardPermit> = JSON.parse(decoded);
-  const result: Permit[] = [];
+  const result: PermitReward[] = [];
   for (const obj of objs) {
     const tokenType = obj.type === "erc20-permit" ? TokenType.ERC20 : TokenType.ERC721;
     if (tokenType === TokenType.ERC721) {

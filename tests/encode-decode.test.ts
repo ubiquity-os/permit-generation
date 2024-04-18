@@ -1,10 +1,10 @@
 import { describe, expect, it } from "@jest/globals";
 import { decodePermits, encodePermits } from "../src/handlers/encode-decode";
-import { Permit, TokenType } from "../src/types";
+import { PermitReward, TokenType } from "../src/types";
 
 describe("Encoding / Decoding tests", () => {
   it("Should properly encode and decode a list of permits", () => {
-    const permitErc20: Permit = {
+    const permitErc20: PermitReward = {
       beneficiary: "ubiquity",
       deadline: "1",
       networkId: 100,
@@ -15,7 +15,7 @@ describe("Encoding / Decoding tests", () => {
       tokenType: TokenType.ERC20,
       amount: 100,
     };
-    const permitErc721: Permit = {
+    const permitErc721: PermitReward = {
       beneficiary: "ubiquity2",
       deadline: "2",
       networkId: 101,

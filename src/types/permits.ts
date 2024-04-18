@@ -16,13 +16,13 @@ interface CommonFields {
   networkId: number;
 }
 
-interface ERC20Permit extends CommonFields {
+interface Erc20PermitReward extends CommonFields {
   tokenType: TokenType.ERC20;
   amount: BigNumberish;
   erc721Request?: never;
 }
 
-interface ERC721Permit extends CommonFields {
+interface Erc721PermitReward extends CommonFields {
   tokenType: TokenType.ERC721;
   amount: "0" | "1";
   erc721Request?: {
@@ -38,4 +38,4 @@ interface ERC721Permit extends CommonFields {
   };
 }
 
-export type Permit = ERC20Permit | ERC721Permit;
+export type PermitReward = Erc20PermitReward | Erc721PermitReward;
