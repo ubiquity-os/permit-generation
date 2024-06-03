@@ -11,7 +11,7 @@ import { plugin } from "./plugin";
 export async function run() {
   const payload = github.context.payload.inputs;
 
-  const env = Value.Decode(envSchema, process.env);
+  const env = Value.Decode(envSchema, payload.env);
   const settings = Value.Decode(pluginSettingsSchema, JSON.parse(payload.settings));
 
   const inputs: PluginInputs = {

@@ -1,6 +1,4 @@
 import util from "util";
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 type PrettyLogsWithOk = "ok" | LogLevel;
 export class PrettyLogs {
   constructor() {
@@ -12,70 +10,82 @@ export class PrettyLogs {
     this.debug = this.debug.bind(this);
     this.verbose = this.verbose.bind(this);
   }
-  public fatal(message: string, metadata?: any) {
+  public fatal(message: string, metadata?: Metadata | unknown) {
     this._logWithStack(LogLevel.FATAL, message, metadata);
   }
 
-  public error(message: string, metadata?: any) {
+  public error(message: string, metadata?: Metadata | unknown) {
     this._logWithStack(LogLevel.ERROR, message, metadata);
   }
 
-  public ok(message: string, metadata?: any) {
+  public ok(message: string, metadata?: Metadata | unknown) {
     this._logWithStack("ok", message, metadata);
   }
 
-  public warn(message: string, metadata?: any) {
+  public warn(message: string, metadata?: Metadata | unknown) {
     this._logWithStack(LogLevel.ERROR, message, metadata);
   }
 
-  public info(message: string, metadata?: any) {
+  public info(message: string, metadata?: Metadata | unknown) {
     this._logWithStack(LogLevel.INFO, message, metadata);
   }
 
-  public debug(message: string, metadata?: any) {
+  public debug(message: string, metadata?: Metadata | unknown) {
     this._logWithStack(LogLevel.DEBUG, message, metadata);
   }
 
-  public verbose(message: string, metadata?: any) {
+  public verbose(message: string, metadata?: Metadata | unknown) {
     this._logWithStack(LogLevel.VERBOSE, message, metadata);
   }
 
-  private _logWithStack(type: "ok" | LogLevel, message: string, metadata?: Metadata | string) {
+  private _logWithStack(type: "ok" | LogLevel, message: string, metadata?: Metadata | unknown | string) {
     this._log(type, message);
     if (typeof metadata === "string") {
       this._log(type, metadata);
       return;
     }
-    if (metadata) {
-      let stack = metadata?.error?.stack || metadata?.stack;
-      if (!stack) {
-        // generate and remove the top four lines of the stack trace
-        const stackTrace = new Error().stack?.split("\n");
-        if (stackTrace) {
-          stackTrace.splice(0, 4);
-          stack = stackTrace.filter((line) => line.includes(".ts:")).join("\n");
-        }
-      }
-      const newMetadata = { ...metadata };
-      delete newMetadata.message;
-      delete newMetadata.name;
-      delete newMetadata.stack;
 
-      if (!this._isEmpty(newMetadata)) {
-        this._log(type, newMetadata);
-      }
+    if (!metadata) return;
 
-      if (typeof stack == "string") {
-        const prettyStack = this._formatStackTrace(stack, 1);
-        const colorizedStack = this._colorizeText(prettyStack, Colors.dim);
-        this._log(type, colorizedStack);
-      } else if (stack) {
-        const prettyStack = this._formatStackTrace((stack as unknown as string[]).join("\n"), 1);
-        const colorizedStack = this._colorizeText(prettyStack, Colors.dim);
-        this._log(type, colorizedStack);
-      } else {
-        throw new Error("Stack is null");
+    let stack: string | undefined;
+    const data = metadata as Metadata;
+
+    if (data && data.error instanceof Error) {
+      stack = data.error.stack;
+    }
+
+    if (!stack && data) {
+      stack = data.stack as string;
+    }
+
+    if (!stack) {
+      // generate and remove the top four lines of the stack trace
+      const stackTrace = new Error().stack?.split("\n");
+      if (stackTrace) {
+        stackTrace.splice(0, 4);
+        stack = stackTrace.filter((line) => line.includes(".ts:")).join("\n");
       }
+    }
+
+    const newMetadata: Metadata = { ...metadata };
+    delete newMetadata.message;
+    delete newMetadata.name;
+    delete newMetadata.stack;
+
+    if (!this._isEmpty(newMetadata)) {
+      this._log(type, newMetadata);
+    }
+
+    if (typeof stack == "string") {
+      const prettyStack = this._formatStackTrace(stack, 1);
+      const colorizedStack = this._colorizeText(prettyStack, Colors.dim);
+      this._log(type, colorizedStack);
+    } else if (stack) {
+      const prettyStack = this._formatStackTrace((stack as unknown as string[]).join("\n"), 1);
+      const colorizedStack = this._colorizeText(prettyStack, Colors.dim);
+      this._log(type, colorizedStack);
+    } else {
+      throw new Error("Stack is null");
     }
   }
 
@@ -96,11 +106,11 @@ export class PrettyLogs {
       .join("\n");
   }
 
-  private _isEmpty(obj: Record<string, any>) {
+  private _isEmpty(obj: Record<string, unknown>) {
     return !Reflect.ownKeys(obj).some((key) => typeof obj[String(key)] !== "function");
   }
 
-  private _log(type: PrettyLogsWithOk, message: any) {
+  private _log(type: PrettyLogsWithOk, message: string | Metadata) {
     const defaultSymbols: Record<PrettyLogsWithOk, string> = {
       fatal: "×",
       ok: "✓",
@@ -146,12 +156,12 @@ export class PrettyLogs {
     }
   }
 }
-interface Metadata {
+export interface Metadata {
   error?: { stack?: string };
   stack?: string;
   message?: string;
   name?: string;
-  [key: string]: any;
+  [key: string]: NonNullable<unknown> | undefined;
 }
 
 enum Colors {
