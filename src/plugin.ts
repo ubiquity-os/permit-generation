@@ -3,7 +3,6 @@ import { Context } from "./types/context";
 import { Octokit } from "@octokit/rest";
 import { createClient } from "@supabase/supabase-js";
 import { createAdapters } from "./adapters";
-import { doSomething } from "./handlers/handler";
 import { Env, PluginInputs } from "./types";
 
 /**
@@ -43,7 +42,7 @@ export async function plugin(inputs: PluginInputs, env: Env) {
   context.adapters = createAdapters(supabase, context);
 
   if (context.eventName === "issue_comment.created") {
-    await doSomething(context);
+    // do something
   } else {
     context.logger.error(`Unsupported event: ${context.eventName}`);
   }
