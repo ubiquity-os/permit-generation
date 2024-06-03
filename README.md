@@ -2,15 +2,14 @@
 
 ## Prerequisites
 
-- A basic understanding of GitHub Actions, writing workflows, and the GitHub API.
-- A good understanding of how the kernel works and how to interact with it.
-- A basic understanding of the Ubiquibot configuration file and how to define your plugin's settings.
+- A good understanding of how the [kernel](https://github.com/ubiquity/ubiquibot-kernel) works and how to interact with it.
+- A basic understanding of the Ubiquibot configuration and how to define your plugin's settings.
 
 ## Getting Started
 
 1. Create a new repository using this template.
 2. Clone the repository to your local machine.
-3. Install the dependencies using your package manager of choice.
+3. Install the dependencies preferably using `yarn` or `bun`.
 
 ## Creating a new plugin
 
@@ -49,15 +48,37 @@
 
 ## Testing a plugin
 
-#### Testing
+### Worker Plugins
 
-1. Launch the kernel (ubiquibot GH app) to listen for events in the org/repos it is installed.
-2. Fire an event (e.g. "issue_comment.created") in the org/repo where the kernel is installed.
-3. The kernel will process the event and dispatch it using the settings defined in your `.ubiquibot-config.yml`.
+- `yarn/bun worker` - to run the worker locally.
+- To trigger the worker, `POST` requests to http://localhost:4000/ with an event payload similar to:
 
-- Tip: Work from a private repo which will allow you to log anything into your action runner logs safely. Before you make your plugin public, ensure you remove any sensitive information from the logs by deleting the logs from the workflow runs.
+```ts
+await fetch("http://localhost:4000/", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    stateId: "",
+    eventName: "",
+    eventPayload: "",
+    settings: "",
+    ref: ""
+    authToken: ""
+  })
+})
+```
 
-- Tip: You can also fire events directly to your Smee.io webhook URL created during the kernel setup but will require you to manually build the entire request and event payload.
+A full example can be found [here](https://github.com/ubiquibot/assistive-pricing/blob/623ea3f950f04842f2d003bda3fc7b7684e41378/tests/http/request.http).
+
+### Action Plugins
+
+- Ensure the kernel is running and listening for events.
+- Fire an event in/to the repo where the kernel is installed. This can be done in a number of ways, the easiest being via the GitHub UI or using the GitHub API, such as posting a comment, opening an issue, etc in the org/repo where the kernel is installed.
+- The kernel will process the event and dispatch it using the settings defined in your `.ubiquibot-config.yml`.
+- The `compute.yml` workflow will run and execute your plugin's logic.
+- You can view the logs in the Actions tab of your repo.
 
 [Nektos Act](https://github.com/nektos/act) - a tool for running GitHub Actions locally.
 
