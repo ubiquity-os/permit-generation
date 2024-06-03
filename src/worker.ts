@@ -1,7 +1,7 @@
 import { Value } from "@sinclair/typebox/value";
 import { plugin } from "./plugin";
 import { Env } from "./types/env";
-import { pluginSettingsSchema } from "./types";
+import { pluginSettingsSchema, pluginSettingsValidator } from "./types";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -22,6 +22,11 @@ export default {
 
       const webhookPayload = await request.json();
       const settings = Value.Decode(pluginSettingsSchema, Value.Default(pluginSettingsSchema, JSON.parse(webhookPayload.settings)));
+
+      if (!pluginSettingsValidator.test(settings)) {
+        throw new Error("Invalid settings provided");
+      }
+
       webhookPayload.eventPayload = JSON.parse(webhookPayload.eventPayload);
       webhookPayload.settings = settings;
       await plugin(webhookPayload, env);
