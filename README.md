@@ -64,7 +64,7 @@ await fetch("http://localhost:4000/", {
     eventName: "",
     eventPayload: "",
     settings: "",
-    ref: ""
+    ref: "",
     authToken: ""
   })
 })
