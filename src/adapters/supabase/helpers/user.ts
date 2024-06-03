@@ -1,11 +1,12 @@
-import { Database } from "../types/database";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Super } from "./supabase";
 import { Context } from "../../../types/context";
 
-export class User extends Super {
-  locationResponse: LocationResponse | undefined;
+type Wallet = {
+  address: string;
+};
 
+export class User extends Super {
   user_id: string | undefined;
   comment_id: string | undefined;
   issue_id: string | undefined;
@@ -13,7 +14,7 @@ export class User extends Super {
   node_id: string | undefined;
   node_type: string | undefined;
 
-  constructor(supabase: SupabaseClient<Database>, context: Context) {
+  constructor(supabase: SupabaseClient, context: Context) {
     super(supabase, context);
   }
 
@@ -29,8 +30,12 @@ export class User extends Super {
   }
 
   async getWalletByUserId(userId: number, issueNumber: number) {
-    const { data, error } = await this.supabase.from("users").select("wallets(*)").eq("id", userId).single();
-    if ((error && !data) || !data.wallets?.address) {
+    const { data, error }: { data: { wallets: Wallet } | null; error: unknown } = await this.supabase
+      .from("users")
+      .select("wallets(*)")
+      .eq("id", userId)
+      .single();
+    if ((error && !data) || !data?.wallets?.address) {
       console.error("No wallet address found", { userId, issueNumber }, true);
       throw new Error("No wallet address found");
     }
@@ -77,27 +82,3 @@ export class User extends Super {
 
 const FAILED_TO_GET_USER = "Failed to get user";
 const SUCCESSFULLY_FETCHED_USER = "Successfully fetched user";
-
-interface LocationResponse {
-  data: {
-    node: {
-      id: "IC_kwDOH92Z-c5oA5cs";
-      author: {
-        login: "molecula451";
-        id: "MDQ6VXNlcjQxNTUyNjYz";
-      };
-      issue: {
-        id: "I_kwDOH92Z-c5yRpyq";
-        number: 846;
-        repository: {
-          id: "R_kgDOH92Z-Q";
-          name: "ubiquibot";
-          owner: {
-            id: "MDEyOk9yZ2FuaXphdGlvbjc2NDEyNzE3";
-            login: "ubiquity";
-          };
-        };
-      };
-    };
-  };
-}

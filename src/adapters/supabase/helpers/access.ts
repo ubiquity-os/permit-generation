@@ -1,16 +1,13 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Database } from "../types/database";
 import { Super } from "./supabase";
 import { Context } from "../../../types/context";
-
-type AccessRow = Database["public"]["Tables"]["access"]["Row"];
 
 export class Access extends Super {
   constructor(supabase: SupabaseClient, context: Context) {
     super(supabase, context);
   }
 
-  public async getAccess(userId: number, repositoryId: number): Promise<AccessRow | null> {
+  public async getAccess(userId: number, repositoryId: number) {
     const { data, error } = await this.supabase
       .from("access")
       .select("*")
@@ -26,7 +23,7 @@ export class Access extends Super {
     return data;
   }
 
-  public async setAccess(userId: number, repositoryId: number, labels: string[]): Promise<AccessRow | null> {
+  public async setAccess(userId: number, repositoryId: number, labels: string[]) {
     if (!labels.length) {
       return this.clearAccess(userId, repositoryId);
     }

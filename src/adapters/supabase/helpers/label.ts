@@ -1,9 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Database } from "../types/database";
 import { Super } from "./supabase";
 import { Context } from "../../../types/context";
-
-type LabelRow = Database["public"]["Tables"]["labels"]["Row"];
 
 export class Label extends Super {
   constructor(supabase: SupabaseClient, context: Context) {
@@ -22,7 +19,7 @@ export class Label extends Super {
     authorized: boolean;
     userId: number;
     repositoryId: number;
-  }): Promise<LabelRow> {
+  }) {
     const { data, error } = await this.supabase
       .from("labels")
       .insert({

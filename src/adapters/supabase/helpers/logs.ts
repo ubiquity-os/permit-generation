@@ -1,13 +1,15 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Database } from "../types/database";
-
 import { LogLevel, PrettyLogs } from "../pretty-logs";
 import { Context } from "../../../types/context";
 
 export type Metadata = Record<string, unknown>;
 
+type LogInsert = {
+  log: string;
+  level: LogLevel;
+  metadata?: Metadata;
+};
 type LogFunction = (message: string, metadata?: Metadata | unknown | string) => void;
-type LogInsert = Database["public"]["Tables"]["logs"]["Insert"];
 type LogParams = {
   level: LogLevel;
   consoleLog: LogFunction;
