@@ -32,7 +32,6 @@
   command: "<regex for command>" # if you are creating a plugin with a slash command
   example: "<example usage>" # how to invoke the slash command
   with: # these are the example settings, the kernel passes these to the plugin.
-    # it will merge both your repo and org settings with the event
     disabledCommands: []
     timers:
       reviewDelayTolerance: 86000
