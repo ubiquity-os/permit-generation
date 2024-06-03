@@ -2,7 +2,7 @@ import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
 import { Value } from "@sinclair/typebox/build/cjs/value";
-import { envSchema, pluginSettingsSchema, PluginInputs } from "./types";
+import { envSchema, pluginSettingsSchema, PluginInputs, pluginSettingsValidator } from "./types";
 import { plugin } from "./plugin";
 
 /**
@@ -13,6 +13,10 @@ export async function run() {
 
   const env = Value.Decode(envSchema, payload.env);
   const settings = Value.Decode(pluginSettingsSchema, Value.Default(pluginSettingsSchema, JSON.parse(payload.settings)));
+
+  if (!pluginSettingsValidator.test(settings)) {
+    throw new Error("Invalid settings provided");
+  }
 
   const inputs: PluginInputs = {
     stateId: payload.stateId,
