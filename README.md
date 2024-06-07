@@ -57,7 +57,7 @@
 await fetch("http://localhost:4000/", {
   method: "POST",
   headers: {
-    "Content-Type": "application/json"
+    "Content-Type": "application/json",
   },
   body: JSON.stringify({
     stateId: "",
@@ -65,9 +65,9 @@ await fetch("http://localhost:4000/", {
     eventPayload: "",
     settings: "",
     ref: "",
-    authToken: ""
-  })
-})
+    authToken: "",
+  }),
+});
 ```
 
 A full example can be found [here](https://github.com/ubiquibot/assistive-pricing/blob/623ea3f950f04842f2d003bda3fc7b7684e41378/tests/http/request.http).

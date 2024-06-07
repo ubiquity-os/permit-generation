@@ -16,7 +16,6 @@ export interface Context<T extends SupportedEventsU = SupportedEventsU, TU exten
   adapters: ReturnType<typeof createAdapters>;
   config: PluginSettings;
   env: {
-    UBIQUIBOT_TOKEN: string;
     SUPABASE_URL: string;
     SUPABASE_KEY: string;
   };
