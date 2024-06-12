@@ -21,13 +21,12 @@ export default {
       }
 
       const webhookPayload = await request.json();
-      const settings = Value.Decode(pluginSettingsSchema, Value.Default(pluginSettingsSchema, JSON.parse(webhookPayload.settings)));
+      const settings = Value.Decode(pluginSettingsSchema, Value.Default(pluginSettingsSchema, webhookPayload.settings));
 
       if (!pluginSettingsValidator.test(settings)) {
         throw new Error("Invalid settings provided");
       }
 
-      webhookPayload.eventPayload = JSON.parse(webhookPayload.eventPayload);
       webhookPayload.settings = settings;
       await plugin(webhookPayload, env);
       return new Response(JSON.stringify("OK"), { status: 200, headers: { "content-type": "application/json" } });
