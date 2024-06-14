@@ -1,7 +1,7 @@
+import { describe, expect, it, beforeEach, jest } from "@jest/globals";
 import { generateErc20PermitSignature } from "../src";
 import { Context } from "../src/types/context";
-import { SPENDER, mockContext } from "./constants";
-import { describe, expect, it, beforeEach, jest } from "@jest/globals";
+import { SPENDER, mockContext, ERC20_REWARD_TOKEN_ADDRESS } from "./constants";
 
 describe("generateErc20PermitSignature", () => {
   let context: Context;
@@ -66,7 +66,7 @@ describe("generateErc20PermitSignature", () => {
 
     context.config.evmPrivateEncrypted = cypherText;
 
-    const result = await generateErc20PermitSignature(context, SPENDER, amount);
+    const result = await generateErc20PermitSignature(context, SPENDER, amount, ERC20_REWARD_TOKEN_ADDRESS);
 
     expect(result).toBeDefined();
     expect(result).not.toContain("Permit not generated");
@@ -77,7 +77,7 @@ describe("generateErc20PermitSignature", () => {
   it("should throw error when evmPrivateEncrypted is not defined", async () => {
     const amount = 0;
 
-    await expect(generateErc20PermitSignature(context, SPENDER, amount)).rejects.toThrow("Private key is not defined");
+    await expect(generateErc20PermitSignature(context, SPENDER, amount, ERC20_REWARD_TOKEN_ADDRESS)).rejects.toThrow("Private key is not defined");
     expect(context.logger.fatal).toHaveBeenCalledWith("Private key is not defined");
   });
 
@@ -88,7 +88,7 @@ describe("generateErc20PermitSignature", () => {
     (context.adapters.supabase.wallet.getWalletByUserId as jest.Mock).mockReturnValue(null);
 
     await expect(async () => {
-      await generateErc20PermitSignature(context, SPENDER, amount);
+      await generateErc20PermitSignature(context, SPENDER, amount, ERC20_REWARD_TOKEN_ADDRESS);
     }).rejects.toThrow();
 
     expect(context.logger.error).toHaveBeenCalledWith("ERC20 Permit generation error: Wallet not found");
