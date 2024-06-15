@@ -63,7 +63,7 @@ export async function generateErc20PermitSignature(contextOrPayload: Context | P
     throw new Error(errorMessage);
   }
 
-  const { rpc } = getPayoutConfigByNetworkId(_evmNetworkId);  
+  const { rpc } = getPayoutConfigByNetworkId(_evmNetworkId);
   const { privateKey } = await decryptKeys(_evmPrivateEncrypted);
   if (!privateKey) {
     const errorMessage = "Private key is not defined";
