@@ -14,12 +14,12 @@ export async function generatePayoutPermit(context: Context, permitRequests: Per
   const permits: PermitReward[] = [];
 
   for (const permitRequest of permitRequests) {
-    const { type, amount, username, contributionType } = permitRequest;
+    const { type, amount, username, contributionType, tokenAddress } = permitRequest;
 
     let permit: PermitReward;
     switch (type) {
       case "ERC20":
-        permit = await generateErc20PermitSignature(context, username, amount);
+        permit = await generateErc20PermitSignature(context, username, amount, tokenAddress);
         break;
       case "ERC721":
         permit = await generateErc721PermitSignature(context, username, contributionType);

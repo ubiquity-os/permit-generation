@@ -59,12 +59,14 @@ describe("generatePayoutPermit", () => {
         amount: 100,
         username: "123",
         contributionType: "ISSUE",
+        tokenAddress: "TOKEN_ADDRESS",
       },
       {
         type: "ERC20",
         amount: 100,
         username: "123",
         contributionType: "ISSUE",
+        tokenAddress: "TOKEN_ADDRESS",
       },
     ]);
 

@@ -14,9 +14,9 @@ export interface Payload {
   userId: number;
 }
 
-export async function generateErc20PermitSignature(payload: Payload, username: string, amount: number): Promise<PermitReward>;
-export async function generateErc20PermitSignature(context: Context, username: string, amount: number): Promise<PermitReward>;
-export async function generateErc20PermitSignature(contextOrPayload: Context | Payload, username: string, amount: number): Promise<PermitReward> {
+export async function generateErc20PermitSignature(payload: Payload, username: string, amount: number, tokenAddress: string): Promise<PermitReward>;
+export async function generateErc20PermitSignature(context: Context, username: string, amount: number, tokenAddress: string): Promise<PermitReward>;
+export async function generateErc20PermitSignature(contextOrPayload: Context | Payload, username: string, amount: number, tokenAddress: string): Promise<PermitReward> {
   let _logger: Logger;
   const _username = username;
   let _walletAddress: string | null | undefined;
@@ -63,7 +63,7 @@ export async function generateErc20PermitSignature(contextOrPayload: Context | P
     throw new Error(errorMessage);
   }
 
-  const { rpc, token, decimals } = getPayoutConfigByNetworkId(_evmNetworkId);
+  const { rpc } = getPayoutConfigByNetworkId(_evmNetworkId);
   const { privateKey } = await decryptKeys(_evmPrivateEncrypted);
   if (!privateKey) {
     const errorMessage = "Private key is not defined";
@@ -73,6 +73,7 @@ export async function generateErc20PermitSignature(contextOrPayload: Context | P
 
   let provider;
   let adminWallet;
+  let tokenDecimals;
   try {
     provider = new ethers.JsonRpcProvider(rpc);
   } catch (error) {
@@ -89,10 +90,20 @@ export async function generateErc20PermitSignature(contextOrPayload: Context | P
     throw new Error(errorMessage);
   }
 
+  try {
+    const erc20Abi = ["function decimals() public view returns (uint8)"];
+    const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
+    tokenDecimals = await tokenContract.decimals();
+  } catch (error) {
+    const errorMessage = `Failed to get token decimals for token: ${tokenAddress}`;
+    _logger.debug(errorMessage);
+    throw new Error(errorMessage);
+  }
+
   const permitTransferFromData: PermitTransferFrom = {
     permitted: {
-      token: token,
-      amount: parseUnits(amount.toString(), decimals),
+      token: tokenAddress,
+      amount: parseUnits(amount.toString(), tokenDecimals),
     },
     spender: _walletAddress,
     nonce: BigInt(keccak256(toUtf8Bytes(`${_userId}-${_issueId}`))),
