@@ -4,6 +4,7 @@
   "description": "Ubiquibot plugin template repository with TypeScript support.",
   "author": "Ubiquity DAO",
   "license": "MIT",
+  "main": "src/worker.ts",
   "engines": {
     "node": ">=20.10.0"
   },
