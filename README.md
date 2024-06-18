@@ -26,7 +26,6 @@
 - plugin: <plugin-org/owner>/<plugin-repo-name>:compute.yml@development
   name: plugin-name
   id: plugin-name-command
-  type: github | worker
   description: "Plugin description" # small description of what the plugin does
   command: "<regex for command>" # if you are creating a plugin with a slash command
   example: "<example usage>" # how to invoke the slash command

@@ -1,7 +1,8 @@
-import { EmitterWebhookEvent as WebhookEvent, EmitterWebhookEventName as WebhookEventName } from "@octokit/webhooks";
 import { Octokit } from "@octokit/rest";
-import { PluginSettings } from "./plugin-inputs";
+import { EmitterWebhookEvent as WebhookEvent, EmitterWebhookEventName as WebhookEventName } from "@octokit/webhooks";
 import { createAdapters } from "../adapters";
+import { Env } from "./env";
+import { PluginSettings } from "./plugin-inputs";
 
 export type SupportedEventsU = "issue_comment.created"; // Add more events here
 
@@ -15,10 +16,7 @@ export interface Context<T extends SupportedEventsU = SupportedEventsU, TU exten
   octokit: InstanceType<typeof Octokit>;
   adapters: ReturnType<typeof createAdapters>;
   config: PluginSettings;
-  env: {
-    SUPABASE_URL: string;
-    SUPABASE_KEY: string;
-  };
+  env: Env;
   logger: {
     fatal: (message: unknown, ...optionalParams: unknown[]) => void;
     error: (message: unknown, ...optionalParams: unknown[]) => void;
