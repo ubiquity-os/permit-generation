@@ -8,7 +8,7 @@
     "node": ">=20.10.0"
   },
   "scripts": {
-    "format": "run-s format:lint format:prettier format:cspell",
+    "format": "yarn format:lint && yarn format:prettier && yarn format:cspell",
     "format:lint": "eslint --fix .",
     "format:prettier": "prettier --write .",
     "format:cspell": "cspell **/*",
