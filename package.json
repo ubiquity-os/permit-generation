@@ -1,6 +1,6 @@
 {
   "name": "@ubiquibot/permit-generation",
-  "version": "1.0.0",
+  "version": "1.2.2",
   "description": "ECR20 / ECR721 permit generation for automated payments.",
   "author": "Ubiquity DAO",
   "license": "MIT",
@@ -31,7 +31,7 @@
     "@octokit/rest": "^20.0.2",
     "@octokit/webhooks": "^13.1.0",
     "@sinclair/typebox": "^0.32.5",
-    "@supabase/supabase-js": "^2.39.7",
+    "@supabase/supabase-js": "2.42.0",
     "@uniswap/permit2-sdk": "^1.2.0",
     "dotenv": "^16.4.4",
     "ethers": "6.11.1",
@@ -64,7 +64,8 @@
     "lint-staged": "^15.2.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.2.5",
-    "rollup": "4.14.0",
+    "rollup": "4.14.3",
+    "rollup-plugin-delete": "2.0.0",
     "rollup-plugin-dts-bundle-generator": "1.4.0",
     "rollup-plugin-typescript2": "0.36.0",
     "ts-jest": "29.1.2",
@@ -87,11 +88,30 @@
     ]
   },
   "files": [
-    "dist/*",
+    "dist/types/*",
+    "dist/handlers/*",
+    "dist/core/*",
     "README.md",
     "package.json"
   ],
-  "module": "dist/index.esm.js",
-  "main": "dist/index.js",
-  "typings": "dist/index.d.ts"
+  "module": "core/index.esm.js",
+  "main": "core/index.js",
+  "typings": "types/index.d.ts",
+  "exports": {
+    "./core": {
+      "require": "./dist/core/index.js",
+      "import": "./dist/core/index.js",
+      "types": "./dist/core/index.d.ts"
+    },
+    "./types": {
+      "require": "./dist/types/index.js",
+      "import": "./dist/types/index.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./handlers": {
+      "require": "./dist/handlers/index.js",
+      "import": "./dist/handlers/index.js",
+      "types": "./dist/handlers/index.d.ts"
+    }
+  }
 }

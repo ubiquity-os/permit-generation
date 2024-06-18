@@ -30,6 +30,7 @@
     "Libsodium",
     "ciphertext",
     "tweetnacl",
-    "typeguards"
+    "typeguards",
+    "Numberish"
   ]
 }

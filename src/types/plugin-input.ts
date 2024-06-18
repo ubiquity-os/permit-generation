@@ -16,6 +16,7 @@ export const permitRequestSchema = T.Object({
   username: T.String(),
   amount: T.Number(),
   contributionType: T.String(),
+  tokenAddress: T.String(),
 });
 
 export type PermitRequest = StaticDecode<typeof permitRequestSchema>;
