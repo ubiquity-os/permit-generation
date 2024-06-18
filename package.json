@@ -9,7 +9,7 @@
     "node": ">=20.10.0"
   },
   "scripts": {
-    "format": "yarn format:lint && yarn format:prettier && yarn format:cspell",
+    "format": "concurrently yarn:format:*",
     "format:lint": "eslint --fix .",
     "format:prettier": "prettier --write .",
     "format:cspell": "cspell **/*",
@@ -46,6 +46,7 @@
     "@jest/globals": "29.7.0",
     "@mswjs/data": "0.16.1",
     "@types/node": "20.14.5",
+    "concurrently": "8.2.2",
     "cspell": "8.9.0",
     "eslint": "9.5.0",
     "eslint-config-prettier": "9.1.0",
