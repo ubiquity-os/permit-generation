@@ -9,7 +9,7 @@
     "node": ">=20.10.0"
   },
   "scripts": {
-    "format": "npm-run-all -p format:*",
+    "format": "run-p format:*",
     "format:lint": "eslint --fix .",
     "format:prettier": "prettier --write .",
     "format:cspell": "cspell **/*",
