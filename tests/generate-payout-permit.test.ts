@@ -1,12 +1,14 @@
-// import { generateErc20PermitSignature } from "../src/handlers/generate-erc20-permit";
+import { ethers } from "ethers";
 import { generateErc20PermitSignature, generatePayoutPermit } from "../src";
-// import { generateErc721PermitSignature } from "../src/handlers/generate-erc721-permit";
 import { Context } from "../src/types/context";
 import { cypherText, mockContext, SPENDER } from "./constants";
 import { describe, expect, it, beforeEach, afterEach, jest } from "@jest/globals";
 
 jest.mock("../src/handlers/generate-erc20-permit");
 jest.mock("../src/handlers/generate-erc721-permit");
+jest.mock("../src/utils/get-fastest-provider", () => ({
+  getFastestProvider: jest.fn(() => new ethers.JsonRpcProvider("https://gnosis.drpc.org")),
+}));
 
 describe("generatePayoutPermit", () => {
   let context: Context;
