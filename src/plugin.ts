@@ -1,9 +1,8 @@
-import { Context } from "./types/context";
-
 import { Octokit } from "@octokit/rest";
 import { createClient } from "@supabase/supabase-js";
 import { createAdapters } from "./adapters";
 import { Env, PluginInputs } from "./types";
+import { Context } from "./types";
 
 /**
  * How a worker executes the plugin.
