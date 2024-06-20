@@ -83,7 +83,7 @@ export async function generateErc20PermitSignature(contextOrPayload: Context | P
     adminWallet = new ethers.Wallet(privateKey, provider);
   } catch (error) {
     const errorMessage = `Failed to instantiate wallet: ${error}`;
-    _logger.error(errorMessage);
+    _logger.debug(errorMessage);
     throw new Error(errorMessage);
   }
 
@@ -93,7 +93,7 @@ export async function generateErc20PermitSignature(contextOrPayload: Context | P
     tokenDecimals = await tokenContract.decimals();
   } catch (error) {
     const errorMessage = `Failed to get token decimals for token: ${tokenAddress}`;
-    _logger.error(errorMessage);
+    _logger.debug(errorMessage);
     throw new Error(errorMessage);
   }
 

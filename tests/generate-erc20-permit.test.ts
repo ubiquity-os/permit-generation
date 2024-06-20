@@ -2,10 +2,6 @@ import { describe, expect, it, beforeEach, jest } from "@jest/globals";
 import { generateErc20PermitSignature } from "../src";
 import { Context } from "../src/types/context";
 import { SPENDER, mockContext, ERC20_REWARD_TOKEN_ADDRESS } from "./constants";
-import { ethers } from "ethers";
-jest.mock("../src/utils/get-fastest-provider", () => ({
-  getFastestProvider: jest.fn(() => new ethers.JsonRpcProvider("https://gnosis.drpc.org")),
-}));
 
 describe("generateErc20PermitSignature", () => {
   let context: Context;
