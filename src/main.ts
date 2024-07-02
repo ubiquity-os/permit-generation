@@ -1,7 +1,7 @@
 import * as core from "@actions/core";
 import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
-import { Value } from "@sinclair/typebox/build/cjs/value";
+import { Value } from "@sinclair/typebox/value";
 import { envSchema, pluginSettingsSchema, PluginInputs, pluginSettingsValidator } from "./types";
 import { plugin } from "./plugin";
 
