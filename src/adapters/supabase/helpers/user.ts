@@ -53,4 +53,3 @@ export class User extends Super {
     console.log("Successfully deleted user", { userId });
   }
 }
-
