@@ -16,7 +16,12 @@ export interface Payload {
 
 export async function generateErc20PermitSignature(payload: Payload, username: string, amount: number, tokenAddress: string): Promise<PermitReward>;
 export async function generateErc20PermitSignature(context: Context, username: string, amount: number, tokenAddress: string): Promise<PermitReward>;
-export async function generateErc20PermitSignature(contextOrPayload: Context | Payload, username: string, amount: number, tokenAddress: string): Promise<PermitReward> {
+export async function generateErc20PermitSignature(
+  contextOrPayload: Context | Payload,
+  username: string,
+  amount: number,
+  tokenAddress: string
+): Promise<PermitReward> {
   let _logger: Logger;
   const _username = username;
   let _walletAddress: string | null | undefined;

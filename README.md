@@ -47,5 +47,7 @@ General remarks:
 Return value should just be an array of generated permits. A separate module can convert them into URLs for pay.ubq.fi.
 
 [^1^]: I put a lot of thought into this and unless the plugins can hack X25519 encryption I think its fine for them to attempt brute forcing etc. In exchange its simpler infrastructure vs only accepting requests from the kernel (which seems more secure, but for V1 perhaps unnecessary.)
+
 [^2^]: We pass in the username for enhanced developer experience for plugin development. I believe it will be much easier to use GitHub usernames and let the system do the lookup.
+
 [^3^]: Mixed feelings on this lookup because it does not self encapsulate this module well. We already have an optional database write for the permit record, but this plugin WILL break if there is a database issue for reading the user's registered wallet, which can make testing and development more difficult here. The alternative is to pass in the user's wallet here, but then the kernel (or another plugin) needs to look up their wallet address (this seems like the better approach.)
