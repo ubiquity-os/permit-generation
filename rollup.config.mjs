@@ -15,16 +15,7 @@ const config = [
       dir: "dist/types",
       format: "cjs",
     },
-    plugins: [
-      del({ targets: ["dist/*"] }),
-      nodeResolve({ browser: true }),
-      commonjs(),
-      typescript(),
-      yaml(),
-      json(),
-      generateDtsBundle(),
-      terser(),
-    ],
+    plugins: [del({ targets: ["dist/*"] }), nodeResolve({ browser: true }), commonjs(), typescript(), yaml(), json(), generateDtsBundle(), terser()],
   },
   {
     input: "src/handlers/index.ts",
@@ -32,15 +23,7 @@ const config = [
       dir: "dist/handlers",
       format: "cjs",
     },
-    plugins: [
-      nodeResolve({ browser: true }),
-      commonjs(),
-      typescript(),
-      yaml(),
-      json(),
-      generateDtsBundle(),
-      terser(),
-    ],
+    plugins: [nodeResolve({ browser: true }), commonjs(), typescript(), yaml(), json(), generateDtsBundle(), terser()],
   },
   {
     input: "src/index.ts",
@@ -48,15 +31,7 @@ const config = [
       dir: "dist/core",
       format: "cjs",
     },
-    plugins: [
-      nodeResolve(),
-      commonjs(),
-      typescript(),
-      yaml(),
-      json(),
-      generateDtsBundle(),
-      terser(),
-    ],
+    plugins: [nodeResolve(), commonjs(), typescript(), yaml(), json(), generateDtsBundle(), terser()],
   },
 ];
 

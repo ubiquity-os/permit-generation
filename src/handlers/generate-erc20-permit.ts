@@ -3,7 +3,7 @@ import { ethers, keccak256, MaxInt256, parseUnits, toUtf8Bytes } from "ethers";
 import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
 import { decryptKeys } from "../utils/keys";
-import { getPayoutConfigByNetworkId } from "../utils/payoutConfigByNetworkId";
+import { getFastestProvider } from "../utils/get-fastest-provider";
 
 export interface Payload {
   evmNetworkId: number;
@@ -16,7 +16,12 @@ export interface Payload {
 
 export async function generateErc20PermitSignature(payload: Payload, username: string, amount: number, tokenAddress: string): Promise<PermitReward>;
 export async function generateErc20PermitSignature(context: Context, username: string, amount: number, tokenAddress: string): Promise<PermitReward>;
-export async function generateErc20PermitSignature(contextOrPayload: Context | Payload, username: string, amount: number, tokenAddress: string): Promise<PermitReward> {
+export async function generateErc20PermitSignature(
+  contextOrPayload: Context | Payload,
+  username: string,
+  amount: number,
+  tokenAddress: string
+): Promise<PermitReward> {
   let _logger: Logger;
   const _username = username;
   let _walletAddress: string | null | undefined;
@@ -63,7 +68,12 @@ export async function generateErc20PermitSignature(contextOrPayload: Context | P
     throw new Error(errorMessage);
   }
 
-  const { rpc } = getPayoutConfigByNetworkId(_evmNetworkId);
+  const provider = await getFastestProvider(_evmNetworkId);
+  if (!provider) {
+    _logger.error("Provider is not defined");
+    throw new Error("Provider is not defined");
+  }
+
   const { privateKey } = await decryptKeys(_evmPrivateEncrypted);
   if (!privateKey) {
     const errorMessage = "Private key is not defined";
@@ -71,16 +81,8 @@ export async function generateErc20PermitSignature(contextOrPayload: Context | P
     throw new Error(errorMessage);
   }
 
-  let provider;
   let adminWallet;
   let tokenDecimals;
-  try {
-    provider = new ethers.JsonRpcProvider(rpc);
-  } catch (error) {
-    const errorMessage = `Failed to instantiate provider: ${error}`;
-    _logger.debug(errorMessage);
-    throw new Error(errorMessage);
-  }
 
   try {
     adminWallet = new ethers.Wallet(privateKey, provider);
