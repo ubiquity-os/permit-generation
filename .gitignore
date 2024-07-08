@@ -11,3 +11,4 @@ static/dist
 /coverage
 junit.xml
 dist
+test-dashboard.md
