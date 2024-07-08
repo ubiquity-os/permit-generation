@@ -14,11 +14,11 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
-      - uses: google-github-actions/release-please-action@v4
+      - uses: googleapis/release-please-action@v4
+        id: release
         with:
           release-type: node
-          package-name: "@ubiquibot/permit-generation"
-          default-branch: main
+          target-branch: main
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -28,6 +28,8 @@ jobs:
           yarn install --immutable --immutable-cache --check-cache
           yarn build
           yarn pack
-          yarn publish --access public
+        if: ${{ steps.release.outputs.release_created }}
+      - run: yarn publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        if: ${{ steps.release.outputs.release_created }}
