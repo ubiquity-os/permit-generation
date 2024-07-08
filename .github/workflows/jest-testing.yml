@@ -2,7 +2,6 @@ name: Run Jest testing suite
 on:
   workflow_dispatch:
   pull_request:
-    types: [opened, synchronize]
 
 env:
   NODE_ENV: "test"
@@ -21,13 +20,7 @@ jobs:
       - name: Build & Run test suite
         run: |
           yarn install --immutable --immutable-cache --check-cache
-          yarn test | tee ./coverage.txt && exit ${PIPESTATUS[0]}
-      - name: Jest Coverage Comment
-        # Ensures this step is run even on previous step failure (e.g. test failed)
+          yarn test
+      - name: Add Jest Report to Summary
         if: always()
-        uses: MishaKav/jest-coverage-comment@main
-        with:
-          coverage-summary-path: coverage/coverage-summary.json
-          junitxml-path: junit.xml
-          junitxml-title: JUnit
-          coverage-path: ./coverage.txt
+        run: echo "$(cat test-dashboard.md)" >> $GITHUB_STEP_SUMMARY
