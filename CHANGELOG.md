@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/ubiquibot/permit-generation/compare/v1.4.0...v1.4.1) (2024-07-09)
+
+
+### Miscellaneous Chores
+
+* release 1.4.1 ([d7d834d](https://github.com/ubiquibot/permit-generation/commit/d7d834dd8c766ddfa61d0df2d455f348997698d7))
+
 ## [1.4.0](https://github.com/ubiquibot/permit-generation/compare/v1.3.1...v1.4.0) (2024-07-08)
 
 
