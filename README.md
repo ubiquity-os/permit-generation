@@ -18,7 +18,8 @@
 1. Ensure you understand and have setup the [kernel](https://github.com/ubiquity/ubiquibot-kernel).
 2. Update [compute.yml](./.github/workflows/compute.yml) with your plugin's name and update the `id`.
 3. Update [context.ts](./src/types/context.ts) with the events that your plugin will fire on.
-4. Update [plugin-inputs.ts](./src/types/plugin-inputs.ts) to match the `with:` settings in your org or repo level configuration.
+4. Update [manifest.json](./manifest.json) with a proper description of your plugin.
+5. Update [plugin-inputs.ts](./src/types/plugin-inputs.ts) to match the `with:` settings in your org or repo level configuration.
 
 - Your plugin config should look similar to this:
 
@@ -43,7 +44,7 @@
 
 ###### At this stage, your plugin will fire on your defined events with the required settings passed in from the kernel. You can now start writing your plugin's logic.
 
-5. Start building your plugin by adding your logic to the [plugin.ts](./src/plugin.ts) file.
+6. Start building your plugin by adding your logic to the [plugin.ts](./src/plugin.ts) file.
 
 ## Testing a plugin
 
