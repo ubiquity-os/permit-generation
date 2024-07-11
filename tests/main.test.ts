@@ -1,3 +1,4 @@
+import { drop } from "@mswjs/data";
 import { db } from "./__mocks__/db";
 import { server } from "./__mocks__/node";
 import usersGet from "./__mocks__/users-get.json";
@@ -10,6 +11,7 @@ afterAll(() => server.close());
 
 describe("User tests", () => {
   beforeEach(() => {
+    drop(db);
     for (const item of usersGet) {
       db.users.create(item);
     }
