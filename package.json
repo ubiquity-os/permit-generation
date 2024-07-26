@@ -96,9 +96,9 @@
     "README.md",
     "package.json"
   ],
-  "module": "core/index.esm.js",
-  "main": "core/index.js",
-  "typings": "types/index.d.ts",
+  "module": "dist/core/index.esm.js",
+  "main": "dist/core/index.js",
+  "typings": "dist/types/index.d.ts",
   "exports": {
     "./core": {
       "require": "./dist/core/index.js",
