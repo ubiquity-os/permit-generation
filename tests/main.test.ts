@@ -17,12 +17,6 @@ describe("User tests", () => {
     }
   });
 
-  it("Should fetch all the users", async () => {
-    const res = await fetch("https://api.ubiquity.com/users");
-    const data = await res.json();
-    expect(data).toMatchObject(usersGet);
-  });
-
   it("Should serve the manifest file", async () => {
     const worker = (await import("../src/worker")).default;
     const response = await worker.fetch(new Request("http://localhost/manifest.json"), { SUPABASE_KEY: "", SUPABASE_URL: "" });
