@@ -4,6 +4,18 @@ import { createAdapters } from "./adapters";
 import { Env, PluginInputs } from "./types";
 import { Context } from "./types";
 
+
+/**
+ * The main plugin function. Split for easier testing.
+ */
+export async function runPlugin(context: Context) {
+  if (context.eventName === "issue_comment.created") {
+    // do something
+  } else {
+    context.logger.error(`Unsupported event: ${context.eventName}`);
+  }
+}
+
 /**
  * How a worker executes the plugin.
  */
@@ -39,9 +51,5 @@ export async function plugin(inputs: PluginInputs, env: Env) {
 
   context.adapters = createAdapters(supabase, context);
 
-  if (context.eventName === "issue_comment.created") {
-    // do something
-  } else {
-    context.logger.error(`Unsupported event: ${context.eventName}`);
-  }
+  return runPlugin(context);
 }
