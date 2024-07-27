@@ -33,6 +33,7 @@
     "@octokit/webhooks": "13.2.7",
     "@sinclair/typebox": "0.32.33",
     "@supabase/supabase-js": "2.43.5",
+    "@ubiquity-dao/ubiquibot-logger": "^1.3.0",
     "dotenv": "16.4.5",
     "typebox-validators": "0.3.5"
   },

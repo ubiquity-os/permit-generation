@@ -3,17 +3,21 @@ import { createClient } from "@supabase/supabase-js";
 import { createAdapters } from "./adapters";
 import { Env, PluginInputs } from "./types";
 import { Context } from "./types";
-
+import { isIssueCommentEvent } from "./types/typeguards";
+import { helloWorld } from "./handlers/hello-world";
+import { LogLevel, Logs } from "@ubiquity-dao/ubiquibot-logger";
 
 /**
  * The main plugin function. Split for easier testing.
  */
 export async function runPlugin(context: Context) {
-  if (context.eventName === "issue_comment.created") {
-    // do something
-  } else {
-    context.logger.error(`Unsupported event: ${context.eventName}`);
+  const { logger, eventName } = context;
+
+  if (isIssueCommentEvent(context)) {
+    return await helloWorld(context);
   }
+
+  logger.error(`Unsupported event: ${eventName}`);
 }
 
 /**
@@ -29,26 +33,12 @@ export async function plugin(inputs: PluginInputs, env: Env) {
     config: inputs.settings,
     octokit,
     env,
-    logger: {
-      debug(message: unknown, ...optionalParams: unknown[]) {
-        console.debug(message, ...optionalParams);
-      },
-      info(message: unknown, ...optionalParams: unknown[]) {
-        console.log(message, ...optionalParams);
-      },
-      warn(message: unknown, ...optionalParams: unknown[]) {
-        console.warn(message, ...optionalParams);
-      },
-      error(message: unknown, ...optionalParams: unknown[]) {
-        console.error(message, ...optionalParams);
-      },
-      fatal(message: unknown, ...optionalParams: unknown[]) {
-        console.error(message, ...optionalParams);
-      },
-    },
+    logger: new Logs("info" as LogLevel),
     adapters: {} as ReturnType<typeof createAdapters>,
   };
 
+  // consider non-database storage solutions unless necessary
+  // TODO: deprecate adapters/supabase from context. 
   context.adapters = createAdapters(supabase, context);
 
   return runPlugin(context);

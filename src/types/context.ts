@@ -3,6 +3,7 @@ import { EmitterWebhookEvent as WebhookEvent, EmitterWebhookEventName as Webhook
 import { createAdapters } from "../adapters";
 import { Env } from "./env";
 import { PluginSettings } from "./plugin-inputs";
+import { Logs } from "@ubiquity-dao/ubiquibot-logger";
 
 export type SupportedEventsU = "issue_comment.created"; // Add more events here
 
@@ -17,11 +18,5 @@ export interface Context<T extends SupportedEventsU = SupportedEventsU, TU exten
   adapters: ReturnType<typeof createAdapters>;
   config: PluginSettings;
   env: Env;
-  logger: {
-    fatal: (message: unknown, ...optionalParams: unknown[]) => void;
-    error: (message: unknown, ...optionalParams: unknown[]) => void;
-    warn: (message: unknown, ...optionalParams: unknown[]) => void;
-    info: (message: unknown, ...optionalParams: unknown[]) => void;
-    debug: (message: unknown, ...optionalParams: unknown[]) => void;
-  };
+  logger: Logs;
 }
