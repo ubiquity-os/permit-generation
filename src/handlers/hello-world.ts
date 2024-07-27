@@ -11,22 +11,28 @@ import { Context } from "../types";
  * Logger examples are provided to show how to log different types of data.
  */
 export async function helloWorld(context: Context) {
-    const { logger, payload, octokit } = context;
+    const { logger, payload, octokit, config: { configurableResponse } } = context;
 
     const sender = payload.comment.user?.login;
     const repo = payload.repository.name;
     const issueNumber = payload.issue.number;
     const owner = payload.repository.owner.login;
+    const body = payload.comment.body;
 
+    if (!body.match(/hello/i)) {
+        logger.error(`Invalid use of slash command, use "/hello".`, { body });
+        return;
+    }
+
+    logger.info("Hello, world!");
     logger.debug(`Executing helloWorld:`, { sender, repo, issueNumber, owner });
-    logger.info(`Hello, world!`);
 
     try {
         await octokit.issues.createComment({
             owner: payload.repository.owner.login,
             repo: payload.repository.name,
             issue_number: payload.issue.number,
-            body: "Hello, world!"
+            body: configurableResponse
         });
     } catch (error) {
         /**
