@@ -154,8 +154,6 @@ function _createContext(
       supabase: {} as ReturnType<typeof createAdapters>["supabase"],
     } as ReturnType<typeof createAdapters>,
     env: {
-      SUPABASE_KEY: "",
-      SUPABASE_URL: "",
     } as Env,
     octokit: octokit,
   };

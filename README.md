@@ -24,22 +24,20 @@
 - Your plugin config should look similar to this:
 
 ```yml
-- plugin: <plugin-org/owner>/<plugin-repo-name>:compute.yml@development
-  name: plugin-name
-  id: plugin-name-command
-  description: "Plugin description" # small description of what the plugin does
-  command: "<regex for command>" # if you are creating a plugin with a slash command
-  example: "<example usage>" # how to invoke the slash command
-  with: # these are the example settings, the kernel passes these to the plugin.
-    disabledCommands: []
-    timers:
-      reviewDelayTolerance: 86000
-      taskStaleTimeoutDuration: 2580000
-    miscellaneous:
-      maxConcurrentTasks: 3
-    labels:
-      time: []
-      priority: []
+plugins:
+  "issue_comment.created":
+        - name: hello-world
+          id: hello-world
+          type: github
+          description: "A simple hello world plugin" # small description of what the plugin does
+          command: "\/hello" # if you are creating a plugin with a slash command
+          example: "/hello" # how to invoke the slash command
+          uses:
+          # - plugin: <plugin-org/owner>/<plugin-repo-name>:compute.yml@development
+          - plugin: http://localhost:4000
+            with:
+            # Define configurables here and the kernel will pass these to the plugin.
+              configurableResponse: "Hello, is it me you are looking for?"
 ```
 
 ###### At this stage, your plugin will fire on your defined events with the required settings passed in from the kernel. You can now start writing your plugin's logic.

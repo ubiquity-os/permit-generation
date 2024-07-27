@@ -25,7 +25,7 @@ export async function runPlugin(context: Context) {
  */
 export async function plugin(inputs: PluginInputs, env: Env) {
   const octokit = new Octokit({ auth: inputs.authToken });
-  const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
+  // const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 
   const context: Context = {
     eventName: inputs.eventName,
@@ -39,7 +39,7 @@ export async function plugin(inputs: PluginInputs, env: Env) {
 
   // consider non-database storage solutions unless necessary
   // TODO: deprecate adapters/supabase from context. 
-  context.adapters = createAdapters(supabase, context);
+  // context.adapters = createAdapters(supabase, context);
 
   return runPlugin(context);
 }
