@@ -1,7 +1,6 @@
 import { http, HttpResponse } from "msw";
 import { db } from "./db";
 import issueTemplate from "./issue-template";
-import { get } from "http";
 /**
  * Intercepts the routes and returns a custom payload
  */
@@ -15,8 +14,10 @@ export const handlers = [
     HttpResponse.json(db.issue.findMany({ where: { owner: { equals: owner as string }, repo: { equals: repo as string } } }))
   ),
   // get issue
-  http.get("https://api.github.com/repos/:owner/:repo/issues/:issue_number", ({ params: { owner, repo, issue_number } }) =>
-    HttpResponse.json(db.issue.findFirst({ where: { owner: { equals: owner as string }, repo: { equals: repo as string }, number: { equals: Number(issue_number) } } }))
+  http.get("https://api.github.com/repos/:owner/:repo/issues/:issue_number", ({ params: { owner, repo, issue_number: issueNumber } }) =>
+    HttpResponse.json(
+      db.issue.findFirst({ where: { owner: { equals: owner as string }, repo: { equals: repo as string }, number: { equals: Number(issueNumber) } } })
+    )
   ),
   // get user
   http.get("https://api.github.com/users/:username", ({ params: { username } }) =>
@@ -38,10 +39,10 @@ export const handlers = [
     return HttpResponse.json(newItem);
   }),
   // create comment
-  http.post("https://api.github.com/repos/:owner/:repo/issues/:issue_number/comments", async ({ params: { owner, repo, issue_number }, request }) => {
+  http.post("https://api.github.com/repos/:owner/:repo/issues/:issue_number/comments", async ({ params: { issue_number: issueNumber }, request }) => {
     const { body } = await getValue(request.body);
     const id = db.issueComments.count() + 1;
-    const newItem = { id, body, issue_number: Number(issue_number), user: db.users.getAll()[0] };
+    const newItem = { id, body, issue_number: Number(issueNumber), user: db.users.getAll()[0] };
     db.issueComments.create(newItem);
     return HttpResponse.json(newItem);
   }),

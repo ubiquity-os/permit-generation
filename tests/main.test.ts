@@ -45,10 +45,16 @@ describe("Plugin tests", () => {
     expect(context.eventName).toBe("issue_comment.created");
     expect(context.payload.comment.body).toBe("/Hello");
 
-    await runPlugin(context)
+    await runPlugin(context);
 
     expect(errorSpy).not.toHaveBeenCalled();
-    expect(debugSpy).toHaveBeenNthCalledWith(1, STRINGS.EXECUTING_HELLO_WORLD, { caller: STRINGS.CALLER_LOGS_ANON, sender: STRINGS.USER_1, repo: STRINGS.TEST_REPO, issueNumber: 1, owner: STRINGS.USER_1 });
+    expect(debugSpy).toHaveBeenNthCalledWith(1, STRINGS.EXECUTING_HELLO_WORLD, {
+      caller: STRINGS.CALLER_LOGS_ANON,
+      sender: STRINGS.USER_1,
+      repo: STRINGS.TEST_REPO,
+      issueNumber: 1,
+      owner: STRINGS.USER_1,
+    });
     expect(infoSpy).toHaveBeenNthCalledWith(1, STRINGS.HELLO_WORLD);
     expect(okSpy).toHaveBeenNthCalledWith(1, STRINGS.SUCCESSFULLY_CREATED_COMMENT);
     expect(verboseSpy).toHaveBeenNthCalledWith(1, STRINGS.EXITING_HELLO_WORLD);
@@ -80,22 +86,21 @@ describe("Plugin tests", () => {
   });
 });
 
-
 /**
  * The heart of each test. This function creates a context object with the necessary data for the plugin to run.
- * 
+ *
  * So long as everything is defined correctly in the db (see `./__mocks__/helpers.ts: setupTests()`),
  * this function should be able to handle any event type and the conditions that come with it.
- * 
+ *
  * Refactor according to your needs.
  */
 function createContext(
-  configurableResponse: string = "Hello, world!", // we pass the plugin configurables here
+  configurableResponse: string = "Hello, world!", // we pass the plugin configurable items here
   commentBody: string = "/Hello",
   repoId: number = 1,
   payloadSenderId: number = 1,
   commentId: number = 1,
-  issueOne: number = 1,
+  issueOne: number = 1
 ) {
   const repo = db.repo.findFirst({ where: { id: { equals: repoId } } }) as unknown as Context["payload"]["repository"];
   const sender = db.users.findFirst({ where: { id: { equals: payloadSenderId } } }) as unknown as Context["payload"]["sender"];
@@ -104,7 +109,7 @@ function createContext(
   createComment(commentBody, commentId); // create it first then pull it from the DB and feed it to _createContext
   const comment = db.issueComments.findFirst({ where: { id: { equals: commentId } } }) as unknown as Context["payload"]["comment"];
 
-  const context = _createContext(repo, sender, issue1, comment, configurableResponse);
+  const context = createContextInner(repo, sender, issue1, comment, configurableResponse);
   const infoSpy = jest.spyOn(context.logger, "info");
   const errorSpy = jest.spyOn(context.logger, "error");
   const debugSpy = jest.spyOn(context.logger, "debug");
@@ -125,10 +130,10 @@ function createContext(
 
 /**
  * Creates the context object central to the plugin.
- * 
+ *
  * This should represent the active `SupportedEvents` payload for any given event.
  */
-function _createContext(
+function createContextInner(
   repo: Context["payload"]["repository"],
   sender: Context["payload"]["sender"],
   issue: Context["payload"]["issue"],
@@ -153,8 +158,7 @@ function _createContext(
     adapters: {
       supabase: {} as ReturnType<typeof createAdapters>["supabase"],
     } as ReturnType<typeof createAdapters>,
-    env: {
-    } as Env,
+    env: {} as Env,
     octokit: octokit,
   };
 }

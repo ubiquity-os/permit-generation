@@ -10,5 +10,5 @@ import { Context } from "./context";
  * Restricts the scope of `context` to the `issue_comment.created` payload.
  */
 export function isIssueCommentEvent(context: Context): context is Context<"issue_comment.created"> {
-    return context.eventName === "issue_comment.created";
+  return context.eventName === "issue_comment.created";
 }

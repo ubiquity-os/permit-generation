@@ -1,5 +1,5 @@
 import { Octokit } from "@octokit/rest";
-import { createClient } from "@supabase/supabase-js";
+// import { createClient } from "@supabase/supabase-js";
 import { createAdapters } from "./adapters";
 import { Env, PluginInputs } from "./types";
 import { Context } from "./types";
@@ -38,7 +38,7 @@ export async function plugin(inputs: PluginInputs, env: Env) {
   };
 
   // consider non-database storage solutions unless necessary
-  // TODO: deprecate adapters/supabase from context. 
+  // TODO: deprecate adapters/supabase from context.
   // context.adapters = createAdapters(supabase, context);
 
   return runPlugin(context);
