@@ -1,5 +1,4 @@
 import { Octokit } from "@octokit/rest";
-// import { createClient } from "@supabase/supabase-js";
 import { createAdapters } from "./adapters";
 import { Env, PluginInputs } from "./types";
 import { Context } from "./types";
@@ -25,7 +24,6 @@ export async function runPlugin(context: Context) {
  */
 export async function plugin(inputs: PluginInputs, env: Env) {
   const octokit = new Octokit({ auth: inputs.authToken });
-  // const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 
   const context: Context = {
     eventName: inputs.eventName,
@@ -37,9 +35,16 @@ export async function plugin(inputs: PluginInputs, env: Env) {
     adapters: {} as ReturnType<typeof createAdapters>,
   };
 
-  // consider non-database storage solutions unless necessary
-  // TODO: deprecate adapters/supabase from context.
-  // context.adapters = createAdapters(supabase, context);
+  /**
+   * NOTICE: Consider non-database storage solutions unless necessary
+   *
+   * Initialize storage adapters here. For example, to use Supabase:
+   *
+   * import { createClient } from "@supabase/supabase-js";
+   *
+   * const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
+   * context.adapters = createAdapters(supabase, context);
+   */
 
   return runPlugin(context);
 }
