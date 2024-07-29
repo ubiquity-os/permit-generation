@@ -1,5 +1,4 @@
 import { Octokit } from "@octokit/rest";
-import { createAdapters } from "./adapters";
 import { Env, PluginInputs } from "./types";
 import { Context } from "./types";
 import { isIssueCommentEvent } from "./types/typeguards";
@@ -32,7 +31,6 @@ export async function plugin(inputs: PluginInputs, env: Env) {
     octokit,
     env,
     logger: new Logs("info" as LogLevel),
-    adapters: {} as ReturnType<typeof createAdapters>,
   };
 
   /**

@@ -9,7 +9,6 @@ import { createComment, setupTests } from "./__mocks__/helpers";
 import manifest from "../manifest.json";
 import dotenv from "dotenv";
 import { Logs } from "@ubiquity-dao/ubiquibot-logger";
-import { createAdapters } from "../src/adapters";
 import { Env } from "../src/types";
 import { runPlugin } from "../src/plugin";
 
@@ -155,9 +154,6 @@ function createContextInner(
     config: {
       configurableResponse,
     },
-    adapters: {
-      supabase: {} as ReturnType<typeof createAdapters>["supabase"],
-    } as ReturnType<typeof createAdapters>,
     env: {} as Env,
     octokit: octokit,
   };
