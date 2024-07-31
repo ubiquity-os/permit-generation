@@ -32,7 +32,7 @@
     "@octokit/rest": "20.1.1",
     "@octokit/webhooks": "13.2.7",
     "@sinclair/typebox": "0.32.33",
-    "@supabase/supabase-js": "2.43.5",
+    "@ubiquity-dao/ubiquibot-logger": "^1.3.0",
     "dotenv": "16.4.5",
     "typebox-validators": "0.3.5"
   },
@@ -45,6 +45,7 @@
     "@eslint/js": "9.5.0",
     "@jest/globals": "29.7.0",
     "@mswjs/data": "0.16.1",
+    "@types/jest": "^29.5.12",
     "@types/node": "20.14.5",
     "cspell": "8.9.0",
     "eslint": "9.5.0",
@@ -79,5 +80,6 @@
     "extends": [
       "@commitlint/config-conventional"
     ]
-  }
+  },
+  "packageManager": "yarn@1.22.22"
 }

@@ -1,15 +1,28 @@
 import { Octokit } from "@octokit/rest";
-import { createClient } from "@supabase/supabase-js";
-import { createAdapters } from "./adapters";
 import { Env, PluginInputs } from "./types";
 import { Context } from "./types";
+import { isIssueCommentEvent } from "./types/typeguards";
+import { helloWorld } from "./handlers/hello-world";
+import { LogLevel, Logs } from "@ubiquity-dao/ubiquibot-logger";
+
+/**
+ * The main plugin function. Split for easier testing.
+ */
+export async function runPlugin(context: Context) {
+  const { logger, eventName } = context;
+
+  if (isIssueCommentEvent(context)) {
+    return await helloWorld(context);
+  }
+
+  logger.error(`Unsupported event: ${eventName}`);
+}
 
 /**
  * How a worker executes the plugin.
  */
 export async function plugin(inputs: PluginInputs, env: Env) {
   const octokit = new Octokit({ auth: inputs.authToken });
-  const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 
   const context: Context = {
     eventName: inputs.eventName,
@@ -17,31 +30,19 @@ export async function plugin(inputs: PluginInputs, env: Env) {
     config: inputs.settings,
     octokit,
     env,
-    logger: {
-      debug(message: unknown, ...optionalParams: unknown[]) {
-        console.debug(message, ...optionalParams);
-      },
-      info(message: unknown, ...optionalParams: unknown[]) {
-        console.log(message, ...optionalParams);
-      },
-      warn(message: unknown, ...optionalParams: unknown[]) {
-        console.warn(message, ...optionalParams);
-      },
-      error(message: unknown, ...optionalParams: unknown[]) {
-        console.error(message, ...optionalParams);
-      },
-      fatal(message: unknown, ...optionalParams: unknown[]) {
-        console.error(message, ...optionalParams);
-      },
-    },
-    adapters: {} as ReturnType<typeof createAdapters>,
+    logger: new Logs("info" as LogLevel),
   };
 
-  context.adapters = createAdapters(supabase, context);
+  /**
+   * NOTICE: Consider non-database storage solutions unless necessary
+   *
+   * Initialize storage adapters here. For example, to use Supabase:
+   *
+   * import { createClient } from "@supabase/supabase-js";
+   *
+   * const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
+   * context.adapters = createAdapters(supabase, context);
+   */
 
-  if (context.eventName === "issue_comment.created") {
-    // do something
-  } else {
-    context.logger.error(`Unsupported event: ${context.eventName}`);
-  }
+  return runPlugin(context);
 }
