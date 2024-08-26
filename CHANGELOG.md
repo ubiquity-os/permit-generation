@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/ubiquibot/permit-generation/compare/v1.4.1...v1.4.2) (2024-08-26)
+
+
+### Bug Fixes
+
+* main entry for error free imports ([168b975](https://github.com/ubiquibot/permit-generation/commit/168b9756927f9caf9802e91ab380c89ee6247b0a))
+
 ## [1.4.1](https://github.com/ubiquibot/permit-generation/compare/v1.4.0...v1.4.1) (2024-07-09)
 
 
