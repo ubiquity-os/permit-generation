@@ -1,0 +1,44 @@
+name: Deploy Worker
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.10.0"
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - uses: actions/checkout@v4
+
+      - name: Update wrangler.toml Name Field
+        run: |
+          branch_name=$(echo ${GITHUB_REF##*/} | sed 's#[^a-zA-Z0-9]#_#g')
+          sed -i "s/^name = \"\(.*\)\"$/name = \"\1-${branch_name}\"/" wrangler.toml
+
+      - name: Deploy with Wrangler
+        id: wrangler_deploy
+        uses: cloudflare/wrangler-action@v3
+        with:
+          wranglerVersion: "3.57.0"
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          secrets: |
+            SUPABASE_URL
+            SUPABASE_KEY
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: Extract and Write Deployment URL to Summary
+        run: |
+          echo "### Deployment URL" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.wrangler_deploy.outputs.deployment-url }}" >> $GITHUB_STEP_SUMMARY
