@@ -22,10 +22,15 @@ jobs:
       - name: Update wrangler.toml Name Field
         run: |
           branch_name=$(echo '${{ github.event.ref }}' | sed 's#refs/heads/##' | sed 's#[^a-zA-Z0-9]#-#g')
-          # Make sure that it doesnt exceed 63 characters or it will break RFC 1035
-          branch_name=$(echo "${branch_name}" | cut -c 1-63)
-          sed -i "s/^name = \"\(.*\)\"$/name = \"\1-${branch_name}\"/" wrangler.toml
-          echo $branch_name
+          # Extract base name from wrangler.toml
+          base_name=$(grep '^name = ' wrangler.toml | sed 's/^name = "\(.*\)"$/\1/')
+          # Concatenate branch name with base name
+          new_name="${base_name}-${branch_name}"
+          # Truncate the new name to 63 characters for RFC 1035
+          new_name=$(echo "$new_name" | cut -c 1-63)
+          # Update the wrangler.toml file
+          sed -i "s/^name = .*/name = \"$new_name\"/" wrangler.toml
+          echo "Updated wrangler.toml name to: $new_name"
       - name: Deploy with Wrangler
         id: wrangler_deploy
         uses: cloudflare/wrangler-action@v3
