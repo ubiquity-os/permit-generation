@@ -64,6 +64,11 @@ await fetch("http://localhost:4000/", {
 
 A full example can be found [here](https://github.com/ubiquibot/assistive-pricing/blob/623ea3f950f04842f2d003bda3fc7b7684e41378/tests/http/request.http).
 
+#### Deploying the Worker
+For testing purposes, the worker can be deployed through the Worker Deploy and Worker Delete workflows. It requires to 
+create a personal [Cloudflare Account](https://www.cloudflare.com/), and fill the `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` within your 
+GitHub Action Secrets.
+
 ### Action Plugins
 
 - Ensure the kernel is running and listening for events.
