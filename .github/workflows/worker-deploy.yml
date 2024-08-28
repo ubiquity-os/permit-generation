@@ -1,12 +1,13 @@
-name: Delete Deployment
+name: Deploy Worker
 
 on:
-  delete:
+  push:
+  workflow_dispatch:
 
 jobs:
-  delete:
+  deploy:
     runs-on: ubuntu-latest
-    name: Delete Deployment
+    name: Deploy
     steps:
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -18,27 +19,28 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - name: Get Deleted Branch Name
-        id: get_branch
+      - name: Update wrangler.toml Name Field
         run: |
           branch_name=$(echo '${{ github.event.ref }}' | sed 's#refs/heads/##' | sed 's#[^a-zA-Z0-9]#-#g')
-          echo "branch_name=$branch_name" >> $GITHUB_ENV
-
-      - name: Retrieve and Construct Full Worker Name
-        id: construct_worker_name
-        run: |
-          base_name=$(grep '^name = ' wrangler.toml | sed 's/^name = "\(.*\)"$/\1/')
-          full_worker_name="${base_name}-${{ env.branch_name }}"
-          echo "full_worker_name=$full_worker_name" >> $GITHUB_ENV
-
-      - name: Delete Deployment with Wrangler
+          # Make sure that it doesnt exceed 63 characters or it will break RFC 1035
+          branch_name=$(echo "${branch_name}" | cut -c 1-63)
+          sed -i "s/^name = \"\(.*\)\"$/name = \"\1-${branch_name}\"/" wrangler.toml
+          echo $branch_name
+      - name: Deploy with Wrangler
+        id: wrangler_deploy
         uses: cloudflare/wrangler-action@v3
         with:
+          wranglerVersion: "3.57.0"
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: delete --name ${{ env.full_worker_name }}
+          secrets: |
+            SUPABASE_URL
+            SUPABASE_KEY
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 
-      - name: Output Deletion Result
+      - name: Write Deployment URL to Summary
         run: |
           echo "### Deployment URL" >> $GITHUB_STEP_SUMMARY
-          echo 'Deployment `${{ env.full_worker_name }}` has been deleted.' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.wrangler_deploy.outputs.deployment-url }}" >> $GITHUB_STEP_SUMMARY
