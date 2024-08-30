@@ -31,7 +31,7 @@ interface Erc721PermitReward extends CommonFields {
     metadata: {
       GITHUB_ORGANIZATION_NAME: string;
       GITHUB_REPOSITORY_NAME: string;
-      GITHUB_ISSUE_ID: string;
+      GITHUB_ISSUE_NODE_ID: string;
       GITHUB_USERNAME: string;
       GITHUB_CONTRIBUTION_TYPE: string;
     };
