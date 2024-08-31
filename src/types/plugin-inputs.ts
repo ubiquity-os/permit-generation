@@ -21,6 +21,7 @@ export interface PluginInputs<T extends SupportedEventsU = SupportedEventsU, TU 
 export const pluginSettingsSchema = T.Object(
   {
     configurableResponse: T.String(),
+    customStringsUrl: T.Optional(T.String()),
   },
   { default: { configurableResponse: "Hello, world!" } }
 );
