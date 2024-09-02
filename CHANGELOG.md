@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/ubiquibot/permit-generation/compare/v1.4.2...v1.4.3) (2024-09-02)
+
+
+### Bug Fixes
+
+* use issue.node_id for permit nonces ([9228240](https://github.com/ubiquibot/permit-generation/commit/9228240cf5dd40d7dfd83a98a9c379e678a5bbc8))
+
 ## [1.4.2](https://github.com/ubiquibot/permit-generation/compare/v1.4.1...v1.4.2) (2024-08-26)
 
 
