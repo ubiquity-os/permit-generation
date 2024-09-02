@@ -54,7 +54,7 @@ const erc721PermitT = T.Object({
   nftMetadata: T.Object({
     GITHUB_ORGANIZATION_NAME: T.String(),
     GITHUB_REPOSITORY_NAME: T.String(),
-    GITHUB_ISSUE_ID: T.String(),
+    GITHUB_ISSUE_NODE_ID: T.String(),
     GITHUB_USERNAME: T.String(),
     GITHUB_CONTRIBUTION_TYPE: T.String(),
   }),
