@@ -32,7 +32,7 @@ export interface PermitPayload {
   nftContractAddress: string;
   walletAddress: string;
   logger: Logger;
-  issueId: string;
+  issueNodeId: string;
   organizationName: string;
   repositoryName: string;
   userId: number;
@@ -51,7 +51,7 @@ export async function generateErc721PermitSignature(
   let _nftMinterPrivateKey: string;
   let _userId: number;
   let _walletAddress: string;
-  let _issueId: string;
+  let _issueNodeId: string;
   let _organizationName: string;
   let _repositoryName: string;
   let _username = username;
@@ -62,7 +62,7 @@ export async function generateErc721PermitSignature(
     _nftMinterPrivateKey = contextOrPermitPayload.nftMinterPrivateKey;
     _evmNetworkId = contextOrPermitPayload.evmNetworkId;
     _walletAddress = contextOrPermitPayload.walletAddress;
-    _issueId = contextOrPermitPayload.issueId;
+    _issueNodeId = contextOrPermitPayload.issueNodeId;
     _organizationName = contextOrPermitPayload.organizationName;
     _repositoryName = contextOrPermitPayload.repositoryName;
     _userId = contextOrPermitPayload.userId;
@@ -76,7 +76,7 @@ export async function generateErc721PermitSignature(
     _nftMinterPrivateKey = NFT_MINTER_PRIVATE_KEY;
     _username = username;
     if (isIssueEvent(contextOrPermitPayload)) {
-      _issueId = contextOrPermitPayload.payload.issue.id.toString();
+      _issueNodeId = contextOrPermitPayload.payload.issue.node_id;
     } else {
       throw new Error("Issue Id is missing.");
     }
@@ -120,7 +120,7 @@ export async function generateErc721PermitSignature(
   const erc721Metadata = {
     GITHUB_ORGANIZATION_NAME: _organizationName,
     GITHUB_REPOSITORY_NAME: _repositoryName,
-    GITHUB_ISSUE_ID: _issueId,
+    GITHUB_ISSUE_NODE_ID: _issueNodeId,
     GITHUB_USERNAME: _username,
     GITHUB_CONTRIBUTION_TYPE: contributionType,
   };
@@ -130,7 +130,7 @@ export async function generateErc721PermitSignature(
     beneficiary: _walletAddress,
     deadline: MaxUint256.toBigInt(),
     keys: metadata.map(([key]) => keccak256(toUtf8Bytes(key))),
-    nonce: BigInt(keccak256(toUtf8Bytes(`${_userId}-${_issueId}`))),
+    nonce: BigInt(keccak256(toUtf8Bytes(`${_userId}-${_issueNodeId}`))),
     values: metadata.map(([, value]) => value),
   };
 

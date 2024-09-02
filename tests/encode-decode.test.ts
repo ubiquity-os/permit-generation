@@ -29,7 +29,7 @@ describe("Encoding / Decoding tests", () => {
         metadata: {
           GITHUB_ORGANIZATION_NAME: "",
           GITHUB_REPOSITORY_NAME: "",
-          GITHUB_ISSUE_ID: "",
+          GITHUB_ISSUE_NODE_ID: "",
           GITHUB_USERNAME: "",
           GITHUB_CONTRIBUTION_TYPE: "",
         },

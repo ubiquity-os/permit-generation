@@ -90,7 +90,7 @@ describe("generateErc721PermitSignature", () => {
     const organizationName = "test";
     const repositoryName = "test";
     const issueNumber = issueId.toString();
-    const keys = ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"];
+    const keys = ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_NODE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"];
 
     if (result && typeof result === "object") {
       expect(result).toBeDefined();

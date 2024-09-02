@@ -9,7 +9,7 @@ export interface Payload {
   evmNetworkId: number;
   evmPrivateEncrypted: string;
   walletAddress: string;
-  issueId: number;
+  issueNodeId: string;
   logger: Logger;
   userId: number;
 }
@@ -25,17 +25,17 @@ export async function generateErc20PermitSignature(
   let _logger: Logger;
   const _username = username;
   let _walletAddress: string | null | undefined;
-  let _issueId: number;
+  let _issueNodeId: string;
   let _evmNetworkId: number;
   let _evmPrivateEncrypted: string;
   let _userId: number;
 
-  if ("issueId" in contextOrPayload) {
+  if ("issueNodeId" in contextOrPayload) {
     _logger = contextOrPayload.logger as Logger;
     _walletAddress = contextOrPayload.walletAddress;
     _evmNetworkId = contextOrPayload.evmNetworkId;
     _evmPrivateEncrypted = contextOrPayload.evmPrivateEncrypted;
-    _issueId = contextOrPayload.issueId;
+    _issueNodeId = contextOrPayload.issueNodeId;
     _userId = contextOrPayload.userId;
   } else {
     const config = contextOrPayload.config;
@@ -51,9 +51,9 @@ export async function generateErc20PermitSignature(
     _evmNetworkId = evmNetworkId;
     _evmPrivateEncrypted = evmPrivateEncrypted;
     if ("issue" in contextOrPayload.payload) {
-      _issueId = contextOrPayload.payload.issue.id;
+      _issueNodeId = contextOrPayload.payload.issue.node_id;
     } else if ("pull_request" in contextOrPayload.payload) {
-      _issueId = contextOrPayload.payload.pull_request.id;
+      _issueNodeId = contextOrPayload.payload.pull_request.node_id;
     } else {
       throw new Error("Issue Id is missing");
     }
@@ -108,7 +108,7 @@ export async function generateErc20PermitSignature(
       amount: parseUnits(amount.toString(), tokenDecimals),
     },
     spender: _walletAddress,
-    nonce: BigInt(keccak256(toUtf8Bytes(`${_userId}-${_issueId}`))),
+    nonce: BigInt(keccak256(toUtf8Bytes(`${_userId}-${_issueNodeId}`))),
     deadline: MaxInt256,
   };
 
