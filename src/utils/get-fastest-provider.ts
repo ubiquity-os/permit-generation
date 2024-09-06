@@ -1,4 +1,3 @@
-// @ts-expect-error - no types
 import { RPCHandler, HandlerConstructorConfig } from "@ubiquity-dao/rpc-handler";
 import { JsonRpcProvider } from "ethers";
 
@@ -19,7 +18,8 @@ function getHandler(networkId: number | string) {
 export async function getFastestProvider(networkId: number | string): Promise<JsonRpcProvider> {
   try {
     const handler = getHandler(networkId);
-    return await handler.getFastestRpcProvider();
+    const provider = await handler.getFastestRpcProvider();
+    return new JsonRpcProvider(provider.connection.url);
   } catch (e) {
     throw new Error(`Failed to get fastest provider for networkId: ${networkId}`);
   }
