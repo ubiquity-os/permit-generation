@@ -26,6 +26,14 @@ const config = [
     plugins: [nodeResolve({ browser: true }), commonjs(), typescript(), yaml(), json(), generateDtsBundle(), terser()],
   },
   {
+    input: "src/utils/index.ts",
+    output: {
+      dir: "dist/utils",
+      format: "cjs",
+    },
+    plugins: [nodeResolve({ browser: true }), commonjs(), typescript(), yaml(), json(), generateDtsBundle(), terser()],
+  },
+  {
     input: "src/index.ts",
     output: {
       dir: "dist/core",
