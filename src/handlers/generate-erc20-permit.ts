@@ -2,7 +2,7 @@ import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap
 import { ethers, keccak256, MaxInt256, parseUnits, toUtf8Bytes } from "ethers";
 import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
-import { decryptKeys } from "../utils";
+import { decrypt, parseDecryptedPrivateKey } from "../utils";
 import { getFastestProvider } from "../utils/get-fastest-provider";
 
 export interface Payload {
@@ -74,10 +74,14 @@ export async function generateErc20PermitSignature(
     throw new Error("Provider is not defined");
   }
 
-  const { privateKey } = await decryptKeys(_evmPrivateEncrypted);
-  if (!privateKey) {
-    const errorMessage = "Private key is not defined";
-    _logger.fatal(errorMessage);
+  let privateKey = '';
+  try {
+    const privateKeyDecrypted = await decrypt(_evmPrivateEncrypted, String(process.env.X25519_PRIVATE_KEY));
+    const privateKeyParsed = parseDecryptedPrivateKey(privateKeyDecrypted);
+    privateKey = privateKeyParsed.privateKey;
+  } catch (error) {
+    const errorMessage = `Failed to decrypt a private key: ${error}`;
+    _logger.error(errorMessage);
     throw new Error(errorMessage);
   }
 
