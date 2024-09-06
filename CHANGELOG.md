@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/ubiquibot/permit-generation/compare/v1.4.3...v1.5.0) (2024-09-06)
+
+
+### Features
+
+* publish ([4595c18](https://github.com/ubiquibot/permit-generation/commit/4595c1861fa70fe290a7e37de92fae058eb66f6a))
+
 ## [1.4.3](https://github.com/ubiquibot/permit-generation/compare/v1.4.2...v1.4.3) (2024-09-02)
 
 
