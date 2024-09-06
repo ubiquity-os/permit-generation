@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/ubiquibot/permit-generation/compare/v1.5.0...v1.5.1) (2024-09-06)
+
+
+### Bug Fixes
+
+* use connection.url for JsonRpcProvider ([a046aaf](https://github.com/ubiquibot/permit-generation/commit/a046aafd37e4bc5509180fcf9a0f51caea47e9a0))
+
 ## [1.5.0](https://github.com/ubiquibot/permit-generation/compare/v1.4.3...v1.5.0) (2024-09-06)
 
 
