@@ -93,6 +93,7 @@
     "dist/types/*",
     "dist/handlers/*",
     "dist/core/*",
+    "dist/utils/*",
     "README.md",
     "package.json"
   ],
@@ -114,6 +115,11 @@
       "require": "./dist/handlers/index.js",
       "import": "./dist/handlers/index.js",
       "types": "./dist/handlers/index.d.ts"
+    },
+    "./utils": {
+      "require": "./dist/utils/index.js",
+      "import": "./dist/utils/index.js",
+      "types": "./dist/utils/index.d.ts"
     }
   }
 }

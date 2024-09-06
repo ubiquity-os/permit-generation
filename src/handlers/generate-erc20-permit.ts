@@ -2,7 +2,7 @@ import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap
 import { ethers, keccak256, MaxInt256, parseUnits, toUtf8Bytes } from "ethers";
 import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
-import { decryptKeys } from "../utils/keys";
+import { decryptKeys } from "../utils";
 import { getFastestProvider } from "../utils/get-fastest-provider";
 
 export interface Payload {
