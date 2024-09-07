@@ -74,11 +74,12 @@ export async function generateErc20PermitSignature(
     throw new Error("Provider is not defined");
   }
 
-  let privateKey = '';
+  let privateKey = null;
   try {
     const privateKeyDecrypted = await decrypt(_evmPrivateEncrypted, String(process.env.X25519_PRIVATE_KEY));
     const privateKeyParsed = parseDecryptedPrivateKey(privateKeyDecrypted);
     privateKey = privateKeyParsed.privateKey;
+    if (!privateKey) throw new Error("Private key is not defined");
   } catch (error) {
     const errorMessage = `Failed to decrypt a private key: ${error}`;
     _logger.error(errorMessage);

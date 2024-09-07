@@ -61,11 +61,11 @@ export async function getPublicKey(x25519PrivateKey: string): Promise<string> {
  */
 export function parseDecryptedPrivateKey(decryptedPrivateKey: string) {
   let result: {
-    privateKey: string,
+    privateKey: string | null,
     allowedOrganizationId: number | null,
     allowedRepositoryId: number | null,
   } = {
-    privateKey: "",
+    privateKey: null,
     allowedOrganizationId: null,
     allowedRepositoryId: null,
   };
