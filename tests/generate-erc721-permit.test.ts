@@ -1,5 +1,5 @@
 import { MaxUint256 } from "@uniswap/permit2-sdk";
-import { BaseWallet, keccak256, toUtf8Bytes, TypedDataDomain, TypedDataField } from "ethers";
+import { Wallet, utils, TypedDataDomain, TypedDataField } from "ethers";
 import { generateErc721PermitSignature } from "../src";
 import { Context } from "../src/types/context";
 import { Env } from "../src/types/env";
@@ -69,7 +69,7 @@ describe("generateErc721PermitSignature", () => {
     (context.adapters.supabase.wallet.getWalletByUserId as jest.Mock).mockReturnValue(SPENDER);
     (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(userId);
     jest
-      .spyOn(BaseWallet.prototype, "signTypedData")
+      .spyOn(Wallet.prototype, "_signTypedData")
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .mockImplementation((domain: TypedDataDomain, types: Record<string, TypedDataField[]>, value: Record<string, unknown>) => {
         return Promise.resolve("0x0");
@@ -100,10 +100,10 @@ describe("generateErc721PermitSignature", () => {
       expect(result.erc721Request?.metadata).toBeDefined();
       expect(result.beneficiary).toBe(SPENDER);
       expect(result.deadline).toBe(MaxUint256.toString());
-      expect(result.nonce).toBe(BigInt(keccak256(toUtf8Bytes(`${userId}-${issueId}`))).toString());
+      expect(result.nonce).toBe(BigInt(utils.keccak256(utils.toUtf8Bytes(`${userId}-${issueId}`))).toString());
       expect(result.erc721Request?.values).toEqual([organizationName, repositoryName, issueNumber, userId, contributionType]);
       expect(result.networkId).toBe(context.config.evmNetworkId);
-      const keysHashed = keys.map((key) => keccak256(toUtf8Bytes(key)));
+      const keysHashed = keys.map((key) => utils.keccak256(utils.toUtf8Bytes(key)));
       expect(result.erc721Request?.keys).toEqual(keysHashed);
     }
 
