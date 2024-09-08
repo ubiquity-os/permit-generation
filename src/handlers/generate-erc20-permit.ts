@@ -1,5 +1,5 @@
 import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
-import { ethers, keccak256, MaxInt256, parseUnits, toUtf8Bytes } from "ethers";
+import { ethers, utils, constants } from "ethers";
 import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
 import { decryptKeys } from "../utils";
@@ -105,17 +105,17 @@ export async function generateErc20PermitSignature(
   const permitTransferFromData: PermitTransferFrom = {
     permitted: {
       token: tokenAddress,
-      amount: parseUnits(amount.toString(), tokenDecimals),
+      amount: utils.parseUnits(amount.toString(), tokenDecimals),
     },
     spender: _walletAddress,
-    nonce: BigInt(keccak256(toUtf8Bytes(`${_userId}-${_issueNodeId}`))),
-    deadline: MaxInt256,
+    nonce: BigInt(utils.keccak256(utils.toUtf8Bytes(`${_userId}-${_issueNodeId}`))),
+    deadline: constants.MaxInt256,
   };
 
   const { domain, types, values } = SignatureTransfer.getPermitData(permitTransferFromData, PERMIT2_ADDRESS, _evmNetworkId);
 
   const signature = await adminWallet
-    .signTypedData(
+    ._signTypedData(
       {
         name: domain.name,
         version: domain.version,
