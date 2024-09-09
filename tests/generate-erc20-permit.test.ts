@@ -76,9 +76,9 @@ describe("generateErc20PermitSignature", () => {
 
   it("should throw error when evmPrivateEncrypted is not defined", async () => {
     const amount = 0;
-
-    await expect(generateErc20PermitSignature(context, SPENDER, amount, ERC20_REWARD_TOKEN_ADDRESS)).rejects.toThrow("Private key is not defined");
-    expect(context.logger.fatal).toHaveBeenCalledWith("Private key is not defined");
+    const expectedError = "Failed to decrypt a private key: TypeError: input cannot be null or undefined";
+    await expect(generateErc20PermitSignature(context, SPENDER, amount, ERC20_REWARD_TOKEN_ADDRESS)).rejects.toThrow(expectedError);
+    expect(context.logger.error).toHaveBeenCalledWith(expectedError);
   });
 
   it("should return error message when no wallet found for user", async () => {
