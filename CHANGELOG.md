@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/ubiquibot/permit-generation/compare/v1.5.1...v1.6.0) (2024-09-09)
+
+
+### Features
+
+* private key formats ([e1f4d39](https://github.com/ubiquibot/permit-generation/commit/e1f4d39ec68e04b9b7bcfda26742a4e0b42c8016))
+
 ## [1.5.1](https://github.com/ubiquibot/permit-generation/compare/v1.5.0...v1.5.1) (2024-09-06)
 
 
