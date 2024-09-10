@@ -1,5 +1,5 @@
 import { MaxUint256 } from "@uniswap/permit2-sdk";
-import { ethers, keccak256, toUtf8Bytes } from "ethers";
+import { ethers, utils } from "ethers";
 import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
 import { isIssueEvent } from "../types/typeguards";
@@ -129,8 +129,8 @@ export async function generateErc721PermitSignature(
   const erc721SignatureData: Erc721PermitSignatureData = {
     beneficiary: _walletAddress,
     deadline: MaxUint256.toBigInt(),
-    keys: metadata.map(([key]) => keccak256(toUtf8Bytes(key))),
-    nonce: BigInt(keccak256(toUtf8Bytes(`${_userId}-${_issueNodeId}`))),
+    keys: metadata.map(([key]) => utils.keccak256(utils.toUtf8Bytes(key))),
+    nonce: BigInt(utils.keccak256(utils.toUtf8Bytes(`${_userId}-${_issueNodeId}`))),
     values: metadata.map(([, value]) => value),
   };
 
@@ -141,7 +141,7 @@ export async function generateErc721PermitSignature(
     chainId: _evmNetworkId,
   };
 
-  const signature = await adminWallet.signTypedData(domain, types, erc721SignatureData).catch((error: unknown) => {
+  const signature = await adminWallet._signTypedData(domain, types, erc721SignatureData).catch((error: unknown) => {
     _logger.error("Failed to sign typed data", error);
     throw new Error(`Failed to sign typed data: ${error}`);
   });
