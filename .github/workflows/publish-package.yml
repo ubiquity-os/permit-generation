@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - development
 
 permissions:
   contents: write
@@ -18,7 +18,7 @@ jobs:
         id: release
         with:
           release-type: node
-          target-branch: main
+          target-branch: development
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
