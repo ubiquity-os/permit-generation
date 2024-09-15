@@ -1,0 +1,49 @@
+name: Permit Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      users_amounts:
+        description: "A JSON array containing usernames and associated amounts"
+        required: true
+        # example: '[{"user1": 100}, {"user2": 150}]'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.10.0"
+
+      - name: Install dependencies
+        run: yarn install --immutable --immutable-cache --check-cache
+
+      - name: Process permit requests
+        id: parse
+        run: |
+          echo "Received input: ${{ github.event.inputs.users_amounts }}"
+          USERS_AMOUNTS=${{ github.event.inputs.users_amounts }}
+          echo "$USERS_AMOUNTS" > users_amounts.json
+
+          cat users_amounts.json | jq -c '.[]' | while read user_amount; do
+            USERNAME=$(echo $user_amount | jq -r 'keys[0]')
+            AMOUNT=$(echo $user_amount | jq -r '.[]')
+
+            # TODO: This will convert the username to it's unique user ID.
+            USER_ID=$(npx tsx scripts/convertUsernameToID.ts $USERNAME)
+
+            #TODO: Generate a permit for the user using the user ID and the amount provided
+            PERMIT=$(npx tsx scripts/generate-permit.ts $USER_ID $AMOUNT)
+
+            # TODO: Implement logic for how to output the permit to the user.
+          done
+        shell: bash
+        env:
+          USERS_AMOUNTS: ${{ github.event.inputs.users_amounts }}
+          X25519_PRIVATE_KEY: ${{ secrets.X25519_PRIVATE_KEY }}
