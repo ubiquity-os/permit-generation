@@ -1,4 +1,4 @@
-import { ethers, ZeroAddress } from "ethers";
+import { ethers, constants } from "ethers";
 import { Context } from "../types/context";
 
 export async function registerWallet(context: Context, address: string | null) {
@@ -26,7 +26,7 @@ export async function registerWallet(context: Context, address: string | null) {
     return false;
   }
 
-  if (address === ZeroAddress) {
+  if (address === constants.AddressZero) {
     logger.error("Skipping to register a wallet address because user is trying to set their address to null address");
     return false;
   }
@@ -58,7 +58,7 @@ export async function registerWallet(context: Context, address: string | null) {
 export async function resolveAddress(ensName: string): Promise<string | null> {
   // Gets the Ethereum address associated with an ENS (Ethereum Name Service) name
   // Explicitly set provider to Ethereum mainnet
-  const provider = new ethers.JsonRpcProvider(`https://eth.llamarpc.com`); // mainnet required for ENS
+  const provider = new ethers.providers.JsonRpcProvider(`https://eth.llamarpc.com`); // mainnet required for ENS
   return await provider.resolveName(ensName).catch((err) => {
     console.trace({ err });
     return null;
