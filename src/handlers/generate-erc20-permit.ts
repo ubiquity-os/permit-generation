@@ -1,5 +1,5 @@
-import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
-import { ethers, keccak256, MaxInt256, parseUnits, toUtf8Bytes } from "ethers";
+import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer, MaxUint256 } from "@uniswap/permit2-sdk";
+import { ethers, utils } from "ethers";
 import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
 import { decrypt, parseDecryptedPrivateKey } from "../utils";
@@ -22,38 +22,38 @@ export async function generateErc20PermitSignature(
   amount: number,
   tokenAddress: string
 ): Promise<PermitReward> {
-  let _logger: Logger;
+  let logger: Logger;
   const _username = username;
-  let _walletAddress: string | null | undefined;
-  let _issueNodeId: string;
-  let _evmNetworkId: number;
-  let _evmPrivateEncrypted: string;
-  let _userId: number;
+  let walletAddress: string | null | undefined;
+  let issueNodeId: string;
+  let evmNetworkId: number;
+  let evmPrivateEncrypted: string;
+  let userId: number;
 
   if ("issueNodeId" in contextOrPayload) {
-    _logger = contextOrPayload.logger as Logger;
-    _walletAddress = contextOrPayload.walletAddress;
-    _evmNetworkId = contextOrPayload.evmNetworkId;
-    _evmPrivateEncrypted = contextOrPayload.evmPrivateEncrypted;
-    _issueNodeId = contextOrPayload.issueNodeId;
-    _userId = contextOrPayload.userId;
+    logger = contextOrPayload.logger as Logger;
+    walletAddress = contextOrPayload.walletAddress;
+    evmNetworkId = contextOrPayload.evmNetworkId;
+    evmPrivateEncrypted = contextOrPayload.evmPrivateEncrypted;
+    issueNodeId = contextOrPayload.issueNodeId;
+    userId = contextOrPayload.userId;
   } else {
     const config = contextOrPayload.config;
-    _logger = contextOrPayload.logger;
-    const { evmNetworkId, evmPrivateEncrypted } = config;
+    logger = contextOrPayload.logger;
+    const { evmNetworkId: configEvmNetworkId, evmPrivateEncrypted: configEvmPrivateEncrypted } = config;
     const { data: userData } = await contextOrPayload.octokit.users.getByUsername({ username: _username });
     if (!userData) {
       throw new Error(`GitHub user was not found for id ${_username}`);
     }
-    _userId = userData.id;
+    userId = userData.id;
     const { wallet } = contextOrPayload.adapters.supabase;
-    _walletAddress = await wallet.getWalletByUserId(_userId);
-    _evmNetworkId = evmNetworkId;
-    _evmPrivateEncrypted = evmPrivateEncrypted;
+    walletAddress = await wallet.getWalletByUserId(userId);
+    evmNetworkId = configEvmNetworkId;
+    evmPrivateEncrypted = configEvmPrivateEncrypted;
     if ("issue" in contextOrPayload.payload) {
-      _issueNodeId = contextOrPayload.payload.issue.node_id;
+      issueNodeId = contextOrPayload.payload.issue.node_id;
     } else if ("pull_request" in contextOrPayload.payload) {
-      _issueNodeId = contextOrPayload.payload.pull_request.node_id;
+      issueNodeId = contextOrPayload.payload.pull_request.node_id;
     } else {
       throw new Error("Issue Id is missing");
     }
@@ -62,94 +62,97 @@ export async function generateErc20PermitSignature(
   if (!_username) {
     throw new Error("User was not found");
   }
-  if (!_walletAddress) {
+  if (!walletAddress) {
     const errorMessage = "ERC20 Permit generation error: Wallet not found";
-    _logger.error(errorMessage);
+    logger.error(errorMessage);
     throw new Error(errorMessage);
   }
 
-  const provider = await getFastestProvider(_evmNetworkId);
+  const provider = await getFastestProvider(evmNetworkId);
   if (!provider) {
-    _logger.error("Provider is not defined");
+    logger.error("Provider is not defined");
     throw new Error("Provider is not defined");
   }
 
-  let privateKey = null;
-  try {
-    const privateKeyDecrypted = await decrypt(_evmPrivateEncrypted, String(process.env.X25519_PRIVATE_KEY));
-    const privateKeyParsed = parseDecryptedPrivateKey(privateKeyDecrypted);
-    privateKey = privateKeyParsed.privateKey;
-    if (!privateKey) throw new Error("Private key is not defined");
-  } catch (error) {
-    const errorMessage = `Failed to decrypt a private key: ${error}`;
-    _logger.error(errorMessage);
-    throw new Error(errorMessage);
-  }
-
-  let adminWallet;
-  let tokenDecimals;
-
-  try {
-    adminWallet = new ethers.Wallet(privateKey, provider);
-  } catch (error) {
-    const errorMessage = `Failed to instantiate wallet: ${error}`;
-    _logger.debug(errorMessage);
-    throw new Error(errorMessage);
-  }
-
-  try {
-    const erc20Abi = ["function decimals() public view returns (uint8)"];
-    const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
-    tokenDecimals = await tokenContract.decimals();
-  } catch (error) {
-    const errorMessage = `Failed to get token decimals for token: ${tokenAddress}`;
-    _logger.debug(errorMessage);
-    throw new Error(errorMessage);
-  }
+  const privateKey = await getPrivateKey(evmPrivateEncrypted, logger);
+  const adminWallet = await getAdminWallet(privateKey, provider, logger);
+  const tokenDecimals = await getTokenDecimals(tokenAddress, provider, logger);
 
   const permitTransferFromData: PermitTransferFrom = {
     permitted: {
       token: tokenAddress,
-      amount: parseUnits(amount.toString(), tokenDecimals),
+      amount: utils.parseUnits(amount.toString(), tokenDecimals),
     },
-    spender: _walletAddress,
-    nonce: BigInt(keccak256(toUtf8Bytes(`${_userId}-${_issueNodeId}`))),
-    deadline: MaxInt256,
+    spender: walletAddress,
+    nonce: BigInt(utils.keccak256(utils.toUtf8Bytes(`${userId}-${issueNodeId}`))),
+    deadline: MaxUint256,
   };
 
-  const { domain, types, values } = SignatureTransfer.getPermitData(permitTransferFromData, PERMIT2_ADDRESS, _evmNetworkId);
+  const { domain, types, values } = SignatureTransfer.getPermitData(permitTransferFromData, PERMIT2_ADDRESS, evmNetworkId);
 
-  const signature = await adminWallet
-    .signTypedData(
-      {
-        name: domain.name,
-        version: domain.version,
-        chainId: domain.chainId ? domain.chainId.toString() : undefined,
-        verifyingContract: domain.verifyingContract,
-        salt: domain.salt?.toString(),
-      },
-      types,
-      values
-    )
-    .catch((error) => {
-      const errorMessage = `Failed to sign typed data ${error}`;
-      _logger.error(errorMessage);
-      throw new Error(errorMessage);
-    });
-
-  const erc20Permit: PermitReward = {
-    tokenType: TokenType.ERC20,
-    tokenAddress: permitTransferFromData.permitted.token,
-    beneficiary: permitTransferFromData.spender,
-    nonce: permitTransferFromData.nonce.toString(),
-    deadline: permitTransferFromData.deadline.toString(),
-    amount: permitTransferFromData.permitted.amount.toString(),
-    owner: adminWallet.address,
-    signature: signature,
-    networkId: _evmNetworkId,
+  const domainData = {
+    name: domain.name,
+    version: domain.version || "1", //  default to 1 if it's undefined
+    chainId: domain.chainId,
+    verifyingContract: domain.verifyingContract,
   };
 
-  _logger.info("Generated ERC20 permit2 signature", erc20Permit);
+  try {
+    const signature = await adminWallet._signTypedData(domainData, types, values);
 
-  return erc20Permit;
+    const erc20Permit: PermitReward = {
+      tokenType: TokenType.ERC20,
+      tokenAddress: permitTransferFromData.permitted.token,
+      beneficiary: permitTransferFromData.spender,
+      nonce: permitTransferFromData.nonce.toString(),
+      deadline: permitTransferFromData.deadline.toString(),
+      amount: permitTransferFromData.permitted.amount.toString(),
+      owner: adminWallet.address,
+      signature: signature,
+      networkId: evmNetworkId,
+    };
+
+    logger.info("Generated ERC20 permit2 signature", erc20Permit);
+
+    return erc20Permit;
+  } catch (error) {
+    logger.error(`Failed to sign typed data: ${error}`);
+    throw error;
+  }
+}
+
+async function getPrivateKey(evmPrivateEncrypted: string, logger: Logger) {
+  try {
+    const privateKeyDecrypted = await decrypt(evmPrivateEncrypted, String(process.env.X25519_PRIVATE_KEY));
+    const privateKeyParsed = parseDecryptedPrivateKey(privateKeyDecrypted);
+    const privateKey = privateKeyParsed.privateKey;
+    if (!privateKey) throw new Error("Private key is not defined");
+    return privateKey;
+  } catch (error) {
+    const errorMessage = `Failed to decrypt a private key: ${error}`;
+    logger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+}
+
+async function getAdminWallet(privateKey: string, provider: ethers.providers.Provider, logger: Logger) {
+  try {
+    return new ethers.Wallet(privateKey, provider);
+  } catch (error) {
+    const errorMessage = `Failed to instantiate wallet: ${error}`;
+    logger.debug(errorMessage);
+    throw new Error(errorMessage);
+  }
+}
+
+async function getTokenDecimals(tokenAddress: string, provider: ethers.providers.Provider, logger: Logger) {
+  try {
+    const erc20Abi = ["function decimals() public view returns (uint8)"];
+    const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
+    return await tokenContract.decimals();
+  } catch (error) {
+    const errorMessage = `Failed to get token decimals for token: ${tokenAddress}`;
+    logger.debug(errorMessage);
+    throw new Error(errorMessage);
+  }
 }
