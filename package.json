@@ -121,6 +121,5 @@
       "import": "./dist/utils/index.js",
       "types": "./dist/utils/index.d.ts"
     }
-  },
-  "packageManager": "yarn@1.21.1"
+  }
 }
