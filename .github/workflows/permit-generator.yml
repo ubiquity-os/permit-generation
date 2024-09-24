@@ -28,22 +28,12 @@ jobs:
         id: parse
         run: |
           echo "Received input: ${{ github.event.inputs.users_amounts }}"
-          USERS_AMOUNTS=${{ github.event.inputs.users_amounts }}
-          echo "$USERS_AMOUNTS" > users_amounts.json
-
-          cat users_amounts.json | jq -c '.[]' | while read user_amount; do
-            USERNAME=$(echo $user_amount | jq -r 'keys[0]')
-            AMOUNT=$(echo $user_amount | jq -r '.[]')
-
-            # TODO: This will convert the username to it's unique user ID.
-            USER_ID=$(npx tsx scripts/convertUsernameToID.ts $USERNAME)
-
-            #TODO: Generate a permit for the user using the user ID and the amount provided
-            PERMIT=$(npx tsx scripts/generate-permit.ts $USER_ID $AMOUNT)
+          PERMITS=$(npx tsx scripts/github-action-permit-generator.ts)
 
             # TODO: Implement logic for how to output the permit to the user.
           done
         shell: bash
         env:
-          USERS_AMOUNTS: ${{ github.event.inputs.users_amounts }}
-          X25519_PRIVATE_KEY: ${{ secrets.X25519_PRIVATE_KEY }}
+          EVM_NETWORK_ID: $${{ secrets.EVM_NETWORK_ID }}
+          EVM_PRIVATE_KEY: ${{ secrets.EVM_PRIVATE_KEY }}
+          EVM_TOKEN_ADDRESS: $${{ secrets.EVM_TOKEN_ADDRESS }}

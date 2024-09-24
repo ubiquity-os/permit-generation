@@ -7,7 +7,7 @@ import { Database } from "../src/adapters/supabase/types/database";
 import { generatePayoutPermit } from "../src/handlers";
 import { Context } from "../src/types/context";
 import { envSchema } from "../src/types/env";
-import { permitGenerationSettingsSchema, PluginInputs } from "../src/types/plugin-input";
+import { PermitGenerationSettings, PermitRequest } from "../src/types/plugin-input";
 
 /**
  * Generates all the permits based on the current github workflow dispatch.
@@ -16,23 +16,32 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
   const webhookPayload = github.context.payload.inputs;
 
   const env = Value.Decode(envSchema, process.env);
-  const settings = Value.Decode(permitGenerationSettingsSchema, JSON.parse(webhookPayload.settings));
+  const userAmounts = JSON.parse(webhookPayload.user_amounts);
 
-  const inputs: PluginInputs = {
-    stateId: webhookPayload.stateId,
-    eventName: webhookPayload.eventName,
-    eventPayload: JSON.parse(webhookPayload.eventPayload),
-    settings: settings,
-    authToken: webhookPayload.authToken,
-    ref: webhookPayload.ref,
+  // Populate the permitRequests from the user_amounts payload
+  const permitRequests: Array<PermitRequest> = [];
+  for (const userAmount of userAmounts) {
+    permitRequests.push({
+      type: "ERC20",
+      username: userAmount["username"],
+      amount: userAmount["amount"],
+      contributionType: "custom",
+      tokenAddress: env.EVM_TOKEN_ADDRESS,
+    });
+  }
+  const config: PermitGenerationSettings = {
+    evmNetworkId: Number(env.EVM_NETWORK_ID),
+    evmPrivateEncrypted: env.EVM_PRIVATE_KEY,
+    permitRequests: permitRequests,
   };
-  const octokit = new Octokit({ auth: inputs.authToken });
+
+  const octokit = new Octokit({ auth: env.GITHUB_TOKEN });
   const supabaseClient = createClient<Database>(env.SUPABASE_URL, env.SUPABASE_KEY);
 
   const context: Context = {
-    eventName: inputs.eventName,
-    payload: inputs.eventPayload,
-    config: inputs.settings,
+    eventName: "workflow_dispatch",
+    payload: userAmounts,
+    config: config,
     octokit,
     env,
     logger: {
@@ -57,8 +66,8 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
 
   context.adapters = createAdapters(supabaseClient, context);
 
-  const permits = await generatePayoutPermit(context, settings.permitRequests);
-  await returnDataToKernel(env.GITHUB_TOKEN, inputs.stateId, permits);
+  const permits = await generatePayoutPermit(context, config.permitRequests);
+  await returnDataToKernel(env.GITHUB_TOKEN, "todo_state", permits);
   return JSON.stringify(permits);
 }
 
