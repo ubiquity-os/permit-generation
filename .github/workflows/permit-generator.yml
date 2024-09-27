@@ -29,11 +29,18 @@ jobs:
         run: |
           echo "Received input: ${{ github.event.inputs.users_amounts }}"
           PERMITS=$(npx tsx scripts/github-action-permit-generator.ts)
-
-            # TODO: Implement logic for how to output the permit to the user.
+          echo "permits=$PERMITS" > $GITHUB_OUTPUT
           done
         shell: bash
         env:
           EVM_NETWORK_ID: $${{ secrets.EVM_NETWORK_ID }}
           EVM_PRIVATE_KEY: ${{ secrets.EVM_PRIVATE_KEY }}
           EVM_TOKEN_ADDRESS: $${{ secrets.EVM_TOKEN_ADDRESS }}
+
+      - name: Report by opening an issue
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"title": "Workflow Dispatch Report", "body": "${{ steps.vars.outputs.permits }}"}' \
+            "https://api.github.com/repos/${{ github.repository }}/issues"
