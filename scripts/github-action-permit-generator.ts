@@ -13,22 +13,23 @@ import { PermitGenerationSettings, PermitRequest } from "../src/types/plugin-inp
  * Generates all the permits based on the current github workflow dispatch.
  */
 export async function generatePermitsFromGithubWorkflowDispatch() {
-  const webhookPayload = github.context.payload.inputs;
-
   const env = Value.Decode(envSchema, process.env);
+
+  const webhookPayload = github.context.payload.inputs;
   const userAmounts = JSON.parse(webhookPayload.user_amounts);
 
   // Populate the permitRequests from the user_amounts payload
-  const permitRequests: Array<PermitRequest> = [];
-  for (const userAmount of userAmounts) {
-    permitRequests.push({
+
+  const permitRequests: PermitRequest[] = userAmounts.flatMap((userObj) =>
+    Object.entries(userObj).map(([user, amount]) => ({
       type: "ERC20",
-      username: userAmount["username"],
-      amount: userAmount["amount"],
+      username: user,
+      amount: amount,
       contributionType: "custom",
       tokenAddress: env.EVM_TOKEN_ADDRESS,
-    });
-  }
+    }))
+  );
+
   const config: PermitGenerationSettings = {
     evmNetworkId: Number(env.EVM_NETWORK_ID),
     evmPrivateEncrypted: env.EVM_PRIVATE_KEY,
@@ -83,3 +84,8 @@ async function returnDataToKernel(repoToken: string, stateId: string, output: ob
     },
   });
 }
+generatePermitsFromGithubWorkflowDispatch()
+  .then((result) => console.log(`result: ${result}`))
+  .catch((error) => {
+    console.error(error);
+  });
