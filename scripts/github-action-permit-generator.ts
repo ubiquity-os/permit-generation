@@ -16,7 +16,9 @@ import { envGithubActionSchema } from "../src/types/env";
 export async function generatePermitsFromGithubWorkflowDispatch() {
   const env = Value.Decode(envGithubActionSchema, process.env);
 
-  const userAmounts = JSON.parse(core.getInput("users_amounts"));
+  const _userAmounts = core.getInput("users_amounts");
+  console.log(`Recieved: ${_userAmounts}`);
+  const userAmounts = JSON.parse(_userAmounts);
 
   // Populate the permitRequests from the user_amounts payload
 
