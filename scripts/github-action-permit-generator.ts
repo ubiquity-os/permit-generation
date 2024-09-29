@@ -7,13 +7,12 @@ import { generatePayoutPermit } from "../src/handlers";
 import { Context } from "../src/types/context";
 import { PermitGenerationSettings, PermitRequest } from "../src/types/plugin-input";
 import { Value } from "@sinclair/typebox/value";
-import { envGithubActionSchema, envSchema } from "../src/types/env";
+import { envGithubActionSchema } from "../src/types/env";
 
 /**
  * Generates all the permits based on the current github workflow dispatch.
  */
 export async function generatePermitsFromGithubWorkflowDispatch() {
-  const envSupabase = Value.Decode(envSchema, process.env);
   const env = Value.Decode(envGithubActionSchema, process.env);
 
   const webhookPayload = github.context.payload.inputs;
@@ -46,7 +45,7 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
     payload: userAmounts,
     config: config,
     octokit,
-    env: envSupabase,
+    env,
     logger: {
       debug(message: unknown, ...optionalParams: unknown[]) {
         console.debug(message, ...optionalParams);
