@@ -1,5 +1,4 @@
 import * as github from "@actions/github";
-import * as core from "@actions/core";
 import { Octokit } from "@octokit/rest";
 import { createClient } from "@supabase/supabase-js";
 import { createAdapters } from "../src/adapters";
@@ -16,7 +15,7 @@ import { envGithubActionSchema } from "../src/types/env";
 export async function generatePermitsFromGithubWorkflowDispatch() {
   const env = Value.Decode(envGithubActionSchema, process.env);
 
-  const _userAmounts = core.getInput("users_amounts");
+  const _userAmounts = env.USERS_AMOUNTS;
   console.log(`Recieved: ${_userAmounts}`);
   const userAmounts = JSON.parse(_userAmounts);
 

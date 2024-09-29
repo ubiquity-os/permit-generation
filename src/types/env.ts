@@ -11,6 +11,7 @@ export const envSchema = T.Object({
 });
 
 export const envGithubActionSchema = T.Object({
+  USERS_AMOUNTS: T.String(),
   GITHUB_TOKEN: T.String(),
   SUPABASE_URL: T.String(),
   SUPABASE_KEY: T.String(),
