@@ -1,19 +1,17 @@
 import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
-import { Value } from "@sinclair/typebox/value";
 import { createClient } from "@supabase/supabase-js";
 import { createAdapters } from "../src/adapters";
 import { Database } from "../src/adapters/supabase/types/database";
 import { generatePayoutPermit } from "../src/handlers";
 import { Context } from "../src/types/context";
-import { envSchema } from "../src/types/env";
 import { PermitGenerationSettings, PermitRequest } from "../src/types/plugin-input";
 
 /**
  * Generates all the permits based on the current github workflow dispatch.
  */
 export async function generatePermitsFromGithubWorkflowDispatch() {
-  const env = Value.Decode(envSchema, process.env);
+  const env = process.env;
 
   const webhookPayload = github.context.payload.inputs;
   const userAmounts = JSON.parse(webhookPayload.user_amounts);
