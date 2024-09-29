@@ -36,6 +36,9 @@ jobs:
           EVM_NETWORK_ID: $${{ secrets.EVM_NETWORK_ID }}
           EVM_PRIVATE_KEY: ${{ secrets.EVM_PRIVATE_KEY }}
           EVM_TOKEN_ADDRESS: $${{ secrets.EVM_TOKEN_ADDRESS }}
+          SUPABASE_URL: $${{ secrets.SUPABASE_URL}}
+          SUPABASE_KEY: $${{ secrets.SUPABASE_KEY }}
+          GITHUB_TOKEN: $${{ secrets.GITHUB_TOKEN }}
 
       - name: Report by opening an issue
         run: |
