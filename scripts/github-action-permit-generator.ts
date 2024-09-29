@@ -6,19 +6,22 @@ import { Database } from "../src/adapters/supabase/types/database";
 import { generatePayoutPermit } from "../src/handlers";
 import { Context } from "../src/types/context";
 import { PermitGenerationSettings, PermitRequest } from "../src/types/plugin-input";
+import { Value } from "@sinclair/typebox/value";
+import { envGithubActionSchema, envSchema } from "../src/types/env";
 
 /**
  * Generates all the permits based on the current github workflow dispatch.
  */
 export async function generatePermitsFromGithubWorkflowDispatch() {
-  const env = process.env;
+  const envSupabase = Value.Decode(envSchema, process.env);
+  const env = Value.Decode(envGithubActionSchema, process.env);
 
   const webhookPayload = github.context.payload.inputs;
-  const userAmounts = JSON.parse(webhookPayload.user_amounts);
+  const userAmounts = JSON.parse(webhookPayload.users_amounts);
 
   // Populate the permitRequests from the user_amounts payload
 
-  const permitRequests: PermitRequest[] = userAmounts.flatMap((userObj) =>
+  const permitRequests: PermitRequest[] = userAmounts.flatMap((userObj: { [key: string]: number }) =>
     Object.entries(userObj).map(([user, amount]) => ({
       type: "ERC20",
       username: user,
@@ -42,7 +45,7 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
     payload: userAmounts,
     config: config,
     octokit,
-    env,
+    env: envSupabase,
     logger: {
       debug(message: unknown, ...optionalParams: unknown[]) {
         console.debug(message, ...optionalParams);
