@@ -17,6 +17,7 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
   const env = Value.Decode(envGithubActionSchema, process.env);
 
   const webhookPayload = github.context.payload.inputs;
+  console.log(webhookPayload);
   const userAmounts = JSON.parse(webhookPayload.users_amounts);
 
   // Populate the permitRequests from the user_amounts payload
