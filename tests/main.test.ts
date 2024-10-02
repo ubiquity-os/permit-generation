@@ -33,7 +33,7 @@ describe("Plugin tests", () => {
 
   it("Should serve the manifest file", async () => {
     const worker = (await import("../src/worker")).default;
-    const response = await worker.fetch(new Request("http://localhost/manifest.json"), {});
+    const response = await worker.fetch(new Request("http://localhost/manifest"), {});
     const content = await response.json();
     expect(content).toEqual(manifest);
   });
