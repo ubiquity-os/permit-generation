@@ -1,4 +1,5 @@
 import { Octokit } from "@octokit/rest";
+import { returnDataToKernel } from "./helpers/validator";
 import { Env, PluginInputs } from "./types";
 import { Context } from "./types";
 import { isIssueCommentEvent } from "./types/typeguards";
@@ -44,5 +45,6 @@ export async function plugin(inputs: PluginInputs, env: Env) {
    * context.adapters = createAdapters(supabase, context);
    */
 
-  return runPlugin(context);
+  await runPlugin(context);
+  return returnDataToKernel(process.env.GITHUB_TOKEN, inputs.stateId, {});
 }
