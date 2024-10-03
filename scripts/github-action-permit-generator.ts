@@ -13,6 +13,7 @@ import { envGithubActionSchema } from "../src/types/env";
  * Generates all the permits based on the current github workflow dispatch.
  */
 export async function generatePermitsFromGithubWorkflowDispatch() {
+  const runId = github.context.runId;
   const env = Value.Decode(envGithubActionSchema, process.env);
 
   const _userAmounts = env.USERS_AMOUNTS;
@@ -35,6 +36,7 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
     evmNetworkId: Number(env.EVM_NETWORK_ID),
     evmPrivateEncrypted: env.EVM_PRIVATE_KEY,
     permitRequests: permitRequests,
+    runId: `${runId}`,
   };
 
   const octokit = new Octokit({ auth: env.GITHUB_TOKEN });
@@ -42,9 +44,9 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
 
   const context: Context = {
     eventName: "workflow_dispatch",
-    payload: userAmounts,
     config: config,
     octokit,
+    payload: userAmounts,
     env,
     logger: {
       debug(message: unknown, ...optionalParams: unknown[]) {

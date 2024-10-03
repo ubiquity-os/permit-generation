@@ -1,5 +1,5 @@
-import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer, MaxUint256 } from "@uniswap/permit2-sdk";
-import { ethers, utils } from "ethers";
+import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
+import { ethers } from "ethers";
 import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
 import { decrypt, parseDecryptedPrivateKey } from "../utils";
@@ -54,6 +54,8 @@ export async function generateErc20PermitSignature(
       issueNodeId = contextOrPayload.payload.issue.node_id;
     } else if ("pull_request" in contextOrPayload.payload) {
       issueNodeId = contextOrPayload.payload.pull_request.node_id;
+    } else if (contextOrPayload.config.runId) {
+      issueNodeId = contextOrPayload.config.runId;
     } else {
       throw new Error("Issue Id is missing");
     }
@@ -81,11 +83,11 @@ export async function generateErc20PermitSignature(
   const permitTransferFromData: PermitTransferFrom = {
     permitted: {
       token: tokenAddress,
-      amount: utils.parseUnits(amount.toString(), tokenDecimals),
+      amount: ethers.parseUnits(amount.toString(), tokenDecimals),
     },
     spender: walletAddress,
-    nonce: BigInt(utils.keccak256(utils.toUtf8Bytes(`${userId}-${issueNodeId}`))),
-    deadline: MaxUint256,
+    nonce: BigInt(ethers.keccak256(ethers.toUtf8Bytes(`${userId}-${issueNodeId}`))),
+    deadline: ethers.MaxUint256,
   };
 
   const { domain, types, values } = SignatureTransfer.getPermitData(permitTransferFromData, PERMIT2_ADDRESS, evmNetworkId);
@@ -98,7 +100,7 @@ export async function generateErc20PermitSignature(
   };
 
   try {
-    const signature = await adminWallet._signTypedData(domainData, types, values);
+    const signature = await adminWallet.signTypedData(domainData, types, values);
 
     const erc20Permit: PermitReward = {
       tokenType: TokenType.ERC20,

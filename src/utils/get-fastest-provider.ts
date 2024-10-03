@@ -1,5 +1,5 @@
 import { RPCHandler, HandlerConstructorConfig } from "@ubiquity-dao/rpc-handler";
-import { providers } from "ethers";
+import { JsonRpcProvider } from "ethers";
 
 function getHandler(networkId: number | string) {
   const config = {
@@ -19,7 +19,7 @@ export async function getFastestProvider(networkId: number | string): Promise<pr
   try {
     const handler = getHandler(networkId);
     const provider = await handler.getFastestRpcProvider();
-    return new providers.JsonRpcProvider(provider.connection.url);
+    return new JsonRpcProvider(provider.connection.url);
   } catch (e) {
     throw new Error(`Failed to get fastest provider for networkId: ${networkId}`);
   }
