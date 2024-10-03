@@ -28,7 +28,7 @@ jobs:
         id: parse
         run: |
           echo "Received input: ${{ github.event.inputs.users_amounts }}"
-          npx tsx scripts/github-action-permit-generator.ts
+          npx tsx scripts/github-action-permit-generator.ts permits.txt
         shell: bash
         env:
           X25519_PRIVATE_KEY: ${{ secrets.X25519_PRIVATE_KEY }}
@@ -42,8 +42,9 @@ jobs:
 
       - name: Report by opening an issue
         run: |
+          export PERMITS=$(cat permits.txt)
           curl -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{"title": "Workflow Dispatch Report", "body": "$(cat permits.json)"}' \
+            -d "{\"title\": \"Workflow Dispatch Report\", \"body\": \"$PERMITS\"}" \
             "https://api.github.com/repos/${{ github.repository }}/issues"

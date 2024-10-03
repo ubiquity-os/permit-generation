@@ -73,7 +73,8 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
 
   const permits = await generatePayoutPermit(context, config.permitRequests);
   await returnDataToKernel(env.GITHUB_TOKEN, "todo_state", permits);
-  fs.writeFile("permits.json", JSON.stringify(permits), (err) => {
+  const out = Buffer.from(JSON.stringify(permits)).toString("base64");
+  fs.writeFile(process.argv[2], out, (err) => {
     if (err) {
       throw err;
     }
