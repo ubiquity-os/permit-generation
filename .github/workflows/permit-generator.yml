@@ -33,6 +33,7 @@ jobs:
           done
         shell: bash
         env:
+          X25519_PRIVATE_KEY: ${{ secrets.X25519_PRIVATE_KEY }}
           EVM_NETWORK_ID: ${{ secrets.EVM_NETWORK_ID }}
           EVM_PRIVATE_KEY: ${{ secrets.EVM_PRIVATE_KEY }}
           EVM_TOKEN_ADDRESS: ${{ secrets.EVM_TOKEN_ADDRESS }}
