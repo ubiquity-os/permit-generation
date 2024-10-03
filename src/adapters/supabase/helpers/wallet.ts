@@ -15,8 +15,12 @@ export class Wallet extends Super {
       throw error;
     }
 
-    console.info("Successfully fetched wallet", { userId, address: data.wallets?.address });
-    return data.wallets?.address;
+    let address;
+    if (data.wallets) {
+      address = data.wallets[0].address;
+    }
+    console.info("Successfully fetched wallet", { userId, address });
+    return address;
   }
 
   async upsertWallet(userId: number, address: string) {
