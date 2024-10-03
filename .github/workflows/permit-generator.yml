@@ -28,9 +28,8 @@ jobs:
         id: parse
         run: |
           echo "Received input: ${{ github.event.inputs.users_amounts }}"
-          PERMITS=$(npx tsx scripts/github-action-permit-generator.ts )
-          echo "permits=$PERMITS" > $GITHUB_OUTPUT
-          done
+          npx tsx scripts/github-action-permit-generator.ts
+          echo "permits=$(cat permits.json)" > $GITHUB_OUTPUT
         shell: bash
         env:
           X25519_PRIVATE_KEY: ${{ secrets.X25519_PRIVATE_KEY }}

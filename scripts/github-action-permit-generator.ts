@@ -8,6 +8,7 @@ import { Context } from "../src/types/context";
 import { PermitGenerationSettings, PermitRequest } from "../src/types/plugin-input";
 import { Value } from "@sinclair/typebox/value";
 import { envGithubActionSchema } from "../src/types/env";
+import * as fs from "fs";
 
 /**
  * Generates all the permits based on the current github workflow dispatch.
@@ -72,7 +73,11 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
 
   const permits = await generatePayoutPermit(context, config.permitRequests);
   await returnDataToKernel(env.GITHUB_TOKEN, "todo_state", permits);
-  return JSON.stringify(permits);
+  fs.writeFile("permits.json", JSON.stringify(permits), (err) => {
+    if (err) {
+      throw err;
+    }
+  });
 }
 
 async function returnDataToKernel(repoToken: string, stateId: string, output: object) {
