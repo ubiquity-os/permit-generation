@@ -1,6 +1,6 @@
 {
   "name": "ts-template",
-  "description": "ts-template for Ubiquibot plugins.",
+  "description": "ts-template for UbiquityOS plugins.",
   "ubiquity:listeners": [
     "issue_comment.created"
   ],
