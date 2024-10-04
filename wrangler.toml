@@ -5,3 +5,6 @@ node_compat = true
 
 [env.dev]
 [env.prod]
+
+[observability]
+enabled = true
