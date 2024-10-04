@@ -32,6 +32,7 @@ plugins:
         with:
           # Define configurable items here and the kernel will pass these to the plugin.
           configurableResponse: "Hello, is it me you are looking for?"
+          customStringsUrl: "https://raw.githubusercontent.com/ubiquibot/plugin-template/development/strings.json"
 ```
 
 ###### At this stage, your plugin will fire on your defined events with the required settings passed in from the kernel. You can now start writing your plugin's logic.

@@ -15,7 +15,7 @@ export async function helloWorld(context: Context) {
     logger,
     payload,
     octokit,
-    config: { configurableResponse },
+    config: { configurableResponse, customStringsUrl },
   } = context;
 
   const sender = payload.comment.user?.login;
@@ -39,6 +39,15 @@ export async function helloWorld(context: Context) {
       issue_number: payload.issue.number,
       body: configurableResponse,
     });
+    if (customStringsUrl) {
+      const response = await fetch(customStringsUrl).then((value) => value.json());
+      await octokit.issues.createComment({
+        owner: payload.repository.owner.login,
+        repo: payload.repository.name,
+        issue_number: payload.issue.number,
+        body: response.greeting,
+      });
+    }
   } catch (error) {
     /**
      * logger.fatal should not be used in 9/10 cases. Use logger.error instead.
