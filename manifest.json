@@ -18,6 +18,9 @@
     "properties": {
       "configurableResponse": {
         "type": "string"
+      },
+      "customStringsUrl": {
+        "type": "string"
       }
     },
     "required": [
