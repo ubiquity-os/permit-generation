@@ -6,9 +6,7 @@ on:
     branches:
       - development
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: write-all
 
 jobs:
   release-please:
