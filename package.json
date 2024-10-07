@@ -82,9 +82,9 @@
     ]
   },
   "files": [
+    "dist/*",
     "dist/types/*",
     "dist/handlers/*",
-    "dist/core/*",
     "dist/utils/*",
     "README.md",
     "package.json"
