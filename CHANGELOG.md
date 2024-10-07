@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/ubiquity-os/permit-generation/compare/v2.0.0...v2.0.1) (2024-10-07)
+
+
+### Bug Fixes
+
+* rename org ([2149e79](https://github.com/ubiquity-os/permit-generation/commit/2149e794788b12e2b0692cef131aa57e571c2b4c))
+
 ## [2.0.0](https://github.com/ubiquity-os/permit-generation/compare/v1.6.0...v2.0.0) (2024-10-07)
 
 
