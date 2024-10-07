@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.0.0](https://github.com/ubiquity-os/permit-generation/compare/v1.6.0...v2.0.0) (2024-10-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* changed rollup to tsup to simplify bundling
+
+### Bug Fixes
+
+* add yarnrc file back ([9dd05b8](https://github.com/ubiquity-os/permit-generation/commit/9dd05b84a8470170ff3419d6b8ed0154f4e6c067))
+* changed rollup to tsup to simplify bundling ([5651905](https://github.com/ubiquity-os/permit-generation/commit/56519058ccbe0d24153f2ceb25a9aff082f4aa16))
+
 ## [1.6.0](https://github.com/ubiquibot/permit-generation/compare/v1.5.1...v1.6.0) (2024-09-09)
 
 
