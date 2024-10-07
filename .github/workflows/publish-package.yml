@@ -4,9 +4,11 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - development
+      - main
 
-permissions: write-all
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   release-please:
@@ -16,8 +18,7 @@ jobs:
         id: release
         with:
           release-type: node
-          target-branch: development
-          token: '${{ github.token }}'
+          target-branch: main
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
