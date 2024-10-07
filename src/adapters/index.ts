@@ -14,3 +14,5 @@ export function createAdapters(supabaseClient: SupabaseClient<Database>, context
     },
   };
 }
+
+export * from "./supabase/types/database";
