@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/ubiquity-os/permit-generation/compare/v2.0.1...v2.0.2) (2024-10-07)
+
+
+### Bug Fixes
+
+* dist build folder ([394fea0](https://github.com/ubiquity-os/permit-generation/commit/394fea0efe9aab9d7d70ed5fadae710c32a55d67))
+
 ## [2.0.1](https://github.com/ubiquity-os/permit-generation/compare/v2.0.0...v2.0.1) (2024-10-07)
 
 
