@@ -16,7 +16,7 @@
     "knip-ci": "knip --no-exit-code --reporter json",
     "prepare": "husky install",
     "test": "jest",
-    "build": "rollup -c"
+    "build": "tsup"
   },
   "keywords": [
     "typescript",
@@ -28,8 +28,8 @@
   "dependencies": {
     "@actions/core": "^1.10.1",
     "@actions/github": "^6.0.0",
-    "@octokit/rest": "^20.0.2",
-    "@octokit/webhooks": "^13.1.0",
+    "@octokit/rest": "^21.0.2",
+    "@octokit/webhooks": "^13.3.0",
     "@sinclair/typebox": "^0.32.5",
     "@supabase/supabase-js": "2.42.0",
     "@ubiquity-dao/rpc-handler": "1.3.0",
@@ -46,11 +46,6 @@
     "@cspell/dict-typescript": "^3.1.2",
     "@jest/globals": "29.7.0",
     "@jest/types": "29.6.3",
-    "@rollup/plugin-commonjs": "25.0.7",
-    "@rollup/plugin-json": "6.1.0",
-    "@rollup/plugin-node-resolve": "15.2.3",
-    "@rollup/plugin-terser": "0.4.4",
-    "@rollup/plugin-yaml": "4.1.2",
     "@types/libsodium-wrappers": "^0.7.8",
     "@types/node": "^20.11.19",
     "@typescript-eslint/eslint-plugin": "^7.0.1",
@@ -66,12 +61,9 @@
     "lint-staged": "^15.2.2",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.2.5",
-    "rollup": "4.14.3",
-    "rollup-plugin-delete": "2.0.0",
-    "rollup-plugin-dts-bundle-generator": "1.4.0",
-    "rollup-plugin-typescript2": "0.36.0",
     "ts-jest": "29.1.2",
     "ts-node": "10.9.2",
+    "tsup": "8.3.0",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3"
   },
@@ -97,29 +89,29 @@
     "README.md",
     "package.json"
   ],
-  "module": "dist/core/index.esm.js",
-  "main": "dist/core/index.js",
-  "typings": "dist/types/index.d.ts",
+  "module": "./dist/index.mjs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    "./core": {
-      "require": "./dist/core/index.js",
-      "import": "./dist/core/index.js",
-      "types": "./dist/core/index.d.ts"
-    },
-    "./types": {
-      "require": "./dist/types/index.js",
-      "import": "./dist/types/index.js",
-      "types": "./dist/types/index.d.ts"
-    },
-    "./handlers": {
-      "require": "./dist/handlers/index.js",
-      "import": "./dist/handlers/index.js",
-      "types": "./dist/handlers/index.d.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
     },
     "./utils": {
+      "types": "./dist/utils/index.d.mts",
       "require": "./dist/utils/index.js",
-      "import": "./dist/utils/index.js",
-      "types": "./dist/utils/index.d.ts"
+      "import": "./dist/utils/index.mjs"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.mts",
+      "require": "./dist/types/index.js",
+      "import": "./dist/types/index.mjs"
+    },
+    "./handlers": {
+      "types": "./dist/handlers/index.d.ts",
+      "require": "./dist/handlers/index.mjs",
+      "import": "./dist/handlers/index.js"
     }
   }
 }
