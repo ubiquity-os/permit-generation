@@ -15,11 +15,10 @@ export class Wallet extends Super {
       throw error;
     }
 
-    let address;
-    if (data.wallets) {
-      address = data.wallets[0].address;
-    }
-    console.info("Successfully fetched wallet", { userId, address });
+    // Check if wallets is an array, if so, return the first element's address
+    const address = Array.isArray(data.wallets) ? data.wallets[0]?.address : data.wallets?.address;
+
+    console.info("Successfully fetched wallet", { userId, address: address });
     return address;
   }
 

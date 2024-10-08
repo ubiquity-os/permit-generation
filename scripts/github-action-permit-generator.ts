@@ -7,7 +7,7 @@ import { generatePayoutPermit } from "../src/handlers";
 import { Context } from "../src/types/context";
 import { PermitGenerationSettings, PermitRequest } from "../src/types/plugin-input";
 import { Value } from "@sinclair/typebox/value";
-import { envGithubActionSchema } from "../src/types/env";
+import { envSchema } from "../src/types/env";
 import * as fs from "fs";
 
 /**
@@ -15,11 +15,27 @@ import * as fs from "fs";
  */
 export async function generatePermitsFromGithubWorkflowDispatch() {
   const runId = github.context.runId;
-  const env = Value.Decode(envGithubActionSchema, process.env);
 
-  const _userAmounts = env.USERS_AMOUNTS;
-  console.log(`Recieved: ${_userAmounts}`);
-  const userAmounts = JSON.parse(_userAmounts);
+  // These are necessary to ensure the type checks and tests pass.
+  process.env["NFT_MINTER_PRIVATE_KEY"] = "";
+  process.env["NFT_CONTRACT_ADDRESS"] = "";
+  const env = Value.Decode(envSchema, process.env);
+
+  if (!env.EVM_NETWORK_ID) {
+    throw new Error("EVM_NETWORK_ID env not provided or empty");
+  }
+  if (!env.EVM_PRIVATE_KEY) {
+    throw new Error("EVM_PRIVATE_KEY env not provided or empty");
+  }
+  if (!env.EVM_TOKEN_ADDRESS) {
+    throw new Error("EVM_TOKEN_ADDRESS env not provided or empty");
+  }
+  if (!env.USERS_AMOUNTS) {
+    throw new Error("USERS_AMOUNTS env not provided or empty");
+  }
+
+  console.log(`Recieved: ${env.USERS_AMOUNTS}`);
+  const userAmounts = JSON.parse(env.USERS_AMOUNTS);
 
   // Populate the permitRequests from the user_amounts payload
 
