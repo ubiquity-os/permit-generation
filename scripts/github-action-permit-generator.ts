@@ -34,7 +34,7 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
     throw new Error("USERS_AMOUNTS env not provided or empty");
   }
 
-  console.log(`Recieved: ${env.USERS_AMOUNTS}`);
+  console.log(`Received: ${env.USERS_AMOUNTS}`);
   const userAmounts = JSON.parse(env.USERS_AMOUNTS);
 
   // Populate the permitRequests from the user_amounts payload
