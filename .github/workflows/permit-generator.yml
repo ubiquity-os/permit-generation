@@ -21,14 +21,11 @@ jobs:
         with:
           node-version: "20.10.0"
 
-      - name: Install dependencies
-        run: yarn install --immutable --immutable-cache --check-cache
-
       - name: Process permit requests
         id: parse
         run: |
           echo "Received input: ${{ github.event.inputs.users_amounts }}"
-          npx tsx scripts/github-action-permit-generator.ts permits.txt
+          node scripts/compiled/index.js permits.txt
         shell: bash
         env:
           X25519_PRIVATE_KEY: ${{ secrets.X25519_PRIVATE_KEY }}
