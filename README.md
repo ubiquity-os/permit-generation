@@ -1,4 +1,4 @@
-# `@ubiquibot/permit-generation`
+# `@ubiquity-os/permit-generation`
 
 - The purpose of this module is to isolate the bot's payment capabilities.
 - This can be directly invoked from other plugins [^1^].
