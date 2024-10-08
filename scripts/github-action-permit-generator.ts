@@ -37,7 +37,7 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
     evmNetworkId: Number(env.EVM_NETWORK_ID),
     evmPrivateEncrypted: env.EVM_PRIVATE_KEY,
     permitRequests: permitRequests,
-    runId: `${runId}`,
+    runId: runId,
   };
 
   const octokit = new Octokit({ auth: env.GITHUB_TOKEN });
