@@ -11,8 +11,11 @@
   "scripts": {
     "build": "tsc --project tsconfig.json",
     "format": "run-p format:*",
+    "check-formatting": "run-p check-formatting:* format:cspell",
+    "check-formatting:lint": "eslint --fix-dry-run",
     "format:lint": "eslint --fix .",
     "format:prettier": "prettier --write .",
+    "check-formatting:prettier": "prettier --check .",
     "format:cspell": "cspell **/*",
     "knip": "knip --config .github/knip.ts",
     "knip-ci": "knip --no-exit-code --reporter json --config .github/knip.ts",
