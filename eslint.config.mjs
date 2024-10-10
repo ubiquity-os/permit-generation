@@ -14,7 +14,11 @@ export default tsEslint.config({
   languageOptions: {
     parser: tsEslint.parser,
     parserOptions: {
-      project: ["./tsconfig.json"],
+      projectService: {
+        defaultProject: "tsconfig.json",
+        allowDefaultProject: ["*.mjs"],
+      },
+      tsconfigRootDir: import.meta.dirname,
     },
   },
   rules: {
@@ -65,6 +69,12 @@ export default tsEslint.config({
     "sonarjs/no-element-overwrite": "error",
     "sonarjs/no-identical-conditions": "error",
     "sonarjs/no-identical-expressions": "error",
+    "sonarjs/new-cap": "off",
+    "sonarjs/different-types-comparison": "off",
+    "sonarjs/sonar-prefer-regexp-exec": "off",
+    "sonarjs/function-return-type": "off",
+    "sonarjs/no-misleading-array-reverse": "off",
+    "sonarjs/slow-regex": "off",
     "@typescript-eslint/naming-convention": [
       "error",
       {

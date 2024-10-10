@@ -1,11 +1,11 @@
-name: Spell Check
+name: Formatting Check
 
 on:
   push:
 
 jobs:
   spellcheck:
-    name: Check for spelling errors
+    name: Check for formatting errors
     runs-on: ubuntu-latest
 
     steps:
@@ -17,8 +17,7 @@ jobs:
         with:
           node-version: "20.10.0"
 
-      - name: Install cspell
-        run: yarn add cspell
-
-      - name: Run cspell
-        run: yarn format:cspell
+      - name: Run formatting checks
+        run: |
+          yarn install
+          yarn check-formatting
