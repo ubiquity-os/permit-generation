@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.4](https://github.com/ubiquity-os/permit-generation/compare/v2.0.3...v2.0.4) (2024-10-10)
+
+
+### Bug Fixes
+
+* log detailed error information when fetching token decimals ([ed6810c](https://github.com/ubiquity-os/permit-generation/commit/ed6810c79b03b61dcb8a51694acaaf84aa7a8a16))
+
 ## [2.0.3](https://github.com/ubiquity-os/permit-generation/compare/v2.0.2...v2.0.3) (2024-10-10)
 
 
