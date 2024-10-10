@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.3](https://github.com/ubiquity-os/permit-generation/compare/v2.0.2...v2.0.3) (2024-10-10)
+
+
+### Bug Fixes
+
+* provider ([3e6a1f8](https://github.com/ubiquity-os/permit-generation/commit/3e6a1f8640638d9c7e971cf93c5709791d8264ab))
+
 ## [2.0.2](https://github.com/ubiquity-os/permit-generation/compare/v2.0.1...v2.0.2) (2024-10-07)
 
 
