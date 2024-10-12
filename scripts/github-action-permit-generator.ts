@@ -44,7 +44,6 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
       type: "ERC20",
       username: user,
       amount: amount,
-      contributionType: "custom",
       tokenAddress: env.EVM_TOKEN_ADDRESS,
     }))
   );
