@@ -30,12 +30,12 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
   if (!env.EVM_TOKEN_ADDRESS) {
     throw new Error("EVM_TOKEN_ADDRESS env not provided or empty");
   }
-  if (!env.USERS_AMOUNTS) {
-    throw new Error("USERS_AMOUNTS env not provided or empty");
+  if (!env.PAYMENT_REQUESTS) {
+    throw new Error("PAYMENT_REQUESTS env not provided or empty");
   }
 
-  console.log(`Received: ${env.USERS_AMOUNTS}`);
-  const userAmounts = JSON.parse(env.USERS_AMOUNTS);
+  console.log(`Received: ${env.PAYMENT_REQUESTS}`);
+  const userAmounts = JSON.parse(env.PAYMENT_REQUESTS);
 
   // Populate the permitRequests from the user_amounts payload
 

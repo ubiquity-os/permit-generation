@@ -3,7 +3,7 @@ name: Permit Generator
 on:
   workflow_dispatch:
     inputs:
-      users_amounts:
+      PAYMENT_REQUESTS:
         description: "A JSON array containing usernames and associated amounts"
         required: true
         # example: '[{"user1": 100}, {"user2": 150}]'
@@ -24,7 +24,7 @@ jobs:
       - name: Process permit requests
         id: parse
         run: |
-          echo "Received input: ${{ github.event.inputs.users_amounts }}"
+          echo "Received input: ${{ github.event.inputs.PAYMENT_REQUESTS }}"
           npx tsx scripts/github-action-permit-generator.ts permits.txt
         shell: bash
         env:
@@ -35,7 +35,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL}}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          USERS_AMOUNTS: ${{ github.event.inputs.users_amounts }}
+          PAYMENT_REQUESTS: ${{ github.event.inputs.PAYMENT_REQUESTS }}
 
       - name: Report by opening an issue
         run: |

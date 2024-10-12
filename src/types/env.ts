@@ -11,7 +11,7 @@ export const envSchema = T.Object({
   EVM_NETWORK_ID: T.Optional(T.String()),
   EVM_PRIVATE_KEY: T.Optional(T.String()),
   EVM_TOKEN_ADDRESS: T.Optional(T.String()),
-  USERS_AMOUNTS: T.Optional(T.String()),
+  PAYMENT_REQUESTS: T.Optional(T.String()),
 });
 
 export type Env = StaticDecode<typeof envSchema>;
