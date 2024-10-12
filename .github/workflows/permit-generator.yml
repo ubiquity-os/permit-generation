@@ -37,11 +37,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PAYMENT_REQUESTS: ${{ github.event.inputs.PAYMENT_REQUESTS }}
 
-      - name: Report by opening an issue
+      - name: Log permits data
         run: |
           export PERMITS=$(cat permits.txt)
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"title\": \"Workflow Dispatch Report\", \"body\": \"$PERMITS\"}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues"
+          echo $PERMITS
