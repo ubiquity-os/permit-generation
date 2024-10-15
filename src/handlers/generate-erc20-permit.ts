@@ -4,7 +4,7 @@ import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
 import { decrypt, parseDecryptedPrivateKey } from "../utils";
 import { getFastestProvider } from "../utils/get-fastest-provider";
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuid } from "uuid";
 
 export interface Payload {
   evmNetworkId: number;
@@ -56,7 +56,7 @@ export async function generateErc20PermitSignature(
     } else if ("pull_request" in contextOrPayload.payload) {
       issueNodeId = contextOrPayload.payload.pull_request.node_id;
     } else if (contextOrPayload.config.runId) {
-      issueNodeId = uuidv4();
+      issueNodeId = uuid();
     } else {
       throw new Error("Issue Id is missing");
     }
