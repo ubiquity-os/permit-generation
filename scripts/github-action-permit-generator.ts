@@ -14,8 +14,6 @@ import * as fs from "fs";
  * Generates all the permits based on the current github workflow dispatch.
  */
 export async function generatePermitsFromGithubWorkflowDispatch() {
-  const runId = github.context.runId;
-
   // These are necessary to ensure the type checks and tests pass.
   process.env["NFT_MINTER_PRIVATE_KEY"] = "";
   process.env["NFT_CONTRACT_ADDRESS"] = "";
@@ -52,7 +50,6 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
     evmNetworkId: Number(env.EVM_NETWORK_ID),
     evmPrivateEncrypted: env.EVM_PRIVATE_KEY,
     permitRequests: permitRequests,
-    runId: runId,
   };
 
   const octokit = new Octokit({ auth: env.GITHUB_TOKEN });

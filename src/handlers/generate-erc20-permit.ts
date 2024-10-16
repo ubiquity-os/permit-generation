@@ -55,10 +55,8 @@ export async function generateErc20PermitSignature(
       issueNodeId = contextOrPayload.payload.issue.node_id;
     } else if ("pull_request" in contextOrPayload.payload) {
       issueNodeId = contextOrPayload.payload.pull_request.node_id;
-    } else if (contextOrPayload.config.runId) {
-      issueNodeId = uuid();
     } else {
-      throw new Error("Issue Id is missing");
+      issueNodeId = uuid();
     }
   }
 
