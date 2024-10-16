@@ -6,34 +6,30 @@ import { Database } from "../src/adapters/supabase/types/database";
 import { generatePayoutPermit } from "../src/handlers";
 import { Context } from "../src/types/context";
 import { PermitGenerationSettings, PermitRequest } from "../src/types/plugin-input";
-import { Value } from "@sinclair/typebox/value";
-import { envSchema } from "../src/types/env";
 import * as fs from "fs";
 
+function getEnvVar(key: string) {
+  return (
+    process.env[key] ||
+    (() => {
+      throw new Error(`Environment variable ${key} is required`);
+    })()
+  );
+}
 /**
  * Generates all the permits based on the current github workflow dispatch.
  */
 export async function generatePermitsFromGithubWorkflowDispatch() {
-  // These are necessary to ensure the type checks and tests pass.
-  process.env["NFT_MINTER_PRIVATE_KEY"] = "";
-  process.env["NFT_CONTRACT_ADDRESS"] = "";
-  const env = Value.Decode(envSchema, process.env);
+  const EVM_NETWORK_ID = getEnvVar("EVM_NETWORK_ID");
+  const EVM_PRIVATE_KEY = getEnvVar("EVM_PRIVATE_KEY");
+  const EVM_TOKEN_ADDRESS = getEnvVar("EVM_TOKEN_ADDRESS");
+  const PAYMENT_REQUESTS = getEnvVar("PAYMENT_REQUESTS");
+  const GITHUB_TOKEN = getEnvVar("GITHUB_TOKEN");
+  const SUPABASE_URL = getEnvVar("SUPABASE_URL");
+  const SUPABASE_KEY = getEnvVar("SUPABASE_KEY");
 
-  if (!env.EVM_NETWORK_ID) {
-    throw new Error("EVM_NETWORK_ID env not provided or empty");
-  }
-  if (!env.EVM_PRIVATE_KEY) {
-    throw new Error("EVM_PRIVATE_KEY env not provided or empty");
-  }
-  if (!env.EVM_TOKEN_ADDRESS) {
-    throw new Error("EVM_TOKEN_ADDRESS env not provided or empty");
-  }
-  if (!env.PAYMENT_REQUESTS) {
-    throw new Error("PAYMENT_REQUESTS env not provided or empty");
-  }
-
-  console.log(`Received: ${env.PAYMENT_REQUESTS}`);
-  const userAmounts = JSON.parse(env.PAYMENT_REQUESTS);
+  console.log(`Received: ${PAYMENT_REQUESTS}`);
+  const userAmounts = JSON.parse(PAYMENT_REQUESTS);
 
   // Populate the permitRequests from the user_amounts payload
 
@@ -42,25 +38,25 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
       type: "ERC20",
       username: user,
       amount: amount,
-      tokenAddress: env.EVM_TOKEN_ADDRESS,
+      tokenAddress: EVM_TOKEN_ADDRESS,
     }))
   );
 
   const config: PermitGenerationSettings = {
-    evmNetworkId: Number(env.EVM_NETWORK_ID),
-    evmPrivateEncrypted: env.EVM_PRIVATE_KEY,
+    evmNetworkId: Number(EVM_NETWORK_ID),
+    evmPrivateEncrypted: EVM_PRIVATE_KEY,
     permitRequests: permitRequests,
   };
 
-  const octokit = new Octokit({ auth: env.GITHUB_TOKEN });
-  const supabaseClient = createClient<Database>(env.SUPABASE_URL, env.SUPABASE_KEY);
+  const octokit = new Octokit({ auth: GITHUB_TOKEN });
+  const supabaseClient = createClient<Database>(SUPABASE_URL, SUPABASE_KEY);
 
   const context: Context = {
     eventName: "workflow_dispatch",
     config: config,
     octokit,
     payload: userAmounts,
-    env,
+    env: undefined,
     logger: {
       debug(message: unknown, ...optionalParams: unknown[]) {
         console.debug(message, ...optionalParams);
@@ -84,7 +80,7 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
   context.adapters = createAdapters(supabaseClient, context);
 
   const permits = await generatePayoutPermit(context, config.permitRequests);
-  await returnDataToKernel(env.GITHUB_TOKEN, "todo_state", permits);
+  await returnDataToKernel(GITHUB_TOKEN, "todo_state", permits);
   const out = Buffer.from(JSON.stringify(permits)).toString("base64");
   fs.writeFile(process.argv[2], out, (err) => {
     if (err) {

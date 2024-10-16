@@ -67,6 +67,9 @@ export async function generateErc721PermitSignature(
     _repositoryName = contextOrPermitPayload.repositoryName;
     _userId = contextOrPermitPayload.userId;
   } else {
+    if (!contextOrPermitPayload.env) {
+      throw new Error(`env is undefined`);
+    }
     const { NFT_MINTER_PRIVATE_KEY, NFT_CONTRACT_ADDRESS } = contextOrPermitPayload.env;
     const { evmNetworkId } = contextOrPermitPayload.config;
     const adapters = contextOrPermitPayload.adapters;
