@@ -1,4 +1,3 @@
-import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
 import { createClient } from "@supabase/supabase-js";
 import { createAdapters } from "../src/adapters";
@@ -80,7 +79,6 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
   context.adapters = createAdapters(supabaseClient, context);
 
   const permits = await generatePayoutPermit(context, config.permitRequests);
-  await returnDataToKernel(GITHUB_TOKEN, "todo_state", permits);
   const out = Buffer.from(JSON.stringify(permits)).toString("base64");
   fs.writeFile(process.argv[2], out, (err) => {
     if (err) {
@@ -89,18 +87,6 @@ export async function generatePermitsFromGithubWorkflowDispatch() {
   });
 }
 
-async function returnDataToKernel(repoToken: string, stateId: string, output: object) {
-  const octokit = new Octokit({ auth: repoToken });
-  await octokit.repos.createDispatchEvent({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
-    event_type: "return_data_to_ubiquibot_kernel",
-    client_payload: {
-      state_id: stateId,
-      output: JSON.stringify(output),
-    },
-  });
-}
 generatePermitsFromGithubWorkflowDispatch()
   .then((result) => console.log(`result: ${result}`))
   .catch((error) => {
