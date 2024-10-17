@@ -20,6 +20,6 @@ export interface Context<T extends WebhookEventName = SupportedEvents> {
   octokit: InstanceType<typeof Octokit>;
   adapters: ReturnType<typeof createAdapters>;
   config: PermitGenerationSettings;
-  env: Env;
+  env?: Env;
   logger: Logger;
 }

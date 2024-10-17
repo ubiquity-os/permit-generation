@@ -1,0 +1,46 @@
+name: Permit Generator
+
+on:
+  workflow_dispatch:
+    inputs:
+      PAYMENT_REQUESTS:
+        description: "A JSON array containing usernames and associated amounts"
+        required: true
+        # example: '[{"user1": 100}, {"user2": 150}]'
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.10.0"
+
+      - name: Install dependencies
+        run: yarn install --immutable --immutable-cache --check-cache
+
+      - name: Process permit requests
+        id: parse
+        run: |
+          echo "Received input: ${{ github.event.inputs.PAYMENT_REQUESTS }}"
+          npx tsx scripts/github-action-permit-generator.ts permits.txt
+        shell: bash
+        env:
+          X25519_PRIVATE_KEY: ${{ secrets.X25519_PRIVATE_KEY }}
+          EVM_NETWORK_ID: ${{ secrets.EVM_NETWORK_ID }}
+          EVM_PRIVATE_KEY: ${{ secrets.EVM_PRIVATE_KEY }}
+          EVM_TOKEN_ADDRESS: ${{ secrets.EVM_TOKEN_ADDRESS }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL}}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAYMENT_REQUESTS: ${{ github.event.inputs.PAYMENT_REQUESTS }}
+
+      - name: Log permits data
+        run: |
+          export PERMITS=$(cat permits.txt)
+          echo $PERMITS
