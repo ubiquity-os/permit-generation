@@ -10,6 +10,9 @@ function getHandler(networkId: number | string) {
     networkName: null,
     runtimeRpcs: null,
     networkRpcs: null,
+    proxySettings: {
+      retryCount: 5,
+    },
   };
 
   return new RPCHandler(config as HandlerConstructorConfig);
@@ -18,8 +21,7 @@ function getHandler(networkId: number | string) {
 export async function getFastestProvider(networkId: number | string): Promise<providers.JsonRpcProvider> {
   try {
     const handler = getHandler(networkId);
-    const provider = await handler.getFastestRpcProvider();
-    return new providers.JsonRpcProvider(provider.connection.url);
+    return await handler.getFastestRpcProvider();
   } catch (e) {
     throw new Error(`Failed to get fastest provider for networkId: ${networkId}`);
   }

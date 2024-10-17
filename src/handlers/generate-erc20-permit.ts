@@ -152,8 +152,8 @@ async function getTokenDecimals(tokenAddress: string, provider: ethers.providers
     const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
     return await tokenContract.decimals();
   } catch (error) {
-    const errorMessage = `Failed to get token decimals for token: ${tokenAddress}`;
-    logger.debug(errorMessage);
+    const errorMessage = `Failed to get token decimals for token: ${tokenAddress}, ${error}`;
+    logger.debug(errorMessage, { error });
     throw new Error(errorMessage);
   }
 }
