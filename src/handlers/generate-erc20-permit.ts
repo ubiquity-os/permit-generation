@@ -90,15 +90,8 @@ export async function generateErc20PermitSignature(
 
   const { domain, types, values } = SignatureTransfer.getPermitData(permitTransferFromData, PERMIT2_ADDRESS, evmNetworkId);
 
-  const domainData = {
-    name: domain.name,
-    version: domain.version || "1", //  default to 1 if it's undefined
-    chainId: domain.chainId,
-    verifyingContract: domain.verifyingContract,
-  };
-
   try {
-    const signature = await adminWallet._signTypedData(domainData, types, values);
+    const signature = await adminWallet._signTypedData(domain, types, values);
 
     const erc20Permit: PermitReward = {
       tokenType: TokenType.ERC20,
