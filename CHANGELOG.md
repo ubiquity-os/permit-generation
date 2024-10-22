@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.5](https://github.com/ubiquity-os/permit-generation/compare/v2.0.4...v2.0.5) (2024-10-22)
+
+
+### Bug Fixes
+
+* fix permit signer ([e4e8eae](https://github.com/ubiquity-os/permit-generation/commit/e4e8eaef1d065cffdcb379b001c62d0fa971010e))
+
 ## [2.0.4](https://github.com/ubiquity-os/permit-generation/compare/v2.0.3...v2.0.4) (2024-10-10)
 
 
