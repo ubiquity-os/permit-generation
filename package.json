@@ -1,6 +1,6 @@
 {
   "name": "@ubiquity-os/permit-generation",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "ECR20 / ECR721 permit generation for automated payments.",
   "author": "Ubiquity DAO",
   "license": "MIT",
