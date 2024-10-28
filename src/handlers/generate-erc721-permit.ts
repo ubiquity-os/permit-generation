@@ -2,6 +2,7 @@ import { MaxUint256 } from "@uniswap/permit2-sdk";
 import { Wallet, utils } from "ethers";
 import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
+import { Env } from "../types/env";
 import { isIssueEvent } from "../types/typeguards";
 import { getFastestProvider } from "../utils/get-fastest-provider";
 
@@ -26,10 +27,10 @@ const types = {
   ],
 };
 
-export interface PermitPayload {
+ export interface PermitPayload {
   evmNetworkId: number;
-  nftMinterPrivateKey: string;
-  nftContractAddress: string;
+  nftMinterPrivateKey: string; // Consider making this optional if needed
+  nftContractAddress: string;    // Consider making this optional if needed
   walletAddress: string;
   logger: Logger;
   issueNodeId: string;
@@ -48,7 +49,7 @@ export async function generateErc721PermitSignature(
   let _logger: Logger;
   let _nftContractAddress: string;
   let _evmNetworkId: number;
-  let _nftMinterPrivateKey: string;
+  let _nftMinterPrivateKey: string; // This may need to be optional
   let _userId: number;
   let _walletAddress: string;
   let _issueNodeId: string;
@@ -57,42 +58,71 @@ export async function generateErc721PermitSignature(
   let _username = username;
 
   if ("evmNetworkId" in contextOrPermitPayload) {
+    // Existing logic for PermitPayload
     _logger = contextOrPermitPayload.logger;
     _nftContractAddress = contextOrPermitPayload.nftContractAddress;
-    _nftMinterPrivateKey = contextOrPermitPayload.nftMinterPrivateKey;
+    _nftMinterPrivateKey = contextOrPermitPayload.nftMinterPrivateKey; // This may need to be optional
     _evmNetworkId = contextOrPermitPayload.evmNetworkId;
     _walletAddress = contextOrPermitPayload.walletAddress;
     _issueNodeId = contextOrPermitPayload.issueNodeId;
     _organizationName = contextOrPermitPayload.organizationName;
     _repositoryName = contextOrPermitPayload.repositoryName;
     _userId = contextOrPermitPayload.userId;
+
   } else {
-    const { NFT_MINTER_PRIVATE_KEY, NFT_CONTRACT_ADDRESS } = contextOrPermitPayload.env;
-    const { evmNetworkId } = contextOrPermitPayload.config;
-    const adapters = contextOrPermitPayload.adapters;
+    const { NFT_MINTER_PRIVATE_KEY, NFT_CONTRACT_ADDRESS } = contextOrPermitPayload.env as Env; // Cast to Env
+
+    const { evmNetworkId } = contextOrPermitPayload.config; 
+    const adapters = contextOrPermitPayload.adapters; 
     _logger = contextOrPermitPayload.logger;
-    _nftContractAddress = NFT_CONTRACT_ADDRESS;
-    _evmNetworkId = evmNetworkId;
-    _nftMinterPrivateKey = NFT_MINTER_PRIVATE_KEY;
+
+    // Check if NFT_CONTRACT_ADDRESS is defined
+    if (!NFT_CONTRACT_ADDRESS) {
+      const errorMessage = "NFT contract address is not defined in environment variables.";
+      _logger.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    // Check if NFT_MINTER_PRIVATE_KEY is defined
+    if (!NFT_MINTER_PRIVATE_KEY) {
+      const errorMessage = "NFT minter private key is not defined in environment variables.";
+      _logger.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    // Assign values from environment variables
+    _nftContractAddress = NFT_CONTRACT_ADDRESS; 
+    _evmNetworkId = evmNetworkId; 
+    _nftMinterPrivateKey = NFT_MINTER_PRIVATE_KEY; 
     _username = username;
+
     if (isIssueEvent(contextOrPermitPayload)) {
-      _issueNodeId = contextOrPermitPayload.payload.issue.node_id;
+      _issueNodeId = contextOrPermitPayload.payload.issue.node_id; 
     } else {
       throw new Error("Issue Id is missing.");
     }
-    _organizationName = contextOrPermitPayload.payload.repository.owner.login;
-    _repositoryName = contextOrPermitPayload.payload.repository.name;
+
+    // Fetch organization and repository names
+    _organizationName = contextOrPermitPayload.payload.repository.owner.login; 
+    _repositoryName = contextOrPermitPayload.payload.repository.name; 
+
+    // Fetch user data
     const { data: userData } = await contextOrPermitPayload.octokit.users.getByUsername({ username: _username });
+    
     if (!userData) {
       throw new Error(`GitHub user was not found for id ${_username}`);
     }
-    _userId = userData.id;
-    const walletAddress = await adapters.supabase.wallet.getWalletByUserId(_userId);
+    
+    // Fetch wallet address by user ID
+    _userId = userData.id; 
+    const walletAddress = await adapters.supabase.wallet.getWalletByUserId(_userId); 
+    
     if (!walletAddress) {
       _logger.error("No wallet found for user");
       throw new Error("No wallet found for user");
     }
-    _walletAddress = walletAddress;
+    
+    _walletAddress = walletAddress; 
   }
 
   const provider = await getFastestProvider(_evmNetworkId);
