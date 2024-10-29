@@ -1,29 +1,20 @@
 import { Octokit } from "@octokit/rest";
-import { returnDataToKernel } from "./helpers/validator";
 import { Env, PluginInputs } from "./types";
 import { Context } from "./types";
-import { isIssueCommentEvent } from "./types/typeguards";
-import { helloWorld } from "./handlers/hello-world";
-import { LogLevel, Logs } from "@ubiquity-dao/ubiquibot-logger";
+import { generatePayoutPermit } from "./handlers";
+import { returnDataToKernel } from "./helpers/validator";
+import { Logs } from "@ubiquity-os/ubiquity-os-logger";
+import { createAdapters } from "./adapters";
+import { createClient } from "@supabase/supabase-js";
 
-/**
- * The main plugin function. Split for easier testing.
- */
 export async function runPlugin(context: Context) {
-  const { logger, eventName } = context;
-
-  if (isIssueCommentEvent(context)) {
-    return await helloWorld(context);
-  }
-
-  logger.error(`Unsupported event: ${eventName}`);
+  const { config } = context;
+  return await generatePayoutPermit(context, config.permitRequests);
 }
 
-/**
- * How a worker executes the plugin.
- */
 export async function plugin(inputs: PluginInputs, env: Env) {
   const octokit = new Octokit({ auth: inputs.authToken });
+  const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
 
   const context: Context = {
     eventName: inputs.eventName,
@@ -31,20 +22,11 @@ export async function plugin(inputs: PluginInputs, env: Env) {
     config: inputs.settings,
     octokit,
     env,
-    logger: new Logs("info" as LogLevel),
+    logger: new Logs("debug"),
+    adapters: {} as ReturnType<typeof createAdapters>,
   };
 
-  /**
-   * NOTICE: Consider non-database storage solutions unless necessary
-   *
-   * Initialize storage adapters here. For example, to use Supabase:
-   *
-   * import { createClient } from "@supabase/supabase-js";
-   *
-   * const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_KEY);
-   * context.adapters = createAdapters(supabase, context);
-   */
+  context.adapters = createAdapters(supabase, context);
 
-  await runPlugin(context);
-  return returnDataToKernel(process.env.GITHUB_TOKEN, inputs.stateId, {});
+  return returnDataToKernel(process.env.GITHUB_TOKEN, inputs.stateId, await runPlugin(context));
 }

@@ -2,7 +2,7 @@ import { PermitReward } from "../types";
 import { Context } from "../types/context";
 import { generateErc20PermitSignature } from "./generate-erc20-permit";
 import { generateErc721PermitSignature } from "./generate-erc721-permit";
-import { PermitRequest } from "../types/plugin-input";
+import { PermitRequest } from "../types/plugin-inputs";
 
 /**
  * Generates a payout permit based on the provided context.
