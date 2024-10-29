@@ -1,31 +1,30 @@
-import { SupportedEvents, SupportedEventsU } from "./context";
+import { EmitterWebhookEvent as WebhookEvent, EmitterWebhookEventName as WebhookEventName } from "@octokit/webhooks";
+import { SupportedEventsU } from "./context";
 import { StaticDecode, Type as T } from "@sinclair/typebox";
-import { StandardValidator } from "typebox-validators";
 
-export interface PluginInputs<T extends SupportedEventsU = SupportedEventsU, TU extends SupportedEvents[T] = SupportedEvents[T]> {
+export interface PluginInputs<T extends WebhookEventName = SupportedEventsU> {
   stateId: string;
   eventName: T;
-  eventPayload: TU["payload"];
-  settings: PluginSettings;
+  eventPayload: WebhookEvent<T>["payload"];
+  settings: PermitGenerationSettings;
   authToken: string;
   ref: string;
 }
 
-/**
- * This should contain the properties of the bot config
- * that are required for the plugin to function.
- *
- * The kernel will extract those and pass them to the plugin,
- * which are built into the context object from setup().
- */
-export const pluginSettingsSchema = T.Object(
-  {
-    configurableResponse: T.String(),
-    customStringsUrl: T.Optional(T.String()),
-  },
-  { default: { configurableResponse: "Hello, world!" } }
-);
+export const permitRequestSchema = T.Object({
+  type: T.Union([T.Literal("ERC20"), T.Literal("ERC721")]),
+  username: T.String(),
+  amount: T.Number(),
+  contributionType: T.String(),
+  tokenAddress: T.String(),
+});
 
-export const pluginSettingsValidator = new StandardValidator(pluginSettingsSchema);
+export type PermitRequest = StaticDecode<typeof permitRequestSchema>;
 
-export type PluginSettings = StaticDecode<typeof pluginSettingsSchema>;
+export const permitGenerationSettingsSchema = T.Object({
+  evmNetworkId: T.Number(),
+  evmPrivateEncrypted: T.String(),
+  permitRequests: T.Array(permitRequestSchema),
+});
+
+export type PermitGenerationSettings = StaticDecode<typeof permitGenerationSettingsSchema>;
