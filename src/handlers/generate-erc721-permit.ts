@@ -24,17 +24,8 @@ export async function generateErc721PermitSignature(
   username: string,
   contributionType: string
 ): Promise<PermitReward> {
-  const {
-    _logger,
-    _nftContractAddress,
-    _evmNetworkId,
-    _nftMinterPrivateKey,
-    _userId,
-    _walletAddress,
-    _issueNodeId,
-    _organizationName,
-    _repositoryName,
-  } = await getErc721PermitDetails(contextOrPermitPayload, username);
+  const { _logger, _nftContractAddress, _evmNetworkId, _nftMinterPrivateKey, _userId, _walletAddress, _issueNodeId, _organizationName, _repositoryName } =
+    await getErc721PermitDetails(contextOrPermitPayload, username);
 
   const provider = await getFastestProvider(_evmNetworkId);
 

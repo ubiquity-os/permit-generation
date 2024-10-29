@@ -1,6 +1,7 @@
 import { EmitterWebhookEvent as WebhookEvent, EmitterWebhookEventName as WebhookEventName } from "@octokit/webhooks";
 import { SupportedEventsU } from "./context";
 import { StaticDecode, Type as T } from "@sinclair/typebox";
+import { StandardValidator } from "typebox-validators";
 
 export interface PluginInputs<T extends WebhookEventName = SupportedEventsU> {
   stateId: string;
@@ -28,3 +29,5 @@ export const permitGenerationSettingsSchema = T.Object({
 });
 
 export type PermitGenerationSettings = StaticDecode<typeof permitGenerationSettingsSchema>;
+
+export const permitGenerationSettingsValidator = new StandardValidator(permitGenerationSettingsSchema);

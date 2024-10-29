@@ -1,23 +1,17 @@
 import * as core from "@actions/core";
-// import { generatePermitsFromContext } from "./generate-permits-from-context";
-
-// generatePermitsFromContext()
 import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
 import { Value } from "@sinclair/typebox/value";
-import { envSchema, pluginSettingsSchema, PluginInputs, pluginSettingsValidator } from "./types";
+import { envSchema, permitGenerationSettingsSchema, PluginInputs, permitGenerationSettingsValidator } from "./types";
 import { plugin } from "./plugin";
 
-/**
- * How a GitHub action executes the plugin.
- */
 export async function run() {
   const payload = github.context.payload.inputs;
 
   const env = Value.Decode(envSchema, payload.env);
-  const settings = Value.Decode(pluginSettingsSchema, Value.Default(pluginSettingsSchema, JSON.parse(payload.settings)));
+  const settings = Value.Decode(permitGenerationSettingsSchema, Value.Default(permitGenerationSettingsSchema, JSON.parse(payload.settings)));
 
-  if (!pluginSettingsValidator.test(settings)) {
+  if (!permitGenerationSettingsValidator.test(settings)) {
     throw new Error("Invalid settings provided");
   }
 

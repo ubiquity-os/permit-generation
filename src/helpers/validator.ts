@@ -1,7 +1,7 @@
 import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
 import { TransformDecodeCheckError, TransformDecodeError, Value, ValueError } from "@sinclair/typebox/value";
-import { Env, envSchema, envValidator, PluginSettings, pluginSettingsSchema, pluginSettingsValidator } from "../types";
+import { Env, envSchema, envValidator, PermitGenerationSettings, permitGenerationSettingsSchema, permitGenerationSettingsValidator } from "../types";
 
 export async function returnDataToKernel(repoToken: string, stateId: string, output: object, eventType = "return-data-to-ubiquity-os-kernel") {
   const octokit = new Octokit({ auth: repoToken });
@@ -27,9 +27,9 @@ export function validateAndDecodeSchemas(rawEnv: object, rawSettings: object) {
     }
   }
 
-  const settings = Value.Default(pluginSettingsSchema, rawSettings) as PluginSettings;
-  if (!pluginSettingsValidator.test(settings)) {
-    for (const error of pluginSettingsValidator.errors(settings)) {
+  const settings = Value.Default(permitGenerationSettingsSchema, rawSettings) as PermitGenerationSettings;
+  if (!permitGenerationSettingsValidator.test(settings)) {
+    for (const error of permitGenerationSettingsValidator.errors(settings)) {
       console.error(error);
       errors.push(error);
     }
@@ -40,7 +40,7 @@ export function validateAndDecodeSchemas(rawEnv: object, rawSettings: object) {
   }
 
   try {
-    const decodedSettings = Value.Decode(pluginSettingsSchema, settings);
+    const decodedSettings = Value.Decode(permitGenerationSettingsSchema, settings);
     const decodedEnv = Value.Decode(envSchema, rawEnv || {});
     return { decodedEnv, decodedSettings };
   } catch (e) {

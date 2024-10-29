@@ -15,9 +15,7 @@ export async function decrypt(encryptedText: string, x25519PrivateKey: string): 
   const binaryPrivate = sodium.from_base64(x25519PrivateKey, sodium.base64_variants.URLSAFE_NO_PADDING);
   const binaryEncryptedText = sodium.from_base64(encryptedText, sodium.base64_variants.URLSAFE_NO_PADDING);
 
-  const decryptedText = sodium.crypto_box_seal_open(binaryEncryptedText, binaryPublic, binaryPrivate, "text");
-
-  return decryptedText;
+  return sodium.crypto_box_seal_open(binaryEncryptedText, binaryPublic, binaryPrivate, "text");
 }
 
 /**
@@ -60,7 +58,7 @@ export async function getPublicKey(x25519PrivateKey: string): Promise<string> {
  * @returns Parsed private key object: private key, organization id and repository id
  */
 export function parseDecryptedPrivateKey(decryptedPrivateKey: string) {
-  let result: {
+  const result: {
     privateKey: string | null;
     allowedOrganizationId: number | null;
     allowedRepositoryId: number | null;

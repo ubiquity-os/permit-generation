@@ -24,14 +24,7 @@ export async function generateErc20PermitSignature(
   if (!username) {
     throw new Error("User was not found");
   }
-  const {
-    walletAddress,
-    issueNodeId,
-    evmNetworkId,
-    evmPrivateEncrypted,
-    userId,
-    logger
-  } = await getPayloadPermitDetails(contextOrPayload, username);
+  const { walletAddress, issueNodeId, evmNetworkId, evmPrivateEncrypted, userId, logger } = await getPayloadPermitDetails(contextOrPayload, username);
 
   const { adminWallet, permitTransferFromData, domain, types, values } = await getPermitSignatureDetails(
     walletAddress,

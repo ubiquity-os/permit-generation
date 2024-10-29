@@ -23,6 +23,6 @@ export async function getFastestProvider(networkId: number | string): Promise<pr
     const handler = getHandler(networkId);
     return await handler.getFastestRpcProvider();
   } catch (e) {
-    throw new Error(`Failed to get fastest provider for networkId: ${networkId}`);
+    throw new Error(`Failed to get fastest provider for networkId: ${networkId} - ${String(e)}`);
   }
 }
