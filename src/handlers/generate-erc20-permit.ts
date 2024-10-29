@@ -1,8 +1,8 @@
 import { Context } from "../types/context";
 import { PermitReward, TokenType } from "../types";
 import { Logs } from "@ubiquity-os/ubiquity-os-logger";
-import { getPayloadPermitDetails } from "./erc20-permits/get-payload-permit-details";
-import { getPermitSignatureDetails } from "./erc20-permits/get-permit-signature-details";
+import { getPayloadPermitDetails } from "./erc20-permits/get-erc20-permit-details";
+import { getPermitSignatureDetails } from "./erc20-permits/get-erc20-signature-details";
 
 export interface Payload {
   evmNetworkId: number;
@@ -45,8 +45,7 @@ export async function generateErc20PermitSignature(
   );
 
   try {
-    const signature = await adminWallet._signTypedData(domain, types, values);
-    const erc20Permit: PermitReward = {
+    return {
       tokenType: TokenType.ERC20,
       tokenAddress: permitTransferFromData.permitted.token,
       beneficiary: permitTransferFromData.spender,
@@ -54,12 +53,9 @@ export async function generateErc20PermitSignature(
       deadline: permitTransferFromData.deadline.toString(),
       amount: permitTransferFromData.permitted.amount.toString(),
       owner: adminWallet.address,
-      signature: signature,
+      signature: await adminWallet._signTypedData(domain, types, values),
       networkId: evmNetworkId,
-    };
-
-    logger.info("Generated ERC20 permit2 signature", { erc20Permit });
-    return erc20Permit;
+    } as PermitReward;
   } catch (error) {
     logger.error(`Failed to sign typed data: ${error}`);
     throw error;

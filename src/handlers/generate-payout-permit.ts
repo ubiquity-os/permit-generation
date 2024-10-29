@@ -29,6 +29,8 @@ export async function generatePayoutPermit(context: Context, permitRequests: Per
         continue;
     }
 
+    context.logger.info(`Generated permit for ${username} with type ${type}`);
+
     permits.push(permit);
   }
 
