@@ -1,16 +1,17 @@
 import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer, MaxUint256 } from "@uniswap/permit2-sdk";
 import { ethers, utils } from "ethers";
-import { Context, Logger } from "../types/context";
+import { Context } from "../types/context";
 import { PermitReward, TokenType } from "../types";
 import { decrypt, parseDecryptedPrivateKey } from "../utils";
 import { getFastestProvider } from "../utils/get-fastest-provider";
+import { Logs } from "@ubiquity-os/ubiquity-os-logger";
 
 export interface Payload {
   evmNetworkId: number;
   evmPrivateEncrypted: string;
   walletAddress: string;
   issueNodeId: string;
-  logger: Logger;
+  logger: Logs;
   userId: number;
 }
 
@@ -22,7 +23,7 @@ export async function generateErc20PermitSignature(
   amount: number,
   tokenAddress: string
 ): Promise<PermitReward> {
-  let logger: Logger;
+  let logger: Logs;
   const _username = username;
   let walletAddress: string | null | undefined;
   let issueNodeId: string;
@@ -31,7 +32,7 @@ export async function generateErc20PermitSignature(
   let userId: number;
 
   if ("issueNodeId" in contextOrPayload) {
-    logger = contextOrPayload.logger as Logger;
+    logger = contextOrPayload.logger;
     walletAddress = contextOrPayload.walletAddress;
     evmNetworkId = contextOrPayload.evmNetworkId;
     evmPrivateEncrypted = contextOrPayload.evmPrivateEncrypted;
@@ -105,7 +106,7 @@ export async function generateErc20PermitSignature(
       networkId: evmNetworkId,
     };
 
-    logger.info("Generated ERC20 permit2 signature", erc20Permit);
+    logger.info("Generated ERC20 permit2 signature", { erc20Permit });
 
     return erc20Permit;
   } catch (error) {
@@ -114,7 +115,7 @@ export async function generateErc20PermitSignature(
   }
 }
 
-async function getPrivateKey(evmPrivateEncrypted: string, logger: Logger) {
+async function getPrivateKey(evmPrivateEncrypted: string, logger: Logs) {
   try {
     const privateKeyDecrypted = await decrypt(evmPrivateEncrypted, String(process.env.X25519_PRIVATE_KEY));
     const privateKeyParsed = parseDecryptedPrivateKey(privateKeyDecrypted);
@@ -128,7 +129,7 @@ async function getPrivateKey(evmPrivateEncrypted: string, logger: Logger) {
   }
 }
 
-async function getAdminWallet(privateKey: string, provider: ethers.providers.Provider, logger: Logger) {
+async function getAdminWallet(privateKey: string, provider: ethers.providers.Provider, logger: Logs) {
   try {
     return new ethers.Wallet(privateKey, provider);
   } catch (error) {
@@ -138,14 +139,14 @@ async function getAdminWallet(privateKey: string, provider: ethers.providers.Pro
   }
 }
 
-async function getTokenDecimals(tokenAddress: string, provider: ethers.providers.Provider, logger: Logger) {
+async function getTokenDecimals(tokenAddress: string, provider: ethers.providers.Provider, logger: Logs) {
   try {
     const erc20Abi = ["function decimals() public view returns (uint8)"];
     const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);
     return await tokenContract.decimals();
-  } catch (error) {
-    const errorMessage = `Failed to get token decimals for token: ${tokenAddress}, ${error}`;
-    logger.debug(errorMessage, { error });
+  } catch (err) {
+    const errorMessage = `Failed to get token decimals for token: ${tokenAddress}, ${err}`;
+    logger.debug(errorMessage, { err });
     throw new Error(errorMessage);
   }
 }
