@@ -1,25 +1,22 @@
-import { EmitterWebhookEvent as WebhookEvent, EmitterWebhookEventName as WebhookEventName } from "@octokit/webhooks";
 import { Octokit } from "@octokit/rest";
+import { EmitterWebhookEvent as WebhookEvent, EmitterWebhookEventName as WebhookEventName } from "@octokit/webhooks";
+import { Env } from "./env";
+import { PluginSettings } from "./plugin-inputs";
+import { Logs } from "@ubiquity-dao/ubiquibot-logger";
 import { PermitGenerationSettings } from "./plugin-input";
 import { createAdapters } from "../adapters";
-import { Env } from "./env";
 
-export type SupportedEvents = "issue_comment.created" | "workflow_dispatch" | "pull_request.closed" | "issues.closed";
+export type SupportedEventsU = "issue_comment.created" | "workflow_dispatch" | "pull_request.closed" | "issues.closed";
 
-export interface Logger {
-  fatal: (message: unknown, ...optionalParams: unknown[]) => void;
-  error: (message: unknown, ...optionalParams: unknown[]) => void;
-  warn: (message: unknown, ...optionalParams: unknown[]) => void;
-  info: (message: unknown, ...optionalParams: unknown[]) => void;
-  debug: (message: unknown, ...optionalParams: unknown[]) => void;
-}
+export type SupportedEvents = {
+  [K in SupportedEventsU]: K extends WebhookEventName ? WebhookEvent<K> : never;
+};
 
-export interface Context<T extends WebhookEventName = SupportedEvents> {
+export interface Context<T extends SupportedEventsU = SupportedEventsU, TU extends SupportedEvents[T] = SupportedEvents[T]> {
   eventName: T;
-  payload: WebhookEvent<T>["payload"];
+  payload: TU["payload"];
   octokit: InstanceType<typeof Octokit>;
-  adapters: ReturnType<typeof createAdapters>;
   config: PermitGenerationSettings;
   env: Env;
-  logger: Logger;
+  logger: Logs;
 }

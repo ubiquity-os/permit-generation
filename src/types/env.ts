@@ -1,5 +1,6 @@
 import { Type as T } from "@sinclair/typebox";
 import { StaticDecode } from "@sinclair/typebox";
+import { StandardValidator } from "typebox-validators";
 import "dotenv/config";
 
 export const envSchema = T.Object({
@@ -9,5 +10,7 @@ export const envSchema = T.Object({
   NFT_MINTER_PRIVATE_KEY: T.String(),
   NFT_CONTRACT_ADDRESS: T.String(),
 });
+
+export const envValidator = new StandardValidator(envSchema);
 
 export type Env = StaticDecode<typeof envSchema>;

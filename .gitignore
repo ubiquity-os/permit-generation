@@ -11,4 +11,12 @@ static/dist
 /coverage
 junit.xml
 dist
+.env.dev
+.dev.vars
+static/dist
+coverage
+junit.xml
+cypress/screenshots
+script.ts
+.wrangler
 test-dashboard.md

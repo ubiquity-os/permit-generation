@@ -4,22 +4,27 @@ on:
   workflow_dispatch:
     inputs:
       stateId:
-        required: true
+        description: "State Id"
       eventName:
-        required: true
+        description: "Event Name"
       eventPayload:
-        required: true
+        description: "Event Payload"
       settings:
-        required: true
+        description: "Settings"
       authToken:
-        required: true
+        description: "Auth Token"
       ref:
-        required: true
+        description: "Ref"
+      signature:
+        description: "The kernel signature"
 
 jobs:
-  run:
+  compute:
+    name: "plugin name"
     runs-on: ubuntu-latest
     permissions: write-all
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v4
