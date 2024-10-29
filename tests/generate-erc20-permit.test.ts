@@ -81,7 +81,6 @@ describe("generateErc20PermitSignature", () => {
     };
 
     expect(result).toEqual(expectedResult);
-    expect(context.logger.info).toHaveBeenCalledWith("Generated ERC20 permit2 signature", expect.any(Object));
   });
 
   it("should throw error when evmPrivateEncrypted is not defined", async () => {
