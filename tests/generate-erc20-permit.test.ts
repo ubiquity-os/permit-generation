@@ -69,20 +69,19 @@ describe("generateErc20PermitSignature", () => {
     const result = await generateErc20PermitSignature(context, SPENDER, amount, ERC20_REWARD_TOKEN_ADDRESS);
 
     const expectedResult = {
-      tokenType: 'ERC20',
-      tokenAddress: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d',
-      beneficiary: '0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd',
-      nonce: '28290789875493039658039458533958603742651083423638415458747066904844975862062',
-      deadline: '115792089237316195423570985008687907853269984665640564039457584007913129639935',
-      amount: '100000000000000000000',
-      owner: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
-      signature: '0xad87653fb0ecf740c73b78a8f414cdd5b1ffb18670cde5a1d21c65e43d6bb2a36c5470c5529334dc11566f0c380889b734a8539d69ec74cc2abf37af0ea7a7781b',
-      networkId: 100
+      tokenType: "ERC20",
+      tokenAddress: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+      beneficiary: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
+      nonce: "28290789875493039658039458533958603742651083423638415458747066904844975862062",
+      deadline: "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+      amount: "100000000000000000000",
+      owner: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      signature: "0xad87653fb0ecf740c73b78a8f414cdd5b1ffb18670cde5a1d21c65e43d6bb2a36c5470c5529334dc11566f0c380889b734a8539d69ec74cc2abf37af0ea7a7781b",
+      networkId: 100,
     };
 
     expect(result).toEqual(expectedResult);
     expect(context.logger.info).toHaveBeenCalledWith("Generated ERC20 permit2 signature", expect.any(Object));
-    
   });
 
   it("should throw error when evmPrivateEncrypted is not defined", async () => {

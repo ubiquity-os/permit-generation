@@ -56,8 +56,5 @@
 //     adapters: {} as ReturnType<typeof createAdapters>,
 //   };
 
-
-
 //   return null;
 // }
-

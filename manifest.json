@@ -1,9 +1,7 @@
 {
   "name": "ts-template",
   "description": "ts-template for UbiquityOS plugins.",
-  "ubiquity:listeners": [
-    "issue_comment.created"
-  ],
+  "ubiquity:listeners": ["issue_comment.created"],
   "commands": {
     "command1": {
       "ubiquity:example": "/command1 argument",
@@ -23,8 +21,6 @@
         "type": "string"
       }
     },
-    "required": [
-      "configurableResponse"
-    ]
+    "required": ["configurableResponse"]
   }
 }
