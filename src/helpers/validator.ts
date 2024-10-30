@@ -1,13 +1,26 @@
-import * as github from "@actions/github";
 import { Octokit } from "@octokit/rest";
 import { TransformDecodeCheckError, TransformDecodeError, Value, ValueError } from "@sinclair/typebox/value";
-import { Env, envSchema, envValidator, PermitGenerationSettings, permitGenerationSettingsSchema, permitGenerationSettingsValidator } from "../types";
+import { Context, Env, envSchema, envValidator, PermitGenerationSettings, permitGenerationSettingsSchema, permitGenerationSettingsValidator } from "../types";
 
-export async function returnDataToKernel(repoToken: string, stateId: string, output: object, eventType = "return-data-to-ubiquity-os-kernel") {
+export async function returnDataToKernel(
+  context: Context,
+  repoToken: string,
+  stateId: string,
+  output: object,
+  eventType = "return-data-to-ubiquity-os-kernel"
+) {
   const octokit = new Octokit({ auth: repoToken });
+  const {
+    payload: {
+      repository: {
+        name: repo,
+        owner: { login: owner },
+      },
+    },
+  } = context;
   return octokit.repos.createDispatchEvent({
-    owner: github.context.repo.owner,
-    repo: github.context.repo.repo,
+    owner,
+    repo,
     event_type: eventType,
     client_payload: {
       state_id: stateId,
@@ -20,6 +33,7 @@ export function validateAndDecodeSchemas(rawEnv: object, rawSettings: object) {
   const errors: ValueError[] = [];
 
   const env = Value.Default(envSchema, rawEnv) as Env;
+
   if (!envValidator.test(env)) {
     for (const error of envValidator.errors(env)) {
       console.error(error);
