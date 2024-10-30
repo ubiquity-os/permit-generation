@@ -1,14 +1,13 @@
 import { Database } from "../types/database";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Super } from "./supabase";
-import { Context } from "../../../types/context";
 
 const FAILED_TO_GET_USER = "Failed to get user";
 const SUCCESSFULLY_FETCHED_USER = "Successfully fetched user";
 
 export class User extends Super {
-  constructor(supabase: SupabaseClient<Database>, context: Context) {
-    super(supabase, context);
+  constructor(supabase: SupabaseClient<Database>) {
+    super(supabase);
   }
 
   async getUserById(userId: number) {

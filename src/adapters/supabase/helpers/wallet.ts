@@ -1,11 +1,10 @@
 import { Database } from "../types/database";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Super } from "./supabase";
-import { Context } from "../../../types/context";
 
 export class Wallet extends Super {
-  constructor(supabase: SupabaseClient<Database>, context: Context) {
-    super(supabase, context);
+  constructor(supabase: SupabaseClient<Database>) {
+    super(supabase);
   }
 
   async getWalletByUserId(userId: number) {
