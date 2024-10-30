@@ -15,17 +15,17 @@ export interface PluginInputs<T extends WebhookEventName = SupportedEventsU> {
 const permitRequestSchema = T.Union([
   T.Object({
     type: T.Literal("ERC20"),
-    user: T.Object({ username: T.String(), userId: T.Number() }),
+    userId: T.Number(),
     amount: T.Number({ minimum: 1 }),
-    networkId: T.Number(),
+    evmNetworkId: T.Number(),
     tokenAddress: T.String(),
     issueNodeId: T.String(),
   }),
   T.Object({
     type: T.Literal("ERC721"),
-    user: T.Object({ username: T.String(), userId: T.Number() }),
+    userId: T.Number(),
     amount: T.Number({ maximum: 1, minimum: 1, default: 1 }),
-    networkId: T.Number(),
+    evmNetworkId: T.Number(),
     tokenAddress: T.String(),
     issueNodeId: T.String(),
     erc721Request: T.Object({
@@ -46,11 +46,6 @@ const permitRequestSchema = T.Union([
 export type PermitRequest = StaticDecode<typeof permitRequestSchema>;
 
 export const permitGenerationSettingsSchema = T.Object({
-  /**
-   * This should probably be embedded in the Permit Request
-   * but will leave it here for now as we use a main chain rn.
-   */
-  evmNetworkId: T.Number(),
   evmPrivateEncrypted: T.String(),
   permitRequests: T.Array(permitRequestSchema),
 });
