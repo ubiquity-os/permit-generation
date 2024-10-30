@@ -8,8 +8,7 @@ import { createAdapters } from "./adapters";
 import { createClient } from "@supabase/supabase-js";
 
 export async function runPlugin(context: Context) {
-  const { config } = context;
-  return await generatePayoutPermit(context, config.permitRequests);
+  return await generatePayoutPermit(context, context.config.permitRequests);
 }
 
 export async function plugin(inputs: PluginInputs, env: Env) {
@@ -28,5 +27,5 @@ export async function plugin(inputs: PluginInputs, env: Env) {
 
   context.adapters = createAdapters(supabase, context);
 
-  return returnDataToKernel(process.env.GITHUB_TOKEN, inputs.stateId, await runPlugin(context));
+  return returnDataToKernel(context, inputs.authToken, inputs.stateId, await runPlugin(context));
 }
