@@ -1,6 +1,7 @@
-import { Logs } from "@ubiquity-os/ubiquity-os-logger";
 import { MaxUint256 } from "@uniswap/permit2-sdk";
-import { Wallet, providers, utils } from "ethers";
+import { Wallet, utils } from "ethers";
+import { logger } from "../../helpers/logger";
+import { getFastestProvider } from "../../utils/get-fastest-provider";
 
 interface Erc721PermitSignatureData {
   beneficiary: string;
@@ -23,21 +24,31 @@ const types = {
   ],
 };
 
-export async function getErc721SignatureDetails(
-  logger: Logs,
-  nftContractAddress: string,
-  evmNetworkId: number,
-  nftMinterPrivateKey: string,
-  userId: number,
-  walletAddress: string,
-  issueNodeId: string,
-  organizationName: string,
-  repositoryName: string,
-  username: string,
-  contributionType: string,
-  provider: providers.Provider
-) {
+export async function getErc721SignatureDetails({
+  nftContractAddress,
+  evmNetworkId,
+  nftMinterPrivateKey,
+  userId,
+  walletAddress,
+  issueNodeId,
+  organizationName,
+  repositoryName,
+  username,
+  contributionType,
+}: {
+  nftContractAddress: string;
+  evmNetworkId: number;
+  nftMinterPrivateKey: string;
+  userId: number;
+  walletAddress: string;
+  issueNodeId: string;
+  organizationName: string;
+  repositoryName: string;
+  username: string;
+  contributionType: string;
+}) {
   let adminWallet;
+  const provider = await getFastestProvider(evmNetworkId);
 
   try {
     adminWallet = new Wallet(nftMinterPrivateKey, provider);
