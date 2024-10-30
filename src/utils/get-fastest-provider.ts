@@ -1,5 +1,6 @@
 import { RPCHandler, HandlerConstructorConfig } from "@ubiquity-dao/rpc-handler";
 import { providers } from "ethers";
+import { logger } from "../helpers/logger";
 
 function getHandler(networkId: number | string) {
   const config = {
@@ -19,10 +20,18 @@ function getHandler(networkId: number | string) {
 }
 
 export async function getFastestProvider(networkId: number | string): Promise<providers.JsonRpcProvider> {
+  let provider;
   try {
     const handler = getHandler(networkId);
-    return await handler.getFastestRpcProvider();
+    provider = await handler.getFastestRpcProvider();
   } catch (e) {
     throw new Error(`Failed to get fastest provider for networkId: ${networkId} - ${String(e)}`);
   }
+
+  if (!provider) {
+    logger.error("Provider is not defined");
+    throw new Error("Provider is not defined");
+  }
+
+  return provider;
 }
