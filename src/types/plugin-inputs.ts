@@ -12,17 +12,44 @@ export interface PluginInputs<T extends WebhookEventName = SupportedEventsU> {
   ref: string;
 }
 
-export const permitRequestSchema = T.Object({
-  type: T.Union([T.Literal("ERC20"), T.Literal("ERC721")]),
-  username: T.String(),
-  amount: T.Number(),
-  contributionType: T.String(),
-  tokenAddress: T.String(),
-});
+const permitRequestSchema = T.Union([
+  T.Object({
+    type: T.Literal("ERC20"),
+    user: T.Object({ username: T.String(), userId: T.Number() }),
+    amount: T.Number({ minimum: 1 }),
+    networkId: T.Number(),
+    tokenAddress: T.String(),
+    issueNodeId: T.String(),
+  }),
+  T.Object({
+    type: T.Literal("ERC721"),
+    user: T.Object({ username: T.String(), userId: T.Number() }),
+    amount: T.Number({ maximum: 1, minimum: 1, default: 1 }),
+    networkId: T.Number(),
+    tokenAddress: T.String(),
+    issueNodeId: T.String(),
+    erc721Request: T.Object({
+      contributionType: T.String(),
+      keys: T.Array(T.String()),
+      values: T.Array(T.String()),
+      metadata: T.Object({
+        GITHUB_ORGANIZATION_NAME: T.String(),
+        GITHUB_REPOSITORY_NAME: T.String(),
+        GITHUB_ISSUE_NODE_ID: T.String(),
+        GITHUB_USERNAME: T.String(),
+        GITHUB_CONTRIBUTION_TYPE: T.String(),
+      }),
+    }),
+  }),
+]);
 
 export type PermitRequest = StaticDecode<typeof permitRequestSchema>;
 
 export const permitGenerationSettingsSchema = T.Object({
+  /**
+   * This should probably be embedded in the Permit Request
+   * but will leave it here for now as we use a main chain rn.
+   */
   evmNetworkId: T.Number(),
   evmPrivateEncrypted: T.String(),
   permitRequests: T.Array(permitRequestSchema),
