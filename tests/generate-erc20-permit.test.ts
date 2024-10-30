@@ -1,12 +1,23 @@
 import { describe, expect, it, beforeEach, jest } from "@jest/globals";
-import { generateErc20PermitSignature } from "../src";
 import { Context } from "../src/types/context";
-import { SPENDER, mockContext, ERC20_REWARD_TOKEN_ADDRESS } from "./constants";
+import { mockContext, ERC20_REWARD_TOKEN_ADDRESS } from "./constants";
+import { generateErc20Permit } from "../src/handlers/generate-erc20-permit";
+import { generatePayoutPermits } from "../src";
+import { logger } from "../src/helpers/logger";
+import "@supabase/supabase-js";
+
+jest.autoMockOn();
+jest.mock("@supabase/supabase-js", () => ({
+  createClient: jest.fn().mockReturnValue({
+    from: jest.fn().mockReturnThis(),
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    single: jest.fn().mockReturnThis(),
+  }),
+}));
 
 describe("generateErc20PermitSignature", () => {
   let context: Context;
-
-  jest.autoMockOn();
 
   /**
    * 6. **Update Configuration File**
@@ -17,24 +28,6 @@ describe("generateErc20PermitSignature", () => {
   // cSpell: disable
   const cypherText =
     "wOzNgt-yKT6oFlOVz5wrBLUSYxAbKGE9Co-yvT8f9lePsx7wJwPVugS9186zdhr1T4UpkpXvq9ii5M-nWfrydMnllSkowH4LirRZsHbvRVSvDoH_uh80p6HpwqDSG3g4Nwx5q0GD3H-ne4vwXMuwWAHd";
-
-  jest.mock("@supabase/supabase-js", () => {
-    return {
-      createClient: jest.fn().mockReturnValue({
-        from: jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            eq: jest.fn().mockReturnValue({
-              select: jest.fn().mockReturnValue({
-                eq: jest.fn().mockReturnValue({
-                  single: jest.fn().mockReturnValue({ id: 123 }),
-                }),
-              }),
-            }),
-          }),
-        }),
-      }),
-    };
-  });
 
   beforeEach(() => {
     /**
@@ -47,9 +40,6 @@ describe("generateErc20PermitSignature", () => {
 
     context = {
       ...mockContext,
-      config: {
-        evmNetworkId: 100,
-      },
       octokit: {
         request() {
           return { data: { id: 1, login: "123" } };
@@ -64,9 +54,16 @@ describe("generateErc20PermitSignature", () => {
   it("should generate ERC20 permit signature", async () => {
     const amount = 100;
 
-    context.config.evmPrivateEncrypted = cypherText;
-
-    const result = await generateErc20PermitSignature(context, SPENDER, amount, ERC20_REWARD_TOKEN_ADDRESS);
+    // context, SPENDER, amount, ERC20_REWARD_TOKEN_ADDRESS
+    const result = await generateErc20Permit({
+      amount,
+      evmNetworkId: 100,
+      evmPrivateEncrypted: cypherText,
+      issueNodeId: "123",
+      tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
+      userId: 123,
+      walletAddress: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
+    });
 
     const expectedResult = {
       tokenType: "ERC20",
@@ -86,8 +83,19 @@ describe("generateErc20PermitSignature", () => {
   it("should throw error when evmPrivateEncrypted is not defined", async () => {
     const amount = 0;
     const expectedError = "Failed to decrypt a private key: TypeError: input cannot be null or undefined";
-    await expect(generateErc20PermitSignature(context, SPENDER, amount, ERC20_REWARD_TOKEN_ADDRESS)).rejects.toThrow(expectedError);
-    expect(context.logger.error).toHaveBeenCalledWith(expectedError);
+    const loggerSpy = jest.spyOn(logger, "error");
+    await expect(
+      generateErc20Permit({
+        amount,
+        evmNetworkId: 100,
+        evmPrivateEncrypted: "",
+        issueNodeId: "123",
+        tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
+        userId: 123,
+        walletAddress: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      })
+    ).rejects.toThrow(expectedError);
+    expect(loggerSpy).toHaveBeenCalledWith("Failed to decrypt a private key: TypeError: input cannot be null or undefined");
   });
 
   it("should return error message when no wallet found for user", async () => {
@@ -95,11 +103,28 @@ describe("generateErc20PermitSignature", () => {
     context.config.evmPrivateEncrypted = cypherText;
 
     (context.adapters.supabase.wallet.getWalletByUserId as jest.Mock).mockReturnValue(null);
+    const loggerSpy = jest.spyOn(logger, "error");
 
     await expect(async () => {
-      await generateErc20PermitSignature(context, SPENDER, amount, ERC20_REWARD_TOKEN_ADDRESS);
-    }).rejects.toThrow();
+      await generatePayoutPermits({
+        config: {
+          ...context.config,
+          evmPrivateEncrypted: cypherText,
+          permitRequests: [
+            {
+              amount,
+              evmNetworkId: 100,
+              type: "ERC20",
+              userId: 123,
+              issueNodeId: "123",
+              tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
+            },
+          ],
+        },
+        env: context.env,
+      });
+    }).rejects.toThrow("User with id 123 not found");
 
-    expect(context.logger.error).toHaveBeenCalledWith("ERC20 Permit generation error: Wallet not found");
+    expect(loggerSpy).toHaveBeenCalledWith("Failed to generate permit: ", { er: "Error: User with id 123 not found", caller: "_Logs.<anonymous>" });
   });
 });
