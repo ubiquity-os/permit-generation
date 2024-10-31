@@ -41,7 +41,7 @@ export async function generateErc20PermitSignature(
     const config = contextOrPayload.config;
     logger = contextOrPayload.logger;
     const { evmNetworkId: configEvmNetworkId, evmPrivateEncrypted: configEvmPrivateEncrypted } = config;
-    const { data: userData } = await contextOrPayload.octokit.users.getByUsername({ username: _username });
+    const { data: userData } = await contextOrPayload.octokit.rest.users.getByUsername({ username: _username });
     if (!userData) {
       throw new Error(`GitHub user was not found for id ${_username}`);
     }
