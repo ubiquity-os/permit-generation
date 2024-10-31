@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.6](https://github.com/ubiquity-os/permit-generation/compare/v2.0.5...v2.0.6) (2024-10-31)
+
+
+### Bug Fixes
+
+* update octokit method calls to use the rest API ([48ea9d9](https://github.com/ubiquity-os/permit-generation/commit/48ea9d9f99b1ea3e99c69d3fd284eda139aa85b9))
+
 ## [2.0.5](https://github.com/ubiquity-os/permit-generation/compare/v2.0.4...v2.0.5) (2024-10-22)
 
 
