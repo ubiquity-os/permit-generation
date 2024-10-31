@@ -28,18 +28,9 @@ export async function generatePayoutPermits({
     for (const permitRequest of permitRequests) {
       logger.info("Generating permit for: ", permitRequest);
       const { amount, userId, issueNodeId, evmNetworkId, tokenAddress, type: permitType } = permitRequest;
-      const dbUser = await supabase.user.getUserById(userId);
-      if (!dbUser || !dbUser.wallet_id) {
-        throw new Error(`User with id ${userId} not found`);
-      }
-      const walletAddress = await supabase.wallet.getWalletByUserId(dbUser.wallet_id);
+      const walletAddress = await supabase.wallet.getWalletByUserId(userId);
       if (!walletAddress) {
         throw new Error(`Wallet not found for user with id ${userId}`);
-      }
-
-      if (!walletAddress) {
-        logger.error("ERC20 Permit generation error: Wallet not found");
-        throw new Error("Wallet not found");
       }
 
       switch (permitType) {

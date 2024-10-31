@@ -161,6 +161,7 @@ describe("generateErc721PermitSignature", () => {
           evmPrivateEncrypted: cypherText,
           permitRequests: [
             {
+              kind: "ERC721",
               evmNetworkId: 100,
               issueNodeId: "123",
               tokenAddress: NFT_CONTRACT_ADDRESS,
@@ -185,7 +186,10 @@ describe("generateErc721PermitSignature", () => {
         env: context.env,
         adapters: context.adapters,
       })
-    ).rejects.toThrow("User with id 123 not found");
-    expect(context.logger.error).toHaveBeenCalledWith("Failed to generate permit: ", { caller: "_Logs.<anonymous>", er: "Error: User with id 123 not found" });
+    ).rejects.toThrow("Wallet not found for user with id 123");
+    expect(context.logger.error).toHaveBeenCalledWith("Failed to generate permit: ", {
+      caller: "_Logs.<anonymous>",
+      er: "Error: Wallet not found for user with id 123",
+    });
   });
 });

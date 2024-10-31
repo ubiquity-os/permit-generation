@@ -1,6 +1,7 @@
 import { EmitterWebhookEvent as WebhookEvent, EmitterWebhookEventName as WebhookEventName } from "@octokit/webhooks";
 import { SupportedEventsU } from "./context";
 import { StaticDecode, Type as T } from "@sinclair/typebox";
+import { DiscriminatedUnionValidator } from "typebox-validators/discriminated";
 import { StandardValidator } from "typebox-validators";
 
 export interface PluginInputs<T extends WebhookEventName = SupportedEventsU> {
@@ -14,7 +15,8 @@ export interface PluginInputs<T extends WebhookEventName = SupportedEventsU> {
 
 const permitRequestSchema = T.Union([
   T.Object({
-    type: T.Literal("ERC20"),
+    kind: T.Literal("ERC20"), // Discriminant key
+    type: T.Literal("ERC20"), // should remove this ideally
     userId: T.Number(),
     amount: T.Number({ minimum: 1 }),
     evmNetworkId: T.Number(),
@@ -22,7 +24,8 @@ const permitRequestSchema = T.Union([
     issueNodeId: T.String(),
   }),
   T.Object({
-    type: T.Literal("ERC721"),
+    kind: T.Literal("ERC721"), // Discriminant key
+    type: T.Literal("ERC721"), // should remove this ideally
     userId: T.Number(),
     amount: T.Number({ maximum: 1, minimum: 1, default: 1 }),
     evmNetworkId: T.Number(),
@@ -51,5 +54,5 @@ export const permitGenerationSettingsSchema = T.Object({
 });
 
 export type PermitGenerationSettings = StaticDecode<typeof permitGenerationSettingsSchema>;
-
 export const permitGenerationSettingsValidator = new StandardValidator(permitGenerationSettingsSchema);
+export const permitRequestValidator = new DiscriminatedUnionValidator(permitRequestSchema);

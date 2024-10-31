@@ -1,6 +1,6 @@
 import { Octokit } from "@octokit/rest";
 import { TransformDecodeCheckError, TransformDecodeError, Value, ValueError } from "@sinclair/typebox/value";
-import { Context, Env, envSchema, envValidator, PermitGenerationSettings, permitGenerationSettingsSchema, permitGenerationSettingsValidator } from "../types";
+import { Context, Env, envSchema, envValidator, PermitGenerationSettings, permitGenerationSettingsSchema, permitRequestValidator } from "../types";
 
 export async function returnDataToKernel(
   context: Context,
@@ -42,10 +42,27 @@ export function validateAndDecodeSchemas(rawEnv: object, rawSettings: object) {
   }
 
   const settings = Value.Default(permitGenerationSettingsSchema, rawSettings) as PermitGenerationSettings;
-  if (!permitGenerationSettingsValidator.test(settings)) {
-    for (const error of permitGenerationSettingsValidator.errors(settings)) {
-      console.error(error);
-      errors.push(error);
+
+  if (!settings.evmPrivateEncrypted) {
+    errors.push({
+      message: "evmPrivateEncrypted is required",
+      path: "/evmPrivateEncrypted",
+      schema: permitGenerationSettingsSchema,
+      type: 0,
+      value: settings.evmPrivateEncrypted,
+    });
+  }
+
+  const permits = settings.permitRequests;
+
+  console.log("permits", permits);
+
+  for (const permit of permits) {
+    if (!permitRequestValidator.test(permit)) {
+      for (const error of permitRequestValidator.errors(permit)) {
+        console.error(error);
+        errors.push(error);
+      }
     }
   }
 

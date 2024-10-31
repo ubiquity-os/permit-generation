@@ -26,6 +26,7 @@ describe("generatePayoutPermit", () => {
         permitRequests: [
           ...mockContext.config.permitRequests,
           {
+            kind: "ERC721",
             amount: 1,
             evmNetworkId: 100,
             issueNodeId: "123",

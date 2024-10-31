@@ -36,8 +36,6 @@ describe("generateErc20PermitSignature", () => {
       Find the field labeled `x25519_PRIVATE_KEY` and replace its content with your generated x25519 private key.
    */
     // cSpell: ignore bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls
-    process.env.X25519_PRIVATE_KEY = "bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls";
-
     context = {
       ...mockContext,
       octokit: {
@@ -113,6 +111,7 @@ describe("generateErc20PermitSignature", () => {
           evmPrivateEncrypted: cypherText,
           permitRequests: [
             {
+              kind: "ERC20",
               amount,
               evmNetworkId: 100,
               type: "ERC20",
@@ -125,8 +124,8 @@ describe("generateErc20PermitSignature", () => {
         env: context.env,
         adapters: context.adapters,
       });
-    }).rejects.toThrow("User with id 123 not found");
+    }).rejects.toThrow("Wallet not found for user with id 123");
 
-    expect(loggerSpy).toHaveBeenCalledWith("Failed to generate permit: ", { er: "Error: User with id 123 not found", caller: "_Logs.<anonymous>" });
+    expect(loggerSpy).toHaveBeenCalledWith("Failed to generate permit: ", { er: "Error: Wallet not found for user with id 123", caller: "_Logs.<anonymous>" });
   });
 });
