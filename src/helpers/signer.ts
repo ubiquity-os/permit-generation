@@ -1,10 +1,10 @@
 import { ethers } from "ethers";
 import { decrypt, parseDecryptedPrivateKey } from "../utils";
-import { Logs } from "@ubiquity-os/ubiquity-os-logger";
+import { logger } from "./logger";
 
-export async function getPrivateKey(evmPrivateEncrypted: string, logger: Logs) {
+export async function getPrivateKey(evmPrivateEncrypted: string, x25519privateKey: string) {
   try {
-    const privateKeyDecrypted = await decrypt(evmPrivateEncrypted, String(process.env.X25519_PRIVATE_KEY));
+    const privateKeyDecrypted = await decrypt(evmPrivateEncrypted, x25519privateKey);
     const privateKeyParsed = parseDecryptedPrivateKey(privateKeyDecrypted);
     const privateKey = privateKeyParsed.privateKey;
     if (!privateKey) throw new Error("Private key is not defined");
@@ -16,7 +16,7 @@ export async function getPrivateKey(evmPrivateEncrypted: string, logger: Logs) {
   }
 }
 
-export async function getAdminWallet(privateKey: string, provider: ethers.providers.Provider, logger: Logs) {
+export async function getAdminWallet(privateKey: string, provider: ethers.providers.Provider) {
   try {
     return new ethers.Wallet(privateKey, provider);
   } catch (error) {

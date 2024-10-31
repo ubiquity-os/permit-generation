@@ -8,6 +8,7 @@ export const envSchema = T.Object({
   SUPABASE_KEY: T.String(),
   NFT_MINTER_PRIVATE_KEY: T.String(),
   NFT_CONTRACT_ADDRESS: T.String(),
+  X25519_PRIVATE_KEY: T.String(),
 });
 
 export const envValidator = new StandardValidator(envSchema);

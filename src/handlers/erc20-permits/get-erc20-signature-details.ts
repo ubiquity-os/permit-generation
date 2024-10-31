@@ -13,6 +13,7 @@ export async function getPermitSignatureDetails({
   userId,
   tokenAddress,
   amount,
+  x25519privateKey,
 }: {
   walletAddress: string | null | undefined;
   issueNodeId: string;
@@ -21,6 +22,7 @@ export async function getPermitSignatureDetails({
   userId: number;
   tokenAddress: string;
   amount: number;
+  x25519privateKey: string;
 }) {
   if (!walletAddress) {
     const errorMessage = "ERC20 Permit generation error: Wallet not found";
@@ -29,9 +31,9 @@ export async function getPermitSignatureDetails({
   }
 
   const provider = await getFastestProvider(evmNetworkId);
-  const privateKey = await getPrivateKey(evmPrivateEncrypted, logger);
-  const adminWallet = await getAdminWallet(privateKey, provider, logger);
-  const tokenDecimals = await getTokenDecimals(tokenAddress, provider, logger);
+  const privateKey = await getPrivateKey(evmPrivateEncrypted, x25519privateKey);
+  const adminWallet = await getAdminWallet(privateKey, provider);
+  const tokenDecimals = await getTokenDecimals(tokenAddress, provider);
 
   const permitTransferFromData: PermitTransferFrom = {
     permitted: {

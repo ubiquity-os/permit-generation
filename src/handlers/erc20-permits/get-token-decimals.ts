@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
-import { Logs } from "@ubiquity-os/ubiquity-os-logger";
+import { logger } from "../../helpers/logger";
 
-export async function getTokenDecimals(tokenAddress: string, provider: ethers.providers.Provider, logger: Logs) {
+export async function getTokenDecimals(tokenAddress: string, provider: ethers.providers.Provider) {
   try {
     const erc20Abi = ["function decimals() public view returns (uint8)"];
     const tokenContract = new ethers.Contract(tokenAddress, erc20Abi, provider);

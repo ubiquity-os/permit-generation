@@ -47,6 +47,14 @@ export async function getErc721SignatureDetails({
   username: string;
   contributionType: string;
 }) {
+  if (!nftContractAddress) {
+    throw new Error(logger.error("NFT Address not found").logMessage.raw);
+  }
+
+  if (!nftMinterPrivateKey) {
+    throw new Error(logger.error("NFT Minter Private Key not found").logMessage.raw);
+  }
+
   let adminWallet;
   const provider = await getFastestProvider(evmNetworkId);
 
