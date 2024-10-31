@@ -1,78 +1,118 @@
-// import { generateErc20PermitSignature } from "../src/handlers/generate-erc20-permit";
-import { generateErc20PermitSignature, generatePayoutPermit } from "../src";
-// import { generateErc721PermitSignature } from "../src/handlers/generate-erc721-permit";
 import { Context } from "../src/types/context";
-import { cypherText, mockContext, SPENDER } from "./constants";
+import { mockContext, NFT_CONTRACT_ADDRESS, SPENDER } from "./constants";
 import { describe, expect, it, beforeEach, afterEach, jest } from "@jest/globals";
+import { Wallet, TypedDataDomain, TypedDataField } from "ethers";
+import { generatePayoutPermits } from "../src";
+import "@supabase/supabase-js";
 
-jest.mock("../src/handlers/generate-erc20-permit");
-jest.mock("../src/handlers/generate-erc721-permit");
-
+jest.autoMockOn();
+jest.mock("@supabase/supabase-js", () => ({
+  createClient: jest.fn().mockReturnValue({
+    from: jest.fn().mockReturnThis(),
+    select: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    single: jest.fn().mockReturnThis(),
+  }),
+}));
 describe("generatePayoutPermit", () => {
   let context: Context;
+  const userId = 123;
 
   beforeEach(() => {
-    // cSpell: disable
-    process.env.X25519_PRIVATE_KEY = "bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls";
-    process.env.NFT_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000003";
-    process.env.NFT_MINTER_PRIVATE_KEY = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-
     context = {
       ...mockContext,
       config: {
-        evmNetworkId: 1,
-        evmPrivateEncrypted: cypherText,
-        isNftRewardEnabled: true,
-        nftMinterPrivateKey: process.env.NFT_MINTER_PRIVATE_KEY,
-        nftContractAddress: process.env.NFT_CONTRACT_ADDRESS,
-
-        // possible inputs from workflow_dispatch
-        token: process.env.NFT_CONTRACT_ADDRESS,
-        amount: 100,
-        spender: SPENDER,
-        userId: 123,
-
-        // nft specific inputs
-        contribution_type: "contribution",
-        username: "tester",
-        issueID: 123,
+        ...mockContext.config,
+        permitRequests: [
+          ...mockContext.config.permitRequests,
+          {
+            amount: 1,
+            evmNetworkId: 100,
+            issueNodeId: "123",
+            tokenAddress: NFT_CONTRACT_ADDRESS,
+            type: "ERC721",
+            userId: 123,
+            erc721Request: {
+              contributionType: "contribution",
+              keys: ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_NODE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"],
+              metadata: {
+                GITHUB_CONTRIBUTION_TYPE: "contribution",
+                GITHUB_ISSUE_NODE_ID: "123",
+                GITHUB_ORGANIZATION_NAME: "test",
+                GITHUB_REPOSITORY_NAME: "test",
+                GITHUB_USERNAME: "123",
+              },
+              values: ["test", "test", "123", "123", "contribution"],
+            },
+          },
+        ],
+      },
+      octokit: {
+        request() {
+          return { data: { id: 1, login: "123" } };
+        },
+        users: {
+          getByUsername: jest.fn().mockReturnValue({ data: { id: userId } }),
+        },
       },
     } as unknown as Context;
-    (generateErc20PermitSignature as jest.Mock).mockReturnValue({
-      erc20: {
-        token: "TOKEN_ADDRESS",
-        amount: 100,
-        spender: SPENDER,
-        networkId: 1,
-      },
-    });
+    (context.adapters.supabase.wallet.getWalletByUserId as jest.Mock).mockReturnValue(SPENDER);
+    (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(userId);
+    (context.adapters.supabase.user.getUserById as jest.Mock).mockReturnValue({ wallet_id: 1 });
+    jest
+      .spyOn(Wallet.prototype, "_signTypedData")
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .mockImplementation((domain: TypedDataDomain, types: Record<string, TypedDataField[]>, value: Record<string, unknown>) => {
+        return Promise.resolve("0xmocksignature");
+      });
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("should return error message when no token, amount, spender, or networkId found for ERC20 permit", async () => {
-    const result = await generatePayoutPermit(context, [
+  it("should generate payout permit signatures for ERC721 and ERC20", async () => {
+    const result = await generatePayoutPermits(context);
+    expect(result).toEqual([
       {
-        type: "ERC20",
-        amount: 100,
-        username: "123",
-        contributionType: "ISSUE",
-        tokenAddress: "TOKEN_ADDRESS",
+        amount: "100000000000000000000",
+        beneficiary: "123",
+        deadline: "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        networkId: 100,
+        nonce: "28290789875493039658039458533958603742651083423638415458747066904844975862062",
+        owner: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        signature: "0xmocksignature",
+        tokenAddress: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
+        tokenType: "ERC20",
       },
       {
-        type: "ERC20",
-        amount: 100,
-        username: "123",
-        contributionType: "ISSUE",
-        tokenAddress: "TOKEN_ADDRESS",
+        amount: 1,
+        beneficiary: "123",
+        deadline: "115792089237316195423570985008687907853269984665640564039457584007913129639935",
+        erc721Request: {
+          keys: [
+            "0x3e4c8b8ab7e90cb1a6f2a4f809d6709c7eb62a413bdfb84f966832a075f4e4e4",
+            "0x1f8205ede46f9b1cd2bb5d0f0d18e693848acc572c08bd312de5b83c0903cde0",
+            "0x3aea1069a51bcd90299edb08a451733591bb49d89d05ab061f7933673466ccee",
+            "0x6ead3148a7e9ddc486a0ca0542fa4a73f19558feda0b070d41a5c80573eeb9dc",
+            "0x1f3d3cb9dfb4f8b84afce5bab9ed497e4967e37149f9045f96de46cfa7ad0c6f",
+          ],
+          metadata: {
+            GITHUB_CONTRIBUTION_TYPE: "contribution",
+            GITHUB_ISSUE_NODE_ID: "123",
+            GITHUB_ORGANIZATION_NAME: "test",
+            GITHUB_REPOSITORY_NAME: "test",
+            GITHUB_USERNAME: "123",
+          },
+          values: ["test", "test", "123", "123", "contribution"],
+        },
+        networkId: 100,
+        nonce: "28290789875493039658039458533958603742651083423638415458747066904844975862062",
+        owner: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        signature: "0xmocksignature",
+        tokenAddress: "0x0000000000000000000000000000000000000003",
+        tokenType: "ERC721",
       },
-    ]);
-
-    expect(result).toMatchObject([
-      { erc20: { amount: 100, networkId: 1, spender: SPENDER, token: "TOKEN_ADDRESS" } },
-      { erc20: { amount: 100, networkId: 1, spender: SPENDER, token: "TOKEN_ADDRESS" } },
     ]);
   });
 });
