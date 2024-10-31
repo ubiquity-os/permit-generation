@@ -10,6 +10,7 @@ export async function generateErc20Permit({
   userId,
   tokenAddress,
   amount,
+  x25519privateKey,
 }: {
   walletAddress: string;
   issueNodeId: string;
@@ -18,22 +19,23 @@ export async function generateErc20Permit({
   userId: number;
   tokenAddress: string;
   amount: number;
+  x25519privateKey: string;
 }) {
   if (!evmPrivateEncrypted) {
     throw new Error(logger.error("Failed to decrypt a private key: TypeError: input cannot be null or undefined").logMessage.raw);
   }
-
-  const { adminWallet, permitTransferFromData, domain, types, values } = await getPermitSignatureDetails({
-    walletAddress,
-    issueNodeId,
-    evmNetworkId,
-    evmPrivateEncrypted,
-    userId,
-    tokenAddress,
-    amount,
-  });
-
   try {
+    const { adminWallet, permitTransferFromData, domain, types, values } = await getPermitSignatureDetails({
+      walletAddress,
+      issueNodeId,
+      evmNetworkId,
+      evmPrivateEncrypted,
+      userId,
+      tokenAddress,
+      amount,
+      x25519privateKey,
+    });
+
     return {
       tokenType: TokenType.ERC20,
       tokenAddress: permitTransferFromData.permitted.token,
@@ -46,7 +48,7 @@ export async function generateErc20Permit({
       networkId: evmNetworkId,
     } as const;
   } catch (error) {
-    console.error(`Failed to sign typed data: ${error}`);
+    logger.error(`Failed to sign typed data: ${String(error)}`);
     throw error;
   }
 }

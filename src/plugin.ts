@@ -18,10 +18,8 @@ export async function plugin(inputs: PluginInputs, env: Env) {
     octokit,
     env,
     logger: logger,
-    adapters: {} as ReturnType<typeof createAdapters>,
+    adapters: createAdapters(supabase),
   };
-
-  context.adapters = createAdapters(supabase);
 
   return returnDataToKernel(context, inputs.authToken, inputs.stateId, await generatePayoutPermits(context));
 }

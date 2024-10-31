@@ -15,26 +15,26 @@ export const cypherText =
 
 export const mockContext = {
   config: {
-    evmNetworkId: 100,
     evmPrivateEncrypted: cypherText,
     permitRequests: [
       {
         amount: 100,
         issueNodeId: "123",
-        networkId: 100,
+        evmNetworkId: 100,
         tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
         type: "ERC20",
-        user: { userId: 123, username: "tester" },
+        userId: 123,
       },
     ],
-  },
+  } as Context["config"],
   env: {
     GITHUB_TOKEN: "123",
     NFT_CONTRACT_ADDRESS,
-    NFT_MINTER_PRIVATE_KEY: "123",
+    NFT_MINTER_PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
     SUPABASE_KEY: "123",
     SUPABASE_URL: "http://localhost:8080",
-  },
+    X25519_PRIVATE_KEY: "bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls",
+  } as Context["env"],
   eventName: "doesn't really matter" as SupportedEventsU,
   octokit: {} as Octokit,
   payload: {

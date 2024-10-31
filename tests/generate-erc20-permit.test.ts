@@ -63,6 +63,7 @@ describe("generateErc20PermitSignature", () => {
       tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
       userId: 123,
       walletAddress: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
+      x25519privateKey: context.env.X25519_PRIVATE_KEY,
     });
 
     const expectedResult = {
@@ -76,7 +77,6 @@ describe("generateErc20PermitSignature", () => {
       signature: "0xad87653fb0ecf740c73b78a8f414cdd5b1ffb18670cde5a1d21c65e43d6bb2a36c5470c5529334dc11566f0c380889b734a8539d69ec74cc2abf37af0ea7a7781b",
       networkId: 100,
     };
-
     expect(result).toEqual(expectedResult);
   });
 
@@ -93,6 +93,7 @@ describe("generateErc20PermitSignature", () => {
         tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
         userId: 123,
         walletAddress: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        x25519privateKey: context.env.X25519_PRIVATE_KEY,
       })
     ).rejects.toThrow(expectedError);
     expect(loggerSpy).toHaveBeenCalledWith("Failed to decrypt a private key: TypeError: input cannot be null or undefined");
@@ -122,6 +123,7 @@ describe("generateErc20PermitSignature", () => {
           ],
         },
         env: context.env,
+        adapters: context.adapters,
       });
     }).rejects.toThrow("User with id 123 not found");
 

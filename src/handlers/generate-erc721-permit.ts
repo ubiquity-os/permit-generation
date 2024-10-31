@@ -1,20 +1,13 @@
+import { logger } from "../helpers/logger";
 import { Context, PermitRequest, TokenType } from "../types";
 import { getErc721SignatureDetails } from "./erc721-permits/get-erc721-signature-details";
 
 export async function generateErc721Permit({
   walletAddress,
-  issueNodeId,
-  evmNetworkId,
-  userId,
-  tokenAddress,
   permitRequest,
   env,
 }: {
   walletAddress: string;
-  issueNodeId: string;
-  evmNetworkId: number;
-  userId: number;
-  tokenAddress: string;
   permitRequest: PermitRequest;
   env: Context["env"];
 }) {
@@ -24,6 +17,10 @@ export async function generateErc721Permit({
 
   const {
     erc721Request: { metadata },
+    evmNetworkId,
+    amount,
+    issueNodeId,
+    userId,
   } = permitRequest;
 
   const {
@@ -35,7 +32,7 @@ export async function generateErc721Permit({
     walletAddress,
     issueNodeId,
     evmNetworkId,
-    nftContractAddress: tokenAddress,
+    nftContractAddress: env.NFT_CONTRACT_ADDRESS,
     nftMinterPrivateKey: env.NFT_MINTER_PRIVATE_KEY,
     contributionType: metadata.GITHUB_CONTRIBUTION_TYPE,
     organizationName: metadata.GITHUB_ORGANIZATION_NAME,
@@ -44,20 +41,24 @@ export async function generateErc721Permit({
     userId,
   });
 
-  return {
-    tokenType: TokenType.ERC721,
-    tokenAddress,
-    beneficiary: walletAddress,
-    amount: "1",
-    nonce: erc721SignatureData.nonce.toString(),
-    deadline: erc721SignatureData.deadline.toString(),
-    signature: signature,
-    owner: erc721AdminWallet.address,
-    networkId: evmNetworkId,
-    erc721Request: {
-      keys: erc721SignatureData.keys.map((key) => key.toString()),
-      values: erc721SignatureData.values,
-      metadata: erc721Metadata,
-    },
-  } as const;
+  try {
+    return {
+      tokenType: TokenType.ERC721,
+      tokenAddress: env.NFT_CONTRACT_ADDRESS,
+      beneficiary: walletAddress,
+      amount,
+      nonce: erc721SignatureData.nonce.toString(),
+      deadline: erc721SignatureData.deadline.toString(),
+      signature: signature,
+      owner: erc721AdminWallet.address,
+      networkId: evmNetworkId,
+      erc721Request: {
+        keys: erc721SignatureData.keys.map((key) => key.toString()),
+        values: erc721SignatureData.values,
+        metadata: erc721Metadata,
+      },
+    } as const;
+  } catch (error) {
+    throw logger.error(`Failed to sign typed data: ${String(error)}`).logMessage.raw;
+  }
 }
