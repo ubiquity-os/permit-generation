@@ -71,7 +71,7 @@ export async function generatePermitsFromContext() {
 
 async function returnDataToKernel(repoToken: string, stateId: string, output: object) {
   const octokit = new Octokit({ auth: repoToken });
-  await octokit.repos.createDispatchEvent({
+  await octokit.rest.repos.createDispatchEvent({
     owner: github.context.repo.owner,
     repo: github.context.repo.repo,
     event_type: "return_data_to_ubiquibot_kernel",
@@ -93,7 +93,7 @@ async function handleSlashCommands(context: Context, octokit: Octokit) {
     const address = matches[0];
     // try registering wallet, if it fails, notify the user
     if (!(await registerWallet(context, address))) {
-      await octokit.issues.createComment({
+      await octokit.rest.issues.createComment({
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
         issue_number: payload.issue.number,

@@ -82,7 +82,7 @@ export async function generateErc721PermitSignature(
     }
     _organizationName = contextOrPermitPayload.payload.repository.owner.login;
     _repositoryName = contextOrPermitPayload.payload.repository.name;
-    const { data: userData } = await contextOrPermitPayload.octokit.users.getByUsername({ username: _username });
+    const { data: userData } = await contextOrPermitPayload.octokit.rest.users.getByUsername({ username: _username });
     if (!userData) {
       throw new Error(`GitHub user was not found for id ${_username}`);
     }
