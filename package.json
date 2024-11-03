@@ -20,7 +20,6 @@
     "prepare": "husky install",
     "test": "jest --coverage",
     "build": "tsup",
-    "build:worker": "npx tsx build/esbuild-build.ts",
     "worker": "wrangler dev --env dev --port 4000"
   },
   "keywords": [

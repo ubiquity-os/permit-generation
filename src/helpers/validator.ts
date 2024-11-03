@@ -18,7 +18,7 @@ export async function returnDataToKernel(
       },
     },
   } = context;
-  return octokit.repos.createDispatchEvent({
+  return octokit.rest.repos.createDispatchEvent({
     owner,
     repo,
     event_type: eventType,
