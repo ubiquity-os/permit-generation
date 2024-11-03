@@ -1,4 +1,11 @@
 import sodium from "libsodium-wrappers";
+import { scalarMult, box } from "tweetnacl";
+import tweetnaclUtil from "tweetnacl-util";
+import blake2b from "blake2b";
+
+function deriveNonce(epk: Uint8Array, recipientPubKey: Uint8Array) {
+  return blake2b(24).update(epk).update(recipientPubKey).digest();
+}
 
 /**
  * Decrypts encrypted text with provided "X25519_PRIVATE_KEY" value
@@ -6,16 +13,38 @@ import sodium from "libsodium-wrappers";
  * @param x25519PrivateKey "X25519_PRIVATE_KEY" private key
  * @returns Decrypted text
  */
-export async function decrypt(encryptedText: string, x25519PrivateKey: string): Promise<string> {
-  await sodium.ready;
+export async function decrypt(encryptedText: string, x25519PrivateKey: string) {
+  if (!x25519PrivateKey) {
+    console.warn("X25519_PRIVATE_KEY is not defined");
+    throw new Error("X25519_PRIVATE_KEY is not defined");
+  }
+
+  if (!encryptedText) {
+    console.warn("Encrypted text is not defined");
+    throw new Error("Encrypted text is not defined");
+  }
+
+  if (process.env.NODE_ENV === "test") {
+    await sodium.ready;
+  }
 
   const publicKey = await getPublicKey(x25519PrivateKey);
-
   const binaryPublic = sodium.from_base64(publicKey, sodium.base64_variants.URLSAFE_NO_PADDING);
   const binaryPrivate = sodium.from_base64(x25519PrivateKey, sodium.base64_variants.URLSAFE_NO_PADDING);
   const binaryEncryptedText = sodium.from_base64(encryptedText, sodium.base64_variants.URLSAFE_NO_PADDING);
 
-  return sodium.crypto_box_seal_open(binaryEncryptedText, binaryPublic, binaryPrivate, "text");
+  const epk = binaryEncryptedText.slice(0, 32);
+  const nonce = deriveNonce(epk, binaryPublic);
+
+  const actualEncryptedMessage = binaryEncryptedText.slice(32);
+  const decryptedMessage = box.open(actualEncryptedMessage, nonce, epk, binaryPrivate);
+
+  if (decryptedMessage) {
+    const decryptedText = tweetnaclUtil.encodeUTF8(decryptedMessage);
+    return { privateKey: decryptedText, publicKey: publicKey };
+  }
+
+  throw new Error("Failed to decrypt message");
 }
 
 /**
@@ -23,10 +52,9 @@ export async function decrypt(encryptedText: string, x25519PrivateKey: string): 
  * @param x25519PrivateKey "X25519_PRIVATE_KEY" private key
  * @returns Public key
  */
-export async function getPublicKey(x25519PrivateKey: string): Promise<string> {
-  await sodium.ready;
-  const binaryPrivate = sodium.from_base64(x25519PrivateKey, sodium.base64_variants.URLSAFE_NO_PADDING);
-  return sodium.crypto_scalarmult_base(binaryPrivate, "base64");
+export async function getPublicKey(x25519PrivateKey: string) {
+  const binPriv = sodium.from_base64(x25519PrivateKey, sodium.base64_variants.URLSAFE_NO_PADDING);
+  return sodium.to_base64(scalarMult.base(binPriv), sodium.base64_variants.URLSAFE_NO_PADDING);
 }
 
 /**
