@@ -21,5 +21,13 @@ export async function plugin(inputs: PluginInputs, env: Env) {
     adapters: createAdapters(supabase),
   };
 
-  return returnDataToKernel(context, inputs.authToken, inputs.stateId, await generatePayoutPermits(context));
+  const permits = await generatePayoutPermits(context);
+
+  try {
+    await returnDataToKernel(context, inputs.authToken, inputs.stateId, permits);
+  } catch (error) {
+    logger.error("Error returning data to kernel", error);
+  }
+
+  return permits;
 }
