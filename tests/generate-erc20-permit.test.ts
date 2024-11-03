@@ -42,8 +42,10 @@ describe("generateErc20PermitSignature", () => {
         request() {
           return { data: { id: 1, login: "123" } };
         },
-        users: {
-          getByUsername: jest.fn().mockReturnValue({ data: { id: 123 } }),
+        rest: {
+          users: {
+            getByUsername: jest.fn().mockReturnValue({ data: { id: 123 } }),
+          },
         },
       },
     } as unknown as Context;
