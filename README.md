@@ -51,3 +51,14 @@ Return value should just be an array of generated permits. A separate module can
 [^2^]: We pass in the username for enhanced developer experience for plugin development. I believe it will be much easier to use GitHub usernames and let the system do the lookup.
 
 [^3^]: Mixed feelings on this lookup because it does not self encapsulate this module well. We already have an optional database write for the permit record, but this plugin WILL break if there is a database issue for reading the user's registered wallet, which can make testing and development more difficult here. The alternative is to pass in the user's wallet here, but then the kernel (or another plugin) needs to look up their wallet address (this seems like the better approach.)
+
+Generate a permit:
+
+1. Terminal A: `yarn worker`
+2. Set your `X25519_PRIVATE_KEY` to the same one used in the tests.
+3. Terminal B: Start anvil: `anvil --fork-url https://rpc.gnosis.gateway.fm --chain-id 31337`
+4. Terminal C: run the following command:
+
+```
+curl -X POST http://localhost:4000 -H "Content-Type: application/json" -d '{"settings":{"evmPrivateEncrypted":"wOzNgt-yKT6oFlOVz5wrBLUSYxAbKGE9Co-yvT8f9lePsx7wJwPVugS9186zdhr1T4UpkpXvq9ii5M-nWfrydMnllSkowH4LirRZsHbvRVSvDoH_uh80p6HpwqDSG3g4Nwx5q0GD3H-ne4vwXMuwWAHd","permitRequests":[{"kind":"ERC20","type":"ERC20","userId":106303466,"amount":1,"evmNetworkId":31337,"tokenAddress":"0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d","issueNodeId":"0x123"}]}}'
+```

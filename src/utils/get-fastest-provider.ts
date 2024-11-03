@@ -9,8 +9,8 @@ function getHandler(networkId: number | string) {
     cacheRefreshCycles: 5,
     rpcTimeout: 1500,
     networkName: null,
-    runtimeRpcs: process.env.NODE_ENV === "development" ? ["http://localhost:8545"] : null,
-    networkRpcs: process.env.NODE_ENV === "development" ? [{ url: "http://localhost:8545" }] : null,
+    runtimeRpcs: networkId == 31337 ? ["http://localhost:8545"] : [],
+    networkRpcs: networkId == 31337 ? [{ url: "http://localhost:8545" }] : [],
     proxySettings: {
       retryCount: 5,
       logger: null,
