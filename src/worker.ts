@@ -5,6 +5,7 @@ import { PluginInputs } from "./types/plugin-input";
 import { createClient } from "@supabase/supabase-js";
 import { Database, createAdapters } from "./adapters";
 import { generatePayoutPermit } from "./handlers";
+import { verifySignature } from "./helpers/signature";
 
 export default {
   async fetch(request: Request, env: Env) {
@@ -25,8 +26,19 @@ export default {
         const webhookPayload = await request.json();
         const decodedInputs = atob(webhookPayload.inputs);
         const inputs: PluginInputs = JSON.parse(decodedInputs);
+
+        const isAllowedRequest = await verifySignature(decodedEnv.KERNEL_PUBLIC_KEY, inputs, webhookPayload.signature);
+
+        if (!isAllowedRequest) {
+          return new Response(JSON.stringify({ error: "This request did not originate from a known source" }), {
+            status: 401,
+            headers: { "content-type": "application/json" },
+          });
+        }
+
         inputs.authToken = decodedEnv.GITHUB_TOKEN;
         const octokit = new Octokit({ auth: inputs.authToken });
+
         const supabaseClient = createClient<Database>(decodedEnv.SUPABASE_URL, decodedEnv.SUPABASE_KEY);
         const context: Context = {
           eventName: inputs.eventName,
