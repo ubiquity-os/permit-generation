@@ -117,7 +117,7 @@ describe("generateErc721PermitSignature", () => {
 
   it("should throw an error if NFT minter private key is not defined", async () => {
     delete process.env.NFT_MINTER_PRIVATE_KEY;
-    await expect(generateErc721PermitSignature(context, "123", "contribution")).rejects.toThrow("Failed to" + " instantiate wallet");
+    await expect(generateErc721PermitSignature(context, "123", "contribution")).rejects.toThrow("NFT minter" + " private key" + " is not defined");
     expect(context.logger.error).toHaveBeenCalled();
   });
 
