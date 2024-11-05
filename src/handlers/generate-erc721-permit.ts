@@ -72,13 +72,15 @@ export async function generateErc721PermitSignature(
     _logger = contextOrPermitPayload.logger;
 
     if (!NFT_MINTER_PRIVATE_KEY) {
-      _logger.error("NFT minter private key is not defined");
-      throw new Error("NFT minter private key is not defined");
+      const errorMessage = "NFT minter private key is not defined";
+      _logger.error(errorMessage);
+      throw new Error(errorMessage);
     }
 
     if (!NFT_CONTRACT_ADDRESS) {
-      _logger.error("NFT contract address is not defined");
-      throw new Error("NFT contract address is not defined");
+      const errorMessage = "NFT contract address is not defined";
+      _logger.error(errorMessage);
+      throw new Error(errorMessage);
     }
 
     const { evmNetworkId } = contextOrPermitPayload.config;
