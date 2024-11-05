@@ -1,7 +1,6 @@
 import { StaticDecode, Type as T } from "@sinclair/typebox";
+import { Value } from "@sinclair/typebox/value";
 import "dotenv/config";
-
-import { StandardValidator } from "typebox-validators";
 
 export const envSchema = T.Object({
   GITHUB_TOKEN: T.String(),
@@ -13,4 +12,9 @@ export const envSchema = T.Object({
 });
 
 export type Env = StaticDecode<typeof envSchema>;
-export const envValidator = new StandardValidator(envSchema);
+
+export function validateAndDecodeEnv(t: Env) {
+  const isSuccessful = Value.Check(envSchema, t);
+  const decodedEnv = Value.Decode(envSchema, t);
+  return { isSuccessful, decodedEnv };
+}

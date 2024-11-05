@@ -1,11 +1,11 @@
 import { Octokit } from "@octokit/rest";
-import { validateAndDecodeSchemas } from "./helpers/validator";
-import { Context, Env } from "./types";
+import { Context, Env, validateAndDecodeEnv } from "./types";
 import { PluginInputs } from "./types/plugin-input";
 import { createClient } from "@supabase/supabase-js";
 import { Database, createAdapters } from "./adapters";
 import { generatePayoutPermit } from "./handlers";
 import { verifySignature } from "./helpers/signature";
+import { validateAndDecodeWebhookPayload } from "./types/webhook-payload";
 
 export default {
   async fetch(request: Request, env: Env) {
@@ -17,17 +17,29 @@ export default {
           headers: { "content-type": "application/json", Allow: "POST" },
         });
       }
+
       const contentType = request.headers.get("content-type");
+
       if (contentType !== "application/json") {
         return new Response(JSON.stringify({ error: "Unsupported content type" }), { status: 405, headers: { "content-type": "application/json" } });
       }
+
       if (url.pathname === "/generatePermit") {
-        const decodedEnv = validateAndDecodeSchemas(env);
         const webhookPayload = await request.json();
-        const decodedInputs = atob(webhookPayload.inputs);
+        const { isSuccessful, decodedWHPayload } = validateAndDecodeWebhookPayload(webhookPayload);
+        const { decodedEnv } = validateAndDecodeEnv(env);
+
+        if (!isSuccessful) {
+          return new Response(JSON.stringify({ error: "Invalid request body" }), {
+            status: 400,
+            headers: { "content-type": "application/json" },
+          });
+        }
+
+        const decodedInputs = atob(decodedWHPayload.inputs);
         const inputs: PluginInputs = JSON.parse(decodedInputs);
 
-        const isAllowedRequest = await verifySignature(decodedEnv.KERNEL_PUBLIC_KEY, inputs, webhookPayload.signature);
+        const isAllowedRequest = await verifySignature(decodedEnv.KERNEL_PUBLIC_KEY, inputs, decodedWHPayload.signature);
 
         if (!isAllowedRequest) {
           return new Response(JSON.stringify({ error: "This request did not originate from a known source" }), {
