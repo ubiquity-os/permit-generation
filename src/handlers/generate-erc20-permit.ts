@@ -1,7 +1,7 @@
 import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer, MaxUint256 } from "@uniswap/permit2-sdk";
 import { ethers, utils } from "ethers";
 import { Context, Logger } from "../types/context";
-import { PermitReward, TokenType } from "../types";
+import { Env, PermitReward, TokenType } from "../types";
 import { decrypt, parseDecryptedPrivateKey } from "../utils";
 import { getFastestProvider } from "../utils/get-fastest-provider";
 
@@ -12,6 +12,7 @@ export interface Payload {
   issueNodeId: string;
   logger: Logger;
   userId: number;
+  env: Env;
 }
 
 export async function generateErc20PermitSignature(payload: Payload, username: string, amount: number, tokenAddress: string): Promise<PermitReward>;
@@ -74,7 +75,7 @@ export async function generateErc20PermitSignature(
     throw new Error("Provider is not defined");
   }
 
-  const privateKey = await getPrivateKey(evmPrivateEncrypted, logger);
+  const privateKey = await getPrivateKey(evmPrivateEncrypted, logger, contextOrPayload.env);
   const adminWallet = await getAdminWallet(privateKey, provider, logger);
   const tokenDecimals = await getTokenDecimals(tokenAddress, provider, logger);
 
@@ -114,9 +115,9 @@ export async function generateErc20PermitSignature(
   }
 }
 
-async function getPrivateKey(evmPrivateEncrypted: string, logger: Logger) {
+async function getPrivateKey(evmPrivateEncrypted: string, logger: Logger, env: Env) {
   try {
-    const privateKeyDecrypted = await decrypt(evmPrivateEncrypted, String(process.env.X25519_PRIVATE_KEY));
+    const privateKeyDecrypted = await decrypt(evmPrivateEncrypted, env.X25519_PRIVATE_KEY);
     const privateKeyParsed = parseDecryptedPrivateKey(privateKeyDecrypted);
     const privateKey = privateKeyParsed.privateKey;
     if (!privateKey) throw new Error("Private key is not defined");

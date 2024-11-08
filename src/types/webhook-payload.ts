@@ -4,6 +4,8 @@ import { Value } from "@sinclair/typebox/value";
 const webhookPayloadSchema = T.Object({
   inputs: T.String({ contentEncoding: "base64" }),
   signature: T.String(),
+  issueNodeId: T.Optional(T.String()),
+  userId: T.Optional(T.String()),
 });
 
 export type WebhookPayload = StaticDecode<typeof webhookPayloadSchema>;

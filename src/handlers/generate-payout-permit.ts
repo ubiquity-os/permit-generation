@@ -14,10 +14,10 @@ export async function generatePayoutPermit(context: Context, permitRequests: Per
   const permits: PermitReward[] = [];
 
   for (const permitRequest of permitRequests) {
-    const { type, amount, username, contributionType, tokenAddress } = permitRequest;
+    const { type: permitType, amount, username, contributionType, tokenAddress } = permitRequest;
 
     let permit: PermitReward;
-    switch (type) {
+    switch (permitType) {
       case "ERC20":
         permit = await generateErc20PermitSignature(context, username, amount, tokenAddress);
         break;
@@ -25,7 +25,7 @@ export async function generatePayoutPermit(context: Context, permitRequests: Per
         permit = await generateErc721PermitSignature(context, username, contributionType);
         break;
       default:
-        context.logger.error(`Invalid permit type: ${type}`);
+        context.logger.error(`Invalid permit type: ${permitType}`);
         continue;
     }
 

@@ -9,15 +9,6 @@ interface Inputs {
 
 export async function verifySignature(publicKeyPem: string, inputs: Inputs, signature: string) {
   try {
-    const inputsOrdered = {
-      stateId: inputs.stateId,
-      eventName: inputs.eventName,
-      eventPayload: inputs.eventPayload,
-      settings: inputs.settings,
-      authToken: inputs.authToken,
-      ref: inputs.ref,
-    };
-
     const pemContents = publicKeyPem.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "").trim();
     const binaryDer = Uint8Array.from(atob(pemContents), (c) => c.charCodeAt(0));
 
@@ -33,7 +24,7 @@ export async function verifySignature(publicKeyPem: string, inputs: Inputs, sign
     );
 
     const signatureArray = Uint8Array.from(atob(signature), (c) => c.charCodeAt(0));
-    const dataArray = new TextEncoder().encode(JSON.stringify(inputsOrdered));
+    const dataArray = new TextEncoder().encode(Buffer.from(JSON.stringify(inputs)).toString("base64"));
 
     return await crypto.subtle.verify("RSASSA-PKCS1-v1_5", publicKey, signatureArray, dataArray);
   } catch (error) {

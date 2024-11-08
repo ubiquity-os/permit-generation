@@ -12,3 +12,5 @@ static/dist
 junit.xml
 dist
 test-dashboard.md
+keys-generator.js
+.dev.vars
