@@ -14,3 +14,4 @@ dist
 test-dashboard.md
 keys-generator.js
 .dev.vars
+.wrangler
