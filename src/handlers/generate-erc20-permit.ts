@@ -117,7 +117,7 @@ export async function generateErc20PermitSignature(
 
 async function getPrivateKey(evmPrivateEncrypted: string, logger: Logger, env: Env) {
   try {
-    const privateKeyDecrypted = await decrypt(evmPrivateEncrypted, env.X25519_PRIVATE_KEY);
+    const privateKeyDecrypted = await decrypt(evmPrivateEncrypted, env.X25519_PRIVATE_KEY, env.X25519_NONCE);
     const privateKeyParsed = parseDecryptedPrivateKey(privateKeyDecrypted);
     const privateKey = privateKeyParsed.privateKey;
     if (!privateKey) throw new Error("Private key is not defined");

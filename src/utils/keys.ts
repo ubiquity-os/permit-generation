@@ -1,21 +1,35 @@
+import "crypto";
 import sodium from "libsodium-wrappers";
+import { scalarMult, box } from "tweetnacl";
+import tweetnaclUtil from "tweetnacl-util";
 
 /**
  * Decrypts encrypted text with provided "X25519_PRIVATE_KEY" value
  * @param encryptedText Encrypted text
  * @param x25519PrivateKey "X25519_PRIVATE_KEY" private key
+ * @param x25519Nonce Nonce used in encrypting the message
  * @returns Decrypted text
  */
-export async function decrypt(encryptedText: string, x25519PrivateKey: string): Promise<string> {
-  await sodium.ready;
+export async function decrypt(encryptedText: string, x25519PrivateKey: string, x25519Nonce: string): Promise<string> {
+  if (typeof x25519PrivateKey === "undefined" || x25519PrivateKey === null) {
+    throw new Error("Private key is required");
+  }
 
-  const publicKey = await getPublicKey(x25519PrivateKey);
-
+  if (process.env.NODE_ENV === "test") {
+    await sodium.ready;
+  }
+  const publicKey = getPublicKey(x25519PrivateKey);
   const binaryPublic = sodium.from_base64(publicKey, sodium.base64_variants.URLSAFE_NO_PADDING);
   const binaryPrivate = sodium.from_base64(x25519PrivateKey, sodium.base64_variants.URLSAFE_NO_PADDING);
   const binaryEncryptedText = sodium.from_base64(encryptedText, sodium.base64_variants.URLSAFE_NO_PADDING);
+  const nonce = sodium.from_base64(x25519Nonce, sodium.base64_variants.URLSAFE_NO_PADDING);
+  const decryptedMessage = box.open(binaryEncryptedText, nonce, binaryPublic, binaryPrivate);
 
-  return sodium.crypto_box_seal_open(binaryEncryptedText, binaryPublic, binaryPrivate, "text");
+  if (decryptedMessage) {
+    return tweetnaclUtil.encodeUTF8(decryptedMessage);
+  }
+
+  throw new Error("Could not decrypt private key");
 }
 
 /**
@@ -23,10 +37,9 @@ export async function decrypt(encryptedText: string, x25519PrivateKey: string): 
  * @param x25519PrivateKey "X25519_PRIVATE_KEY" private key
  * @returns Public key
  */
-export async function getPublicKey(x25519PrivateKey: string): Promise<string> {
-  await sodium.ready;
+function getPublicKey(x25519PrivateKey: string): string {
   const binaryPrivate = sodium.from_base64(x25519PrivateKey, sodium.base64_variants.URLSAFE_NO_PADDING);
-  return sodium.crypto_scalarmult_base(binaryPrivate, "base64");
+  return sodium.to_base64(scalarMult.base(binaryPrivate), sodium.base64_variants.URLSAFE_NO_PADDING);
 }
 
 /**

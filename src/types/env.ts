@@ -10,6 +10,7 @@ export const envSchema = T.Object({
   NFT_CONTRACT_ADDRESS: T.String(),
   KERNEL_PUBLIC_KEY: T.String(),
   X25519_PRIVATE_KEY: T.String(),
+  X25519_NONCE: T.String(),
 });
 
 export type Env = StaticDecode<typeof envSchema>;
