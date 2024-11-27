@@ -36,9 +36,9 @@ export async function getErc721SignatureDetails({
   username,
   contributionType,
 }: {
-  nftContractAddress: string;
+  nftContractAddress: string | undefined;
   evmNetworkId: number;
-  nftMinterPrivateKey: string;
+  nftMinterPrivateKey: string | undefined;
   userId: number;
   walletAddress: string;
   issueNodeId: string;
