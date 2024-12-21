@@ -1,65 +1,55 @@
+// src/handlers/generate-erc20-permit.ts
+
+import { PluginInput, PluginOutput, Reward } from "../types/plugin-interfaces";
 import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer, MaxUint256 } from "@uniswap/permit2-sdk";
 import { ethers, utils } from "ethers";
-import { Context, Logger } from "../types/context";
-import { PermitReward, TokenType } from "../types";
 import { decrypt, parseDecryptedPrivateKey } from "../utils";
 import { getFastestProvider } from "../utils/get-fastest-provider";
 
-export interface Payload {
-  evmNetworkId: number;
-  evmPrivateEncrypted: string;
-  walletAddress: string;
-  issueNodeId: string;
-  logger: Logger;
-  userId: number;
-}
+export async function generateErc20Permit(input: PluginInput): Promise<PluginOutput> {
+  const { eventContext, inputValue, metadata } = input;
+  const { payload, config, env } = eventContext;
 
-export async function generateErc20PermitSignature(payload: Payload, username: string, amount: number, tokenAddress: string): Promise<PermitReward>;
-export async function generateErc20PermitSignature(context: Context, username: string, amount: number, tokenAddress: string): Promise<PermitReward>;
-export async function generateErc20PermitSignature(
-  contextOrPayload: Context | Payload,
-  username: string,
-  amount: number,
-  tokenAddress: string
-): Promise<PermitReward> {
-  let logger: Logger;
-  const _username = username;
+  // Deserialize inputValue if needed
+  const { username, amount, tokenAddress } = JSON.parse(inputValue);
+
+  let logger = metadata?.logger;
   let walletAddress: string | null | undefined;
   let issueNodeId: string;
   let evmNetworkId: number;
   let evmPrivateEncrypted: string;
   let userId: number;
 
-  if ("issueNodeId" in contextOrPayload) {
-    logger = contextOrPayload.logger as Logger;
-    walletAddress = contextOrPayload.walletAddress;
-    evmNetworkId = contextOrPayload.evmNetworkId;
-    evmPrivateEncrypted = contextOrPayload.evmPrivateEncrypted;
-    issueNodeId = contextOrPayload.issueNodeId;
-    userId = contextOrPayload.userId;
+  if ("issueNodeId" in metadata) {
+    logger = metadata.logger as Logger;
+    walletAddress = metadata.walletAddress;
+    evmNetworkId = metadata.evmNetworkId;
+    evmPrivateEncrypted = metadata.evmPrivateEncrypted;
+    issueNodeId = metadata.issueNodeId;
+    userId = metadata.userId;
   } else {
-    const config = contextOrPayload.config;
-    logger = contextOrPayload.logger;
+    const config = eventContext.config;
+    logger = metadata.logger;
     const { evmNetworkId: configEvmNetworkId, evmPrivateEncrypted: configEvmPrivateEncrypted } = config;
-    const { data: userData } = await contextOrPayload.octokit.rest.users.getByUsername({ username: _username });
+    const { data: userData } = await metadata.octokit.rest.users.getByUsername({ username });
     if (!userData) {
-      throw new Error(`GitHub user was not found for id ${_username}`);
+      throw new Error(`GitHub user was not found for id ${username}`);
     }
     userId = userData.id;
-    const { wallet } = contextOrPayload.adapters.supabase;
+    const { wallet } = metadata.adapters.supabase;
     walletAddress = await wallet.getWalletByUserId(userId);
     evmNetworkId = configEvmNetworkId;
     evmPrivateEncrypted = configEvmPrivateEncrypted;
-    if ("issue" in contextOrPayload.payload) {
-      issueNodeId = contextOrPayload.payload.issue.node_id;
-    } else if ("pull_request" in contextOrPayload.payload) {
-      issueNodeId = contextOrPayload.payload.pull_request.node_id;
+    if ("issue" in payload) {
+      issueNodeId = payload.issue.node_id;
+    } else if ("pull_request" in payload) {
+      issueNodeId = payload.pull_request.node_id;
     } else {
       throw new Error("Issue Id is missing");
     }
   }
 
-  if (!_username) {
+  if (!username) {
     throw new Error("User was not found");
   }
   if (!walletAddress) {
@@ -93,21 +83,24 @@ export async function generateErc20PermitSignature(
   try {
     const signature = await adminWallet._signTypedData(domain, types, values);
 
-    const erc20Permit: PermitReward = {
-      tokenType: TokenType.ERC20,
+    const erc20Permit: Reward = {
+      type: "ERC20",
+      amount: Number(permitTransferFromData.permitted.amount.toString()),
       tokenAddress: permitTransferFromData.permitted.token,
       beneficiary: permitTransferFromData.spender,
-      nonce: permitTransferFromData.nonce.toString(),
-      deadline: permitTransferFromData.deadline.toString(),
-      amount: permitTransferFromData.permitted.amount.toString(),
-      owner: adminWallet.address,
-      signature: signature,
-      networkId: evmNetworkId,
     };
+
+    const commentOutput = `<p>Generated ERC20 permit for ${username} with amount ${amount} tokens.</p>`;
 
     logger.info("Generated ERC20 permit2 signature", erc20Permit);
 
-    return erc20Permit;
+    return {
+      rewards: [erc20Permit],
+      commentOutput,
+      metadata: {
+        additionalInfo: "Example metadata",
+      },
+    };
   } catch (error) {
     logger.error(`Failed to sign typed data: ${error}`);
     throw error;
