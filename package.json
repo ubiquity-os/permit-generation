@@ -16,7 +16,8 @@
     "knip-ci": "knip --no-exit-code --reporter json",
     "prepare": "husky install",
     "test": "jest",
-    "build": "tsup"
+    "build": "tsup",
+    "start": "node dist/main.js"
   },
   "keywords": [
     "typescript",
