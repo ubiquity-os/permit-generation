@@ -26,7 +26,7 @@ export async function plugin(inputs: PluginInputs, env: Env) {
   try {
     await returnDataToKernel(context, inputs.authToken, inputs.stateId, permits);
   } catch (error) {
-    logger.error("Error returning data to kernel", error);
+    logger.error("Error returning data to kernel", { err: error });
   }
 
   return permits;
