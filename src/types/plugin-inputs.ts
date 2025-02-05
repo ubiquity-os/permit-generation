@@ -13,38 +13,39 @@ export interface PluginInputs<T extends WebhookEventName = SupportedEventsU> {
   ref: string;
 }
 
-const permitRequestSchema = T.Union([
-  T.Object({
-    kind: T.Literal("ERC20"), // Discriminant key
-    type: T.Literal("ERC20"), // should remove this ideally
-    userId: T.Number(),
-    amount: T.Number({ minimum: 1 }),
-    evmNetworkId: T.Number(),
-    tokenAddress: T.String(),
-    issueNodeId: T.String(),
-  }),
-  T.Object({
-    kind: T.Literal("ERC721"), // Discriminant key
-    type: T.Literal("ERC721"), // should remove this ideally
-    userId: T.Number(),
-    amount: T.Number({ maximum: 1, minimum: 1, default: 1 }),
-    evmNetworkId: T.Number(),
-    tokenAddress: T.String(),
-    issueNodeId: T.String(),
-    erc721Request: T.Object({
-      contributionType: T.String(),
-      keys: T.Array(T.String()),
-      values: T.Array(T.String()),
-      metadata: T.Object({
-        GITHUB_ORGANIZATION_NAME: T.String(),
-        GITHUB_REPOSITORY_NAME: T.String(),
-        GITHUB_ISSUE_NODE_ID: T.String(),
-        GITHUB_USERNAME: T.String(),
-        GITHUB_CONTRIBUTION_TYPE: T.String(),
+const permitRequestSchema = T.Union(
+  [
+    T.Object({
+      type: T.Literal("ERC20"),
+      userId: T.Number(),
+      amount: T.Number({ minimum: 1 }),
+      evmNetworkId: T.Number(),
+      tokenAddress: T.String(),
+      issueNodeId: T.String(),
+    }),
+    T.Object({
+      type: T.Literal("ERC721"),
+      userId: T.Number(),
+      amount: T.Number({ maximum: 1, minimum: 1, default: 1 }),
+      evmNetworkId: T.Number(),
+      tokenAddress: T.String(),
+      issueNodeId: T.String(),
+      erc721Request: T.Object({
+        contributionType: T.String(),
+        keys: T.Array(T.String()),
+        values: T.Array(T.String()),
+        metadata: T.Object({
+          GITHUB_ORGANIZATION_NAME: T.String(),
+          GITHUB_REPOSITORY_NAME: T.String(),
+          GITHUB_ISSUE_NODE_ID: T.String(),
+          GITHUB_USERNAME: T.String(),
+          GITHUB_CONTRIBUTION_TYPE: T.String(),
+        }),
       }),
     }),
-  }),
-]);
+  ],
+  { discriminantKey: "type" }
+);
 
 export type PermitRequest = StaticDecode<typeof permitRequestSchema>;
 

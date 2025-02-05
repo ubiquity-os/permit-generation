@@ -26,12 +26,11 @@ describe("generatePayoutPermit", () => {
         permitRequests: [
           ...mockContext.config.permitRequests,
           {
-            kind: "ERC721",
+            type: "ERC721",
             amount: 1,
             evmNetworkId: 100,
             issueNodeId: "123",
             tokenAddress: NFT_CONTRACT_ADDRESS,
-            type: "ERC721",
             userId: 123,
             erc721Request: {
               contributionType: "contribution",

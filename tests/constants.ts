@@ -18,12 +18,11 @@ export const mockContext = {
     evmPrivateEncrypted: cypherText,
     permitRequests: [
       {
-        kind: "ERC20",
+        type: "ERC20",
         amount: 100,
         issueNodeId: "123",
         evmNetworkId: 100,
         tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
-        type: "ERC20",
         userId: 123,
       },
     ],

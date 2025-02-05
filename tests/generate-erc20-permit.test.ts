@@ -113,10 +113,9 @@ describe("generateErc20PermitSignature", () => {
           evmPrivateEncrypted: cypherText,
           permitRequests: [
             {
-              kind: "ERC20",
+              type: "ERC20",
               amount,
               evmNetworkId: 100,
-              type: "ERC20",
               userId: 123,
               issueNodeId: "123",
               tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,

@@ -163,7 +163,7 @@ describe("generateErc721PermitSignature", () => {
           evmPrivateEncrypted: cypherText,
           permitRequests: [
             {
-              kind: "ERC721",
+              type: "ERC721",
               evmNetworkId: 100,
               issueNodeId: "123",
               tokenAddress: NFT_CONTRACT_ADDRESS,
@@ -181,7 +181,6 @@ describe("generateErc721PermitSignature", () => {
                   GITHUB_USERNAME: "123",
                 },
               },
-              type: "ERC721",
             },
           ],
         },
