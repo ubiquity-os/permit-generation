@@ -54,7 +54,7 @@ Return value should just be an array of generated permits. A separate module can
 
 Generate a permit:
 
-1. Terminal A: `yarn worker`
+1. Terminal A: `bun worker`
 2. Set your `X25519_PRIVATE_KEY` to the same one used in the tests.
 3. Terminal B: Start anvil: `anvil --fork-url https://rpc.gnosis.gateway.fm --chain-id 31337`
 4. Terminal C: run the following command:
