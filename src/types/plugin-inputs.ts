@@ -21,7 +21,7 @@ const permitRequestSchema = T.Union(
       amount: T.Number({ minimum: 1 }),
       evmNetworkId: T.Number(),
       tokenAddress: T.String(),
-      issueNodeId: T.String(),
+      nonce: T.String(),
     }),
     T.Object({
       type: T.Literal("ERC721"),
@@ -29,7 +29,7 @@ const permitRequestSchema = T.Union(
       amount: T.Number({ maximum: 1, minimum: 1, default: 1 }),
       evmNetworkId: T.Number(),
       tokenAddress: T.String(),
-      issueNodeId: T.String(),
+      nonce: T.String(),
       erc721Request: T.Object({
         contributionType: T.String(),
         keys: T.Array(T.String()),

@@ -27,7 +27,7 @@ export async function generatePayoutPermits({
     logger.info(`Generating ${permitRequests.length} permits`);
     for (const permitRequest of permitRequests) {
       logger.info("Generating permit for: ", permitRequest);
-      const { amount, userId, issueNodeId, evmNetworkId, tokenAddress, type: permitType } = permitRequest;
+      const { amount, userId, nonce, evmNetworkId, tokenAddress, type: permitType } = permitRequest;
       const walletAddress = await supabase.wallet.getWalletByUserId(userId);
       if (!walletAddress) {
         throw new Error(`Wallet not found for user with id ${userId}`);
@@ -40,7 +40,7 @@ export async function generatePayoutPermits({
               amount,
               evmNetworkId,
               evmPrivateEncrypted,
-              issueNodeId,
+              nonce,
               tokenAddress,
               userId,
               walletAddress,

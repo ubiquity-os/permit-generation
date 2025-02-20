@@ -31,7 +31,7 @@ describe("generateErc721PermitSignature", () => {
           {
             amount: 1,
             evmNetworkId: 100,
-            issueNodeId: "123",
+            nonce: "123",
             tokenAddress: NFT_CONTRACT_ADDRESS,
             type: "ERC721",
             userId: 123,
@@ -165,7 +165,7 @@ describe("generateErc721PermitSignature", () => {
             {
               type: "ERC721",
               evmNetworkId: 100,
-              issueNodeId: "123",
+              nonce: "123",
               tokenAddress: NFT_CONTRACT_ADDRESS,
               userId: 123,
               amount: 1,

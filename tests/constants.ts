@@ -20,7 +20,7 @@ export const mockContext = {
       {
         type: "ERC20",
         amount: 100,
-        issueNodeId: "123",
+        nonce: "123",
         evmNetworkId: 100,
         tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
         userId: 123,

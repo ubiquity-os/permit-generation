@@ -19,7 +19,7 @@ export async function generateErc721Permit({
     erc721Request: { metadata },
     evmNetworkId,
     amount,
-    issueNodeId,
+    nonce,
     userId,
   } = permitRequest;
 
@@ -30,7 +30,7 @@ export async function generateErc721Permit({
     signature,
   } = await getErc721SignatureDetails({
     walletAddress,
-    issueNodeId,
+    nonce,
     evmNetworkId,
     nftContractAddress: env.NFT_CONTRACT_ADDRESS,
     nftMinterPrivateKey: env.NFT_MINTER_PRIVATE_KEY,

@@ -7,7 +7,7 @@ import { logger } from "../../helpers/logger";
 
 export async function getPermitSignatureDetails({
   walletAddress,
-  issueNodeId,
+  nonce,
   evmNetworkId,
   evmPrivateEncrypted,
   userId,
@@ -16,7 +16,7 @@ export async function getPermitSignatureDetails({
   x25519privateKey,
 }: {
   walletAddress: string | null | undefined;
-  issueNodeId: string;
+  nonce: string;
   evmNetworkId: number;
   evmPrivateEncrypted: string;
   userId: number;
@@ -41,7 +41,7 @@ export async function getPermitSignatureDetails({
       amount: utils.parseUnits(amount.toString(), tokenDecimals),
     },
     spender: walletAddress,
-    nonce: BigInt(utils.keccak256(utils.toUtf8Bytes(`${userId}-${issueNodeId}`))),
+    nonce: BigInt(utils.keccak256(utils.toUtf8Bytes(`${userId}-${nonce}`))),
     deadline: MaxUint256,
   };
 

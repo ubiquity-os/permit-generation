@@ -29,7 +29,7 @@ describe("generatePayoutPermit", () => {
             type: "ERC721",
             amount: 1,
             evmNetworkId: 100,
-            issueNodeId: "123",
+            nonce: "123",
             tokenAddress: NFT_CONTRACT_ADDRESS,
             userId: 123,
             erc721Request: {

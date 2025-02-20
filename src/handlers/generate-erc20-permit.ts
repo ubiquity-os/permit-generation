@@ -4,7 +4,7 @@ import { getPermitSignatureDetails } from "./erc20-permits/get-erc20-signature-d
 
 export async function generateErc20Permit({
   walletAddress,
-  issueNodeId,
+  nonce,
   evmNetworkId,
   evmPrivateEncrypted,
   userId,
@@ -13,7 +13,7 @@ export async function generateErc20Permit({
   x25519privateKey,
 }: {
   walletAddress: string;
-  issueNodeId: string;
+  nonce: string;
   evmNetworkId: number;
   evmPrivateEncrypted: string;
   userId: number;
@@ -27,7 +27,7 @@ export async function generateErc20Permit({
   try {
     const { adminWallet, permitTransferFromData, domain, types, values } = await getPermitSignatureDetails({
       walletAddress,
-      issueNodeId,
+      nonce,
       evmNetworkId,
       evmPrivateEncrypted,
       userId,

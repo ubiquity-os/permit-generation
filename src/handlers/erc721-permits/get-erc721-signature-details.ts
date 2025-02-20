@@ -30,7 +30,7 @@ export async function getErc721SignatureDetails({
   nftMinterPrivateKey,
   userId,
   walletAddress,
-  issueNodeId,
+  nonce,
   organizationName,
   repositoryName,
   username,
@@ -41,7 +41,7 @@ export async function getErc721SignatureDetails({
   nftMinterPrivateKey: string | undefined;
   userId: number;
   walletAddress: string;
-  issueNodeId: string;
+  nonce: string;
   organizationName: string;
   repositoryName: string;
   username: string;
@@ -68,7 +68,7 @@ export async function getErc721SignatureDetails({
   const erc721Metadata = {
     GITHUB_ORGANIZATION_NAME: organizationName,
     GITHUB_REPOSITORY_NAME: repositoryName,
-    GITHUB_ISSUE_NODE_ID: issueNodeId,
+    GITHUB_ISSUE_NODE_ID: nonce,
     GITHUB_USERNAME: username,
     GITHUB_CONTRIBUTION_TYPE: contributionType,
   };
@@ -78,7 +78,7 @@ export async function getErc721SignatureDetails({
     beneficiary: walletAddress,
     deadline: MaxUint256.toBigInt(),
     keys: metadata.map(([key]) => utils.keccak256(utils.toUtf8Bytes(key))),
-    nonce: BigInt(utils.keccak256(utils.toUtf8Bytes(`${userId}-${issueNodeId}`))),
+    nonce: BigInt(utils.keccak256(utils.toUtf8Bytes(`${userId}-${nonce}`))),
     values: metadata.map(([, value]) => value),
   };
 
