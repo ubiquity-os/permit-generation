@@ -48,7 +48,7 @@ export async function getErc721SignatureDetails({
   contributionType: string;
 }) {
   if (!nftContractAddress) {
-    throw logger.error("NFT Address not found")
+    throw logger.error("NFT Address not found");
   }
 
   if (!nftMinterPrivateKey) {

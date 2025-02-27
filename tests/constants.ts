@@ -28,7 +28,6 @@ export const mockContext = {
     ],
   } as Context["config"],
   env: {
-    GITHUB_TOKEN: "123",
     NFT_CONTRACT_ADDRESS,
     NFT_MINTER_PRIVATE_KEY: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
     SUPABASE_KEY: "123",

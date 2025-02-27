@@ -3,7 +3,6 @@ import { StaticDecode } from "@sinclair/typebox";
 import { StandardValidator } from "typebox-validators";
 
 export const envSchema = T.Object({
-  GITHUB_TOKEN: T.String(),
   SUPABASE_URL: T.String(),
   SUPABASE_KEY: T.String(),
   NFT_MINTER_PRIVATE_KEY: T.Transform(T.Union([T.Undefined(), T.String()]))
