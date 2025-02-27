@@ -10,7 +10,7 @@
 The input should be an array of permit descriptors:
 
 ```typescript
-type PermitGenerationInput {
+type PermitGenerationInput = {
   username: string;
   amount: string;
   address: string;
