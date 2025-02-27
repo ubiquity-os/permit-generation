@@ -17,7 +17,7 @@ type PermitGenerationInput = {
   task: GitHubIssue | null;
   transfer: boolean;
   evmPrivateKeyEncrypted: string;
-}[]
+}[];
 ```
 
 ###### Remarks
