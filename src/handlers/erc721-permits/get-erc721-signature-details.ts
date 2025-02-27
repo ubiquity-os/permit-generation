@@ -48,11 +48,11 @@ export async function getErc721SignatureDetails({
   contributionType: string;
 }) {
   if (!nftContractAddress) {
-    throw logger.error("NFT Address not found");
+    throw new Error(logger.error("NFT Address not found").logMessage.raw);
   }
 
   if (!nftMinterPrivateKey) {
-    throw logger.error("NFT Minter Private Key not found");
+    throw new Error(logger.error("NFT Minter Private Key not found").logMessage.raw);
   }
 
   let adminWallet;
@@ -61,7 +61,7 @@ export async function getErc721SignatureDetails({
   try {
     adminWallet = new Wallet(nftMinterPrivateKey, provider);
   } catch (err) {
-    throw logger.error("Failed to instantiate wallet", { err: String(err) });
+    throw new Error(logger.error("Failed to instantiate wallet", { err }).logMessage.raw);
   }
 
   const erc721Metadata = {
@@ -89,7 +89,7 @@ export async function getErc721SignatureDetails({
   };
 
   const signature = await adminWallet._signTypedData(domain, types, erc721SignatureData).catch((err) => {
-    throw logger.error("Failed to sign typed data", { err: String(err) });
+    throw new Error(logger.error("Failed to sign typed data", { err: String(err) }).logMessage.raw);
   });
 
   return { erc721SignatureData, erc721Metadata, signature, adminWallet };

@@ -25,8 +25,7 @@ export async function getPermitSignatureDetails({
   x25519privateKey: string;
 }) {
   if (!walletAddress) {
-    const errorMessage = "ERC20 Permit generation error: Wallet not found";
-    throw logger.error(errorMessage);
+    throw new Error(logger.error("ERC20 Permit generation error: Wallet not found").logMessage.raw);
   }
 
   const provider = await getFastestProvider(evmNetworkId);
