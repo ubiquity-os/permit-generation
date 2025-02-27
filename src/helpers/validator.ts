@@ -1,33 +1,5 @@
-import { Octokit } from "@octokit/rest";
 import { TransformDecodeCheckError, TransformDecodeError, Value, ValueError } from "@sinclair/typebox/value";
-import { Context, Env, envSchema, envValidator, PermitGenerationSettings, permitGenerationSettingsSchema, permitRequestValidator } from "../types";
-
-export async function returnDataToKernel(
-  context: Context,
-  repoToken: string,
-  stateId: string,
-  output: object,
-  eventType = "return-data-to-ubiquity-os-kernel"
-) {
-  const octokit = new Octokit({ auth: repoToken });
-  const {
-    payload: {
-      repository: {
-        name: repo,
-        owner: { login: owner },
-      },
-    },
-  } = context;
-  return octokit.rest.repos.createDispatchEvent({
-    owner,
-    repo,
-    event_type: eventType,
-    client_payload: {
-      state_id: stateId,
-      output: JSON.stringify(output),
-    },
-  });
-}
+import { Env, envSchema, envValidator, PermitGenerationSettings, permitGenerationSettingsSchema, permitRequestValidator } from "../types";
 
 export function validateAndDecodeSchemas(rawEnv: object, rawSettings: object) {
   const errors: ValueError[] = [];
