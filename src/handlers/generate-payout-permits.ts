@@ -1,4 +1,4 @@
-import { PermitReward } from "../types";
+import { PermitRequest, PermitReward } from "../types";
 import { Context } from "../types/context";
 import { logger } from "../helpers/logger";
 import { generateErc20Permit } from "./generate-erc20-permit";
@@ -10,15 +10,20 @@ import { generateErc721Permit } from "./generate-erc721-permit";
  * @param permitRequests
  * @returns A Promise that resolves to the generated permit transaction data or an error message.
  */
-export async function generatePayoutPermits({
-  env,
-  config,
-  adapters,
-}: {
-  env: Context["env"];
-  config: Context["config"];
-  adapters: Context["adapters"];
-}): Promise<PermitReward[]> {
+export async function generatePayoutPermit(
+  {
+    env,
+    config,
+    adapters,
+  }: {
+    env: Context["env"];
+    config: Context["config"];
+    adapters: Context["adapters"];
+    [key: string]: unknown; // backward compatibility
+  },
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  _permitRequests?: PermitRequest[] // backward compatibility
+): Promise<PermitReward[]> {
   const permits: PermitReward[] = [];
   try {
     const { permitRequests, evmPrivateEncrypted } = config;
