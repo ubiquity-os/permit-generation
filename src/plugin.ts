@@ -3,7 +3,7 @@ import { Env, PluginInputs } from "./types";
 import { Context } from "./types";
 import { createAdapters } from "./adapters";
 import { createClient } from "@supabase/supabase-js";
-import { generatePayoutPermits } from "./handlers";
+import { generatePayoutPermit } from "./handlers";
 import { logger } from "./helpers/logger";
 
 export async function plugin(inputs: PluginInputs, env: Env) {
@@ -20,5 +20,5 @@ export async function plugin(inputs: PluginInputs, env: Env) {
     adapters: createAdapters(supabase),
   };
 
-  return await generatePayoutPermits(context);
+  return await generatePayoutPermit(context, []);
 }

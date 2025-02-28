@@ -10,24 +10,12 @@ import { generateErc721Permit } from "./generate-erc721-permit";
  * @param permitRequests
  * @returns A Promise that resolves to the generated permit transaction data or an error message.
  */
-export async function generatePayoutPermit(
-  {
-    env,
-    config,
-    adapters,
-  }: {
-    env: Context["env"];
-    config: Context["config"];
-    adapters: Context["adapters"];
-    [key: string]: unknown; // backward compatibility
-  },
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  _permitRequests?: PermitRequest[] // backward compatibility
-): Promise<PermitReward[]> {
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export async function generatePayoutPermit(context: Context, _permitRequests: PermitRequest[]): Promise<PermitReward[]> {
   const permits: PermitReward[] = [];
   try {
-    const { permitRequests, evmPrivateEncrypted } = config;
-    const { supabase } = adapters;
+    const { permitRequests, evmPrivateEncrypted } = context.config;
+    const { supabase } = context.adapters;
 
     logger.info(`Generating ${permitRequests.length} permits`);
     for (const permitRequest of permitRequests) {
@@ -49,7 +37,7 @@ export async function generatePayoutPermit(
               tokenAddress,
               userId,
               walletAddress,
-              x25519privateKey: env.X25519_PRIVATE_KEY,
+              x25519privateKey: context.env.X25519_PRIVATE_KEY,
             })
           );
           logger.ok("Generated ERC20 permit", { permit: permits[permits.length - 1] });
@@ -58,7 +46,7 @@ export async function generatePayoutPermit(
         case "ERC721":
           permits.push(
             await generateErc721Permit({
-              env,
+              env: context.env,
               permitRequest,
               walletAddress,
             })

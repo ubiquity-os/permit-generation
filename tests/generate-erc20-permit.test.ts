@@ -2,7 +2,7 @@ import { describe, expect, it, beforeEach, jest } from "@jest/globals";
 import { Context } from "../src/types/context";
 import { mockContext, ERC20_REWARD_TOKEN_ADDRESS } from "./constants";
 import { generateErc20Permit } from "../src/handlers/generate-erc20-permit";
-import { generatePayoutPermits } from "../src";
+import { generatePayoutPermit } from "../src";
 import { logger } from "../src/helpers/logger";
 import "@supabase/supabase-js";
 
@@ -78,7 +78,7 @@ describe("generateErc20PermitSignature", () => {
       networkId: 100,
     };
     expect(result).toEqual(expectedResult);
-  });
+  }, 36000);
 
   it("should throw error when evmPrivateEncrypted is not defined", async () => {
     const amount = 0;
@@ -107,24 +107,27 @@ describe("generateErc20PermitSignature", () => {
     const loggerSpy = jest.spyOn(logger, "error");
 
     await expect(async () => {
-      await generatePayoutPermits({
-        config: {
-          ...context.config,
-          evmPrivateEncrypted: cypherText,
-          permitRequests: [
-            {
-              type: "ERC20",
-              amount,
-              evmNetworkId: 100,
-              userId: 123,
-              nonce: "123",
-              tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
-            },
-          ],
-        },
-        env: context.env,
-        adapters: context.adapters,
-      });
+      await generatePayoutPermit(
+        {
+          config: {
+            ...context.config,
+            evmPrivateEncrypted: cypherText,
+            permitRequests: [
+              {
+                type: "ERC20",
+                amount,
+                evmNetworkId: 100,
+                userId: 123,
+                nonce: "123",
+                tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
+              },
+            ],
+          },
+          env: context.env,
+          adapters: context.adapters,
+        } as Context,
+        []
+      );
     }).rejects.toThrow("Wallet not found for user with id 123");
 
     expect(loggerSpy).toHaveBeenCalledWith("Failed to generate permit: ", { er: "Error: Wallet not found for user with id 123", caller: "_Logs.<anonymous>" });

@@ -4,7 +4,7 @@ import { Context } from "../src/types/context";
 import { cypherText, mockContext, NFT_CONTRACT_ADDRESS, SPENDER } from "./constants";
 import { describe, expect, it, beforeEach, afterEach, jest } from "@jest/globals";
 import { generateErc721Permit } from "../src/handlers/generate-erc721-permit";
-import { generatePayoutPermits } from "../src";
+import { generatePayoutPermit } from "../src";
 import "@supabase/supabase-js";
 import { logger } from "../src/helpers/logger";
 
@@ -158,35 +158,38 @@ describe("generateErc721PermitSignature", () => {
     (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(null);
 
     await expect(
-      generatePayoutPermits({
-        config: {
-          evmPrivateEncrypted: cypherText,
-          permitRequests: [
-            {
-              type: "ERC721",
-              evmNetworkId: 100,
-              nonce: "123",
-              tokenAddress: NFT_CONTRACT_ADDRESS,
-              userId: 123,
-              amount: 1,
-              erc721Request: {
-                contributionType: "contribution",
-                keys: ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_NODE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"],
-                values: ["test", "test", "123", "123", "contribution"],
-                metadata: {
-                  GITHUB_CONTRIBUTION_TYPE: "contribution",
-                  GITHUB_ISSUE_NODE_ID: "123",
-                  GITHUB_ORGANIZATION_NAME: "test",
-                  GITHUB_REPOSITORY_NAME: "test",
-                  GITHUB_USERNAME: "123",
+      generatePayoutPermit(
+        {
+          config: {
+            evmPrivateEncrypted: cypherText,
+            permitRequests: [
+              {
+                type: "ERC721",
+                evmNetworkId: 100,
+                nonce: "123",
+                tokenAddress: NFT_CONTRACT_ADDRESS,
+                userId: 123,
+                amount: 1,
+                erc721Request: {
+                  contributionType: "contribution",
+                  keys: ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_NODE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"],
+                  values: ["test", "test", "123", "123", "contribution"],
+                  metadata: {
+                    GITHUB_CONTRIBUTION_TYPE: "contribution",
+                    GITHUB_ISSUE_NODE_ID: "123",
+                    GITHUB_ORGANIZATION_NAME: "test",
+                    GITHUB_REPOSITORY_NAME: "test",
+                    GITHUB_USERNAME: "123",
+                  },
                 },
               },
-            },
-          ],
-        },
-        env: context.env,
-        adapters: context.adapters,
-      })
+            ],
+          },
+          env: context.env,
+          adapters: context.adapters,
+        } as Context,
+        []
+      )
     ).rejects.toThrow("Wallet not found for user with id 123");
     expect(context.logger.error).toHaveBeenCalledWith("Failed to generate permit: ", {
       caller: "_Logs.<anonymous>",

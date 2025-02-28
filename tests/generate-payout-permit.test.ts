@@ -2,7 +2,7 @@ import { Context } from "../src/types/context";
 import { mockContext, NFT_CONTRACT_ADDRESS, SPENDER } from "./constants";
 import { describe, expect, it, beforeEach, afterEach, jest } from "@jest/globals";
 import { Wallet, TypedDataDomain, TypedDataField } from "ethers";
-import { generatePayoutPermits } from "../src";
+import { generatePayoutPermit } from "../src";
 import "@supabase/supabase-js";
 
 jest.autoMockOn();
@@ -72,7 +72,7 @@ describe("generatePayoutPermit", () => {
   });
 
   it("should generate payout permit signatures for ERC721 and ERC20", async () => {
-    const result = await generatePayoutPermits(context);
+    const result = await generatePayoutPermit(context, []);
     expect(result).toEqual([
       {
         amount: "100000000000000000000",
