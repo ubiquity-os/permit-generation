@@ -3,7 +3,7 @@ import { TokenType } from "../types";
 import { getPermitSignatureDetails } from "./erc20-permits/get-erc20-signature-details";
 
 export async function generateErc20Permit({
-  walletAddress,
+  userWalletAddress,
   nonce,
   evmNetworkId,
   evmPrivateEncrypted,
@@ -12,7 +12,7 @@ export async function generateErc20Permit({
   amount,
   x25519privateKey,
 }: {
-  walletAddress: string;
+  userWalletAddress: string;
   nonce: string;
   evmNetworkId: number;
   evmPrivateEncrypted: string;
@@ -26,7 +26,7 @@ export async function generateErc20Permit({
   }
   try {
     const { adminWallet, permitTransferFromData, domain, types, values } = await getPermitSignatureDetails({
-      walletAddress,
+      userWalletAddress,
       nonce,
       evmNetworkId,
       evmPrivateEncrypted,

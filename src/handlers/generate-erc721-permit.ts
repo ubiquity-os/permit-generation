@@ -3,11 +3,11 @@ import { Context, PermitRequest, TokenType } from "../types";
 import { getErc721SignatureDetails } from "./erc721-permits/get-erc721-signature-details";
 
 export async function generateErc721Permit({
-  walletAddress,
+  userWalletAddress,
   permitRequest,
   env,
 }: {
-  walletAddress: string;
+  userWalletAddress: string;
   permitRequest: PermitRequest;
   env: Context["env"];
 }) {
@@ -29,7 +29,7 @@ export async function generateErc721Permit({
     erc721Metadata,
     signature,
   } = await getErc721SignatureDetails({
-    walletAddress,
+    userWalletAddress,
     nonce,
     evmNetworkId,
     nftContractAddress: env.NFT_CONTRACT_ADDRESS,
@@ -45,7 +45,7 @@ export async function generateErc721Permit({
     return {
       tokenType: TokenType.ERC721,
       tokenAddress: env.NFT_CONTRACT_ADDRESS,
-      beneficiary: walletAddress,
+      beneficiary: userWalletAddress,
       amount,
       nonce: erc721SignatureData.nonce.toString(),
       deadline: erc721SignatureData.deadline.toString(),

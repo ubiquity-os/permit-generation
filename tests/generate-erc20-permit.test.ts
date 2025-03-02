@@ -1,8 +1,8 @@
 import { describe, expect, it, beforeEach, jest } from "@jest/globals";
 import { Context } from "../src/types/context";
-import { mockContext, ERC20_REWARD_TOKEN_ADDRESS } from "./constants";
+import { mockContext, ERC20_REWARD_TOKEN_ADDRESS, WALLET_ADDRESS } from "./constants";
 import { generateErc20Permit } from "../src/handlers/generate-erc20-permit";
-import { generatePayoutPermit } from "../src";
+import { generatePayoutPermit, PermitRequest } from "../src";
 import { logger } from "../src/helpers/logger";
 import "@supabase/supabase-js";
 
@@ -51,6 +51,10 @@ describe("generateErc20PermitSignature", () => {
     } as unknown as Context;
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("should generate ERC20 permit signature", async () => {
     const amount = 100;
 
@@ -62,14 +66,14 @@ describe("generateErc20PermitSignature", () => {
       nonce: "123",
       tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
       userId: 123,
-      walletAddress: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
+      userWalletAddress: WALLET_ADDRESS,
       x25519privateKey: context.env.X25519_PRIVATE_KEY,
     });
 
     const expectedResult = {
       tokenType: "ERC20",
       tokenAddress: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
-      beneficiary: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
+      beneficiary: WALLET_ADDRESS,
       nonce: "28290789875493039658039458533958603742651083423638415458747066904844975862062",
       deadline: "115792089237316195423570985008687907853269984665640564039457584007913129639935",
       amount: "100000000000000000000",
@@ -92,7 +96,7 @@ describe("generateErc20PermitSignature", () => {
         nonce: "123",
         tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
         userId: 123,
-        walletAddress: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        userWalletAddress: WALLET_ADDRESS,
         x25519privateKey: context.env.X25519_PRIVATE_KEY,
       })
     ).rejects.toThrow(expectedError);
@@ -102,9 +106,17 @@ describe("generateErc20PermitSignature", () => {
   it("should return error message when no wallet found for user", async () => {
     const amount = 0;
     context.config.evmPrivateEncrypted = cypherText;
-
-    (context.adapters.supabase.wallet.getWalletByUserId as jest.Mock).mockReturnValue(null);
     const loggerSpy = jest.spyOn(logger, "error");
+
+    const permitRequest = {
+      type: "ERC20",
+      amount,
+      evmNetworkId: 100,
+      userId: 123,
+      nonce: "123",
+      userWalletAddress: null,
+      tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
+    } as unknown as PermitRequest;
 
     await expect(async () => {
       await generatePayoutPermit(
@@ -112,24 +124,15 @@ describe("generateErc20PermitSignature", () => {
           config: {
             ...context.config,
             evmPrivateEncrypted: cypherText,
-            permitRequests: [
-              {
-                type: "ERC20",
-                amount,
-                evmNetworkId: 100,
-                userId: 123,
-                nonce: "123",
-                tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
-              },
-            ],
+            permitRequests: [permitRequest],
           },
           env: context.env,
           adapters: context.adapters,
         } as Context,
         []
       );
-    }).rejects.toThrow("Wallet not found for user with id 123");
+    }).rejects.toThrow(`No userWalletAddress provided for permit request: ${JSON.stringify({ ...permitRequest, caller: "info" })}`);
 
-    expect(loggerSpy).toHaveBeenCalledWith("Failed to generate permit: ", { er: "Error: Wallet not found for user with id 123", caller: "_Logs.<anonymous>" });
+    expect(loggerSpy).toHaveBeenCalledWith(`No userWalletAddress provided for permit request: ${JSON.stringify({ ...permitRequest, caller: "info" })}`);
   });
 });

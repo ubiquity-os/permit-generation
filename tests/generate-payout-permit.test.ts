@@ -1,5 +1,5 @@
 import { Context } from "../src/types/context";
-import { mockContext, NFT_CONTRACT_ADDRESS, SPENDER } from "./constants";
+import { mockContext, NFT_CONTRACT_ADDRESS, WALLET_ADDRESS } from "./constants";
 import { describe, expect, it, beforeEach, afterEach, jest } from "@jest/globals";
 import { Wallet, TypedDataDomain, TypedDataField } from "ethers";
 import { generatePayoutPermit } from "../src";
@@ -32,6 +32,7 @@ describe("generatePayoutPermit", () => {
             nonce: "123",
             tokenAddress: NFT_CONTRACT_ADDRESS,
             userId: 123,
+            userWalletAddress: WALLET_ADDRESS,
             erc721Request: {
               contributionType: "contribution",
               keys: ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_NODE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"],
@@ -56,9 +57,6 @@ describe("generatePayoutPermit", () => {
         },
       },
     } as unknown as Context;
-    (context.adapters.supabase.wallet.getWalletByUserId as jest.Mock).mockReturnValue(SPENDER);
-    (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(userId);
-    (context.adapters.supabase.user.getUserById as jest.Mock).mockReturnValue({ wallet_id: 1 });
     jest
       .spyOn(Wallet.prototype, "_signTypedData")
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -76,7 +74,7 @@ describe("generatePayoutPermit", () => {
     expect(result).toEqual([
       {
         amount: "100000000000000000000",
-        beneficiary: "123",
+        beneficiary: WALLET_ADDRESS,
         deadline: "115792089237316195423570985008687907853269984665640564039457584007913129639935",
         networkId: 100,
         nonce: "28290789875493039658039458533958603742651083423638415458747066904844975862062",
@@ -87,7 +85,7 @@ describe("generatePayoutPermit", () => {
       },
       {
         amount: 1,
-        beneficiary: "123",
+        beneficiary: WALLET_ADDRESS,
         deadline: "115792089237316195423570985008687907853269984665640564039457584007913129639935",
         erc721Request: {
           keys: [

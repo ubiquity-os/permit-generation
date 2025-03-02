@@ -60,5 +60,5 @@ Generate a permit:
 4. Terminal C: run the following command:
 
 ```
-curl -X POST http://localhost:4000 -H "Content-Type: application/json" -d '{"settings":{"evmPrivateEncrypted":"wOzNgt-yKT6oFlOVz5wrBLUSYxAbKGE9Co-yvT8f9lePsx7wJwPVugS9186zdhr1T4UpkpXvq9ii5M-nWfrydMnllSkowH4LirRZsHbvRVSvDoH_uh80p6HpwqDSG3g4Nwx5q0GD3H-ne4vwXMuwWAHd","permitRequests":[{"type":"ERC20","userId":106303466,"amount":1,"evmNetworkId":31337,"tokenAddress":"0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d","nonce":"0x123"}]}}'
+curl -X POST http://localhost:4000 -H "Content-Type: application/json" -d '{"settings":{"evmPrivateEncrypted":"wOzNgt-yKT6oFlOVz5wrBLUSYxAbKGE9Co-yvT8f9lePsx7wJwPVugS9186zdhr1T4UpkpXvq9ii5M-nWfrydMnllSkowH4LirRZsHbvRVSvDoH_uh80p6HpwqDSG3g4Nwx5q0GD3H-ne4vwXMuwWAHd","permitRequests":[{"type":"ERC20","userWalletAddress":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266","userId":106303466,"amount":1,"evmNetworkId":31337,"tokenAddress":"0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d","nonce":"0x123"}]}}'
 ```

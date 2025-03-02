@@ -15,15 +15,13 @@ export async function generatePayoutPermit(context: Context, _permitRequests: Pe
   const permits: PermitReward[] = [];
   try {
     const { permitRequests, evmPrivateEncrypted } = context.config;
-    const { supabase } = context.adapters;
-
     logger.info(`Generating ${permitRequests.length} permits`);
+
     for (const permitRequest of permitRequests) {
       logger.info("Generating permit for: ", permitRequest);
-      const { amount, userId, nonce, evmNetworkId, tokenAddress, type: permitType } = permitRequest;
-      const walletAddress = await supabase.wallet.getWalletByUserId(userId);
-      if (!walletAddress) {
-        throw new Error(`Wallet not found for user with id ${userId}`);
+      const { amount, userId, nonce, evmNetworkId, tokenAddress, type: permitType, userWalletAddress } = permitRequest;
+      if (!userWalletAddress) {
+        throw new Error(logger.error(`No userWalletAddress provided for permit request: ${JSON.stringify(permitRequest)}`).logMessage.raw);
       }
 
       switch (permitType) {
@@ -36,7 +34,7 @@ export async function generatePayoutPermit(context: Context, _permitRequests: Pe
               nonce,
               tokenAddress,
               userId,
-              walletAddress,
+              userWalletAddress,
               x25519privateKey: context.env.X25519_PRIVATE_KEY,
             })
           );
@@ -48,7 +46,7 @@ export async function generatePayoutPermit(context: Context, _permitRequests: Pe
             await generateErc721Permit({
               env: context.env,
               permitRequest,
-              walletAddress,
+              userWalletAddress,
             })
           );
           logger.ok("Generated ERC721 permit", { permit: permits[permits.length - 1] });

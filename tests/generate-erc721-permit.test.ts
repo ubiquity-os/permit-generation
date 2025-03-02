@@ -1,10 +1,10 @@
 import { MaxUint256 } from "@uniswap/permit2-sdk";
 import { Wallet, utils, TypedDataDomain, TypedDataField } from "ethers";
 import { Context } from "../src/types/context";
-import { cypherText, mockContext, NFT_CONTRACT_ADDRESS, SPENDER } from "./constants";
+import { cypherText, mockContext, NFT_CONTRACT_ADDRESS, WALLET_ADDRESS } from "./constants";
 import { describe, expect, it, beforeEach, afterEach, jest } from "@jest/globals";
 import { generateErc721Permit } from "../src/handlers/generate-erc721-permit";
-import { generatePayoutPermit } from "../src";
+import { generatePayoutPermit, PermitRequest } from "../src";
 import "@supabase/supabase-js";
 import { logger } from "../src/helpers/logger";
 
@@ -35,6 +35,7 @@ describe("generateErc721PermitSignature", () => {
             tokenAddress: NFT_CONTRACT_ADDRESS,
             type: "ERC721",
             userId: 123,
+            userWalletAddress: WALLET_ADDRESS,
             erc721Request: {
               contributionType: "contribution",
               keys: ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_NODE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"],
@@ -61,8 +62,6 @@ describe("generateErc721PermitSignature", () => {
         },
       },
     } as unknown as Context;
-    (context.adapters.supabase.wallet.getWalletByUserId as jest.Mock).mockReturnValue(SPENDER);
-    (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(userId);
     jest
       .spyOn(Wallet.prototype, "_signTypedData")
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -85,7 +84,7 @@ describe("generateErc721PermitSignature", () => {
     const result = await generateErc721Permit({
       env: context.env,
       permitRequest: context.config.permitRequests[0],
-      walletAddress: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
+      userWalletAddress: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
     });
 
     const organizationName = "test";
@@ -117,7 +116,7 @@ describe("generateErc721PermitSignature", () => {
       generateErc721Permit({
         env: context.env,
         permitRequest: context.config.permitRequests[0],
-        walletAddress: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
+        userWalletAddress: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
       })
     ).rejects.toThrow("Failed to get fastest provider for networkId: 0");
   });
@@ -129,7 +128,7 @@ describe("generateErc721PermitSignature", () => {
       generateErc721Permit({
         env: context.env,
         permitRequest: context.config.permitRequests[0],
-        walletAddress: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
+        userWalletAddress: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
       })
     ).rejects.toThrow("NFT Minter Private Key not found");
     expect(loggerSpy).toHaveBeenCalledWith("NFT Minter Private Key not found");
@@ -137,63 +136,57 @@ describe("generateErc721PermitSignature", () => {
 
   it("should throw an error if NFT contract address is not defined", async () => {
     const loggerSpy = jest.spyOn(logger, "error");
-
     context.env.NFT_CONTRACT_ADDRESS = null as unknown as string;
+
     await expect(
       generateErc721Permit({
         env: context.env,
         permitRequest: context.config.permitRequests[0],
-        walletAddress: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
+        userWalletAddress: "0xefC0e701A824943b469a694aC564Aa1efF7Ab7dd",
       })
     ).rejects.toThrow("NFT Address not found");
     expect(loggerSpy).toHaveBeenCalledWith("NFT Address not found");
   });
 
   it("should throw an error if no wallet found for user", async () => {
-    (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(null);
-    (context.adapters.supabase.wallet.getWalletByUserId as jest.Mock).mockReturnValue(null);
-
     context.config.evmPrivateEncrypted = cypherText;
 
-    (context.adapters.supabase.user.getUserIdByWallet as jest.Mock).mockReturnValue(null);
+    const permitRequest = {
+      type: "ERC721",
+      evmNetworkId: 100,
+      nonce: "123",
+      tokenAddress: NFT_CONTRACT_ADDRESS,
+      userId: 123,
+      amount: 1,
+      erc721Request: {
+        contributionType: "contribution",
+        keys: ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_NODE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"],
+        values: ["test", "test", "123", "123", "contribution"],
+        metadata: {
+          GITHUB_CONTRIBUTION_TYPE: "contribution",
+          GITHUB_ISSUE_NODE_ID: "123",
+          GITHUB_ORGANIZATION_NAME: "test",
+          GITHUB_REPOSITORY_NAME: "test",
+          GITHUB_USERNAME: "123",
+        },
+      },
+    } as unknown as PermitRequest;
 
     await expect(
       generatePayoutPermit(
         {
           config: {
             evmPrivateEncrypted: cypherText,
-            permitRequests: [
-              {
-                type: "ERC721",
-                evmNetworkId: 100,
-                nonce: "123",
-                tokenAddress: NFT_CONTRACT_ADDRESS,
-                userId: 123,
-                amount: 1,
-                erc721Request: {
-                  contributionType: "contribution",
-                  keys: ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_NODE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"],
-                  values: ["test", "test", "123", "123", "contribution"],
-                  metadata: {
-                    GITHUB_CONTRIBUTION_TYPE: "contribution",
-                    GITHUB_ISSUE_NODE_ID: "123",
-                    GITHUB_ORGANIZATION_NAME: "test",
-                    GITHUB_REPOSITORY_NAME: "test",
-                    GITHUB_USERNAME: "123",
-                  },
-                },
-              },
-            ],
+            permitRequests: [permitRequest],
           },
           env: context.env,
           adapters: context.adapters,
         } as Context,
         []
       )
-    ).rejects.toThrow("Wallet not found for user with id 123");
-    expect(context.logger.error).toHaveBeenCalledWith("Failed to generate permit: ", {
-      caller: "_Logs.<anonymous>",
-      er: "Error: Wallet not found for user with id 123",
-    });
+    ).rejects.toThrow(`No userWalletAddress provided for permit request: ${JSON.stringify({ ...permitRequest, caller: "info" })}`);
+    expect(context.logger.error).toHaveBeenCalledWith(
+      `No userWalletAddress provided for permit request: ${JSON.stringify({ ...permitRequest, caller: "info" })}`
+    );
   });
 });

@@ -6,7 +6,7 @@ import { getTokenDecimals } from "./get-token-decimals";
 import { logger } from "../../helpers/logger";
 
 export async function getPermitSignatureDetails({
-  walletAddress,
+  userWalletAddress,
   nonce,
   evmNetworkId,
   evmPrivateEncrypted,
@@ -15,7 +15,7 @@ export async function getPermitSignatureDetails({
   amount,
   x25519privateKey,
 }: {
-  walletAddress: string | null | undefined;
+  userWalletAddress: string | null | undefined;
   nonce: string;
   evmNetworkId: number;
   evmPrivateEncrypted: string;
@@ -24,7 +24,7 @@ export async function getPermitSignatureDetails({
   amount: number;
   x25519privateKey: string;
 }) {
-  if (!walletAddress) {
+  if (!userWalletAddress) {
     throw new Error(logger.error("ERC20 Permit generation error: Wallet not found").logMessage.raw);
   }
 
@@ -38,7 +38,7 @@ export async function getPermitSignatureDetails({
       token: tokenAddress,
       amount: utils.parseUnits(amount.toString(), tokenDecimals),
     },
-    spender: walletAddress,
+    spender: userWalletAddress,
     nonce: BigInt(utils.keccak256(utils.toUtf8Bytes(`${userId}-${nonce}`))),
     deadline: MaxUint256,
   };

@@ -24,6 +24,7 @@ export const mockContext = {
         evmNetworkId: 100,
         tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
         userId: 123,
+        userWalletAddress: WALLET_ADDRESS,
       },
     ],
   } as Context["config"],

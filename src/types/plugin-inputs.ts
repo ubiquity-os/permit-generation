@@ -18,6 +18,7 @@ const permitRequestSchema = T.Union(
     T.Object({
       type: T.Literal("ERC20"),
       userId: T.Number(),
+      userWalletAddress: T.String(),
       amount: T.Number({ minimum: 1 }),
       evmNetworkId: T.Number(),
       tokenAddress: T.String(),
@@ -26,6 +27,7 @@ const permitRequestSchema = T.Union(
     T.Object({
       type: T.Literal("ERC721"),
       userId: T.Number(),
+      userWalletAddress: T.String(),
       amount: T.Number({ maximum: 1, minimum: 1, default: 1 }),
       evmNetworkId: T.Number(),
       tokenAddress: T.String(),

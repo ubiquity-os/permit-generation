@@ -29,7 +29,7 @@ export async function getErc721SignatureDetails({
   evmNetworkId,
   nftMinterPrivateKey,
   userId,
-  walletAddress,
+  userWalletAddress,
   nonce,
   organizationName,
   repositoryName,
@@ -40,7 +40,7 @@ export async function getErc721SignatureDetails({
   evmNetworkId: number;
   nftMinterPrivateKey: string | undefined;
   userId: number;
-  walletAddress: string;
+  userWalletAddress: string;
   nonce: string;
   organizationName: string;
   repositoryName: string;
@@ -74,7 +74,7 @@ export async function getErc721SignatureDetails({
 
   const metadata = Object.entries(erc721Metadata);
   const erc721SignatureData: Erc721PermitSignatureData = {
-    beneficiary: walletAddress,
+    beneficiary: userWalletAddress,
     deadline: MaxUint256.toBigInt(),
     keys: metadata.map(([key]) => utils.keccak256(utils.toUtf8Bytes(key))),
     nonce: BigInt(utils.keccak256(utils.toUtf8Bytes(`${userId}-${nonce}`))),
