@@ -27,7 +27,6 @@ export function validateAndDecodeSchemas(rawEnv: object, rawSettings: object) {
 
   const permits = settings.permitRequests;
 
-  console.log("permits", permits);
 
   for (const permit of permits) {
     if (!permitRequestValidator.test(permit)) {
