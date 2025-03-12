@@ -45,7 +45,6 @@ export function validateAndDecodeSchemas(rawEnv: object, rawSettings: object) {
     const decodedEnv = Value.Decode(envSchema, rawEnv || {});
     return { decodedEnv, decodedSettings };
   } catch (e) {
-    console.error("validateAndDecodeSchemas", e);
     if (e instanceof TransformDecodeCheckError || e instanceof TransformDecodeError) {
       throw { errors: [e.error] };
     }
