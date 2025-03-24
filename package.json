@@ -20,6 +20,7 @@
     "knip-ci": "knip --no-exit-code --reporter json --config .github/knip.ts",
     "prepare": "husky install",
     "test": "jest --coverage",
+    "test:anvil": "npx tsx tests/utils/anvil.ts",
     "build": "tsup",
     "worker": "wrangler dev --env dev --port 4000"
   },
