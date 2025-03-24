@@ -2,6 +2,7 @@ import sodium from "libsodium-wrappers";
 import { scalarMult, box } from "tweetnacl";
 import tweetnaclUtil from "tweetnacl-util";
 import blake2b from "blake2b";
+import { logger } from "../helpers/logger";
 
 function deriveNonce(epk: Uint8Array, recipientPubKey: Uint8Array) {
   return blake2b(24).update(epk).update(recipientPubKey).digest();
@@ -15,13 +16,11 @@ function deriveNonce(epk: Uint8Array, recipientPubKey: Uint8Array) {
  */
 export async function decrypt(encryptedText: string, x25519PrivateKey: string) {
   if (!x25519PrivateKey) {
-    console.warn("X25519_PRIVATE_KEY is not defined");
-    throw new Error("X25519_PRIVATE_KEY is not defined");
+    throw logger.error("X25519_PRIVATE_KEY is not defined");
   }
 
   if (!encryptedText) {
-    console.warn("Encrypted text is not defined");
-    throw new Error("Encrypted text is not defined");
+    throw logger.error("Encrypted text is not defined");
   }
 
   if (process.env.NODE_ENV === "test") {
@@ -44,7 +43,7 @@ export async function decrypt(encryptedText: string, x25519PrivateKey: string) {
     return { privateKey: decryptedText, publicKey: publicKey };
   }
 
-  throw new Error("Failed to decrypt message");
+  throw logger.error("Failed to decrypt message");
 }
 
 /**

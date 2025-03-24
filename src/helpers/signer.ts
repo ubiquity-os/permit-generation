@@ -7,12 +7,10 @@ export async function getPrivateKey(evmPrivateEncrypted: string, x25519privateKe
     const { privateKey: privateKeyDecrypted } = await decrypt(evmPrivateEncrypted, x25519privateKey);
     const privateKeyParsed = parseDecryptedPrivateKey(privateKeyDecrypted);
     const privateKey = privateKeyParsed.privateKey;
-    if (!privateKey) throw new Error("Private key is not defined");
+    if (!privateKey) throw logger.error("[getPrivateKey] - Private key is not defined");
     return privateKey;
   } catch (error) {
-    const errorMessage = `[getPrivateKey] - Failed to decrypt a private key: ${error}`;
-    logger.error(errorMessage);
-    throw new Error(errorMessage);
+    throw logger.error(`[getPrivateKey] - Failed to decrypt a private key`, { e: error });
   }
 }
 
@@ -20,8 +18,6 @@ export async function getAdminWallet(privateKey: string, provider: ethers.provid
   try {
     return new ethers.Wallet(privateKey, provider);
   } catch (error) {
-    const errorMessage = `Failed to instantiate wallet: ${error}`;
-    logger.debug(errorMessage);
-    throw new Error(errorMessage);
+    throw logger.warn(`[getAdminWallet] - Failed to instantiate wallet`, { e: error });
   }
 }
