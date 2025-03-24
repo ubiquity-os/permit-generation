@@ -21,7 +21,7 @@ export async function generatePayoutPermit(context: Context, _permitRequests: Pe
       logger.info("Generating permit for: ", permitRequest);
       const { amount, userId, nonce, evmNetworkId, tokenAddress, type: permitType, userWalletAddress } = permitRequest;
       if (!userWalletAddress) {
-        throw new Error(logger.error(`No userWalletAddress provided for permit request: ${JSON.stringify(permitRequest)}`).logMessage.raw);
+        throw logger.error(`No userWalletAddress provided for permit request: ${JSON.stringify(permitRequest)}`);
       }
 
       switch (permitType) {
@@ -52,17 +52,13 @@ export async function generatePayoutPermit(context: Context, _permitRequests: Pe
           logger.ok("Generated ERC721 permit", { permit: permits[permits.length - 1] });
           break;
         default:
-          throw new Error(logger.error(`Invalid permit type: ${permitType}`).logMessage.raw);
+          throw logger.error(`Invalid permit type: ${permitType}`);
       }
     }
 
-    logger.info(`Generated ${permits.length} permits`);
+    logger.info(`Generated ${permits.length} permits`, { permits });
   } catch (error) {
-    logger.error(`Failed to generate permit: `, { er: String(error) });
-    throw error;
+    throw logger.error(`Failed to generate permit: `, { er: error });
   }
-
-  logger.info("Generated permits: ", { permits });
-
   return permits;
 }

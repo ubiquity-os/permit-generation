@@ -22,7 +22,7 @@ export async function generateErc20Permit({
   x25519privateKey: string;
 }) {
   if (!evmPrivateEncrypted) {
-    throw new Error(logger.error("Failed to decrypt a private key: TypeError: input cannot be null or undefined").logMessage.raw);
+    throw logger.error("Failed to decrypt evmPrivateEncrypted: input cannot be null or undefined");
   }
   try {
     const { adminWallet, permitTransferFromData, domain, types, values } = await getPermitSignatureDetails({
@@ -48,7 +48,6 @@ export async function generateErc20Permit({
       networkId: evmNetworkId,
     } as const;
   } catch (error) {
-    logger.error(`Failed to sign typed data: ${String(error)}`);
-    throw error;
+    throw logger.error(`Failed to sign typed data`, { e: error });
   }
 }

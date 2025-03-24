@@ -12,7 +12,7 @@ export async function generateErc721Permit({
   env: Context["env"];
 }) {
   if (permitRequest.type !== "ERC721") {
-    throw new Error(`Tried to generate ERC721 permit with invalid type: ${permitRequest.type}`);
+    throw logger.error(`Tried to generate ERC721 permit with invalid type: ${permitRequest.type}`);
   }
 
   const {
@@ -59,6 +59,6 @@ export async function generateErc721Permit({
       },
     } as const;
   } catch (error) {
-    throw logger.error(`Failed to sign typed data: ${String(error)}`).logMessage.raw;
+    throw logger.error(`Failed to sign typed data`, { e: error });
   }
 }
