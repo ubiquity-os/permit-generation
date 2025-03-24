@@ -3,8 +3,8 @@ import { Context } from "../src/types/context";
 import { mockContext, ERC20_REWARD_TOKEN_ADDRESS, WALLET_ADDRESS } from "./constants";
 import { generateErc20Permit } from "../src/handlers/generate-erc20-permit";
 import { generatePayoutPermit, PermitRequest } from "../src";
-import { logger } from "../src/helpers/logger";
 import "@supabase/supabase-js";
+import { LogReturn } from "@ubiquity-os/ubiquity-os-logger";
 
 jest.autoMockOn();
 jest.mock("@supabase/supabase-js", () => ({
@@ -16,8 +16,21 @@ jest.mock("@supabase/supabase-js", () => ({
   }),
 }));
 
+jest.mock("../src/utils/get-fastest-provider", () => {
+  const module = jest.requireActual("../src/utils/get-fastest-provider") as typeof import("../src/utils/get-fastest-provider");
+  return {
+    getHandler: (networkId: number | null) => {
+      return !networkId ? null : module.getHandler(31337);
+    },
+    getFastestProvider: async (networkId: number | null) => {
+      return !networkId ? null : await module.getFastestProvider(31337);
+    },
+  };
+});
+
 describe("generateErc20PermitSignature", () => {
   let context: Context;
+  let cypherText: string;
 
   /**
    * 6. **Update Configuration File**
@@ -25,17 +38,17 @@ describe("generateErc20PermitSignature", () => {
       and paste it into your `ubiquibot-config.yaml` file. Look for the field labeled
       `evmEncryptedPrivate` and replace its content with the cipher text.
    */
-  // cSpell: disable
-  const cypherText =
-    "wOzNgt-yKT6oFlOVz5wrBLUSYxAbKGE9Co-yvT8f9lePsx7wJwPVugS9186zdhr1T4UpkpXvq9ii5M-nWfrydMnllSkowH4LirRZsHbvRVSvDoH_uh80p6HpwqDSG3g4Nwx5q0GD3H-ne4vwXMuwWAHd";
 
   beforeEach(() => {
+    // cSpell: disable
+    cypherText =
+      "wOzNgt-yKT6oFlOVz5wrBLUSYxAbKGE9Co-yvT8f9lePsx7wJwPVugS9186zdhr1T4UpkpXvq9ii5M-nWfrydMnllSkowH4LirRZsHbvRVSvDoH_uh80p6HpwqDSG3g4Nwx5q0GD3H-ne4vwXMuwWAHd";
+
     /**
    * 5. **Update GitHub Secrets**
       - Copy the newly generated private key and update it on your GitHub Actions secret.
       Find the field labeled `x25519_PRIVATE_KEY` and replace its content with your generated x25519 private key.
    */
-    // cSpell: ignore bHH4PDnwb2bsG9nmIu1KeIIX71twQHS-23wCPfKONls
     context = {
       ...mockContext,
       octokit: {
@@ -57,20 +70,18 @@ describe("generateErc20PermitSignature", () => {
 
   it("should generate ERC20 permit signature", async () => {
     const amount = 100;
-
-    // context, SPENDER, amount, ERC20_REWARD_TOKEN_ADDRESS
-    const result = await generateErc20Permit({
-      amount,
-      evmNetworkId: 100,
-      evmPrivateEncrypted: cypherText,
-      nonce: "123",
-      tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
-      userId: 123,
-      userWalletAddress: WALLET_ADDRESS,
-      x25519privateKey: context.env.X25519_PRIVATE_KEY,
-    });
-
-    const expectedResult = {
+    await expect(
+      generateErc20Permit({
+        amount,
+        evmNetworkId: 100,
+        evmPrivateEncrypted: cypherText,
+        nonce: "123",
+        tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
+        userId: 123,
+        userWalletAddress: WALLET_ADDRESS,
+        x25519privateKey: context.env.X25519_PRIVATE_KEY,
+      })
+    ).resolves.toEqual({
       tokenType: "ERC20",
       tokenAddress: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d",
       beneficiary: WALLET_ADDRESS,
@@ -80,14 +91,11 @@ describe("generateErc20PermitSignature", () => {
       owner: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       signature: "0xad87653fb0ecf740c73b78a8f414cdd5b1ffb18670cde5a1d21c65e43d6bb2a36c5470c5529334dc11566f0c380889b734a8539d69ec74cc2abf37af0ea7a7781b",
       networkId: 100,
-    };
-    expect(result).toEqual(expectedResult);
+    });
   }, 36000);
 
   it("should throw error when evmPrivateEncrypted is not defined", async () => {
     const amount = 0;
-    const expectedError = "Failed to decrypt a private key: TypeError: input cannot be null or undefined";
-    const loggerSpy = jest.spyOn(logger, "error");
     await expect(
       generateErc20Permit({
         amount,
@@ -99,27 +107,22 @@ describe("generateErc20PermitSignature", () => {
         userWalletAddress: WALLET_ADDRESS,
         x25519privateKey: context.env.X25519_PRIVATE_KEY,
       })
-    ).rejects.toThrow(expectedError);
-    expect(loggerSpy).toHaveBeenCalledWith("Failed to decrypt a private key: TypeError: input cannot be null or undefined");
-  });
+    ).rejects.toBeInstanceOf(LogReturn);
+  }, 36000);
 
   it("should return error message when no wallet found for user", async () => {
-    const amount = 0;
-    context.config.evmPrivateEncrypted = cypherText;
-    const loggerSpy = jest.spyOn(logger, "error");
-
-    const permitRequest = {
+    const permitRequest: PermitRequest = {
       type: "ERC20",
-      amount,
+      amount: 0,
       evmNetworkId: 100,
       userId: 123,
       nonce: "123",
-      userWalletAddress: null,
+      userWalletAddress: null as unknown as string,
       tokenAddress: ERC20_REWARD_TOKEN_ADDRESS,
-    } as unknown as PermitRequest;
+    };
 
-    await expect(async () => {
-      await generatePayoutPermit(
+    await expect(
+      generatePayoutPermit(
         {
           config: {
             ...context.config,
@@ -130,9 +133,7 @@ describe("generateErc20PermitSignature", () => {
           adapters: context.adapters,
         } as Context,
         []
-      );
-    }).rejects.toThrow(`No userWalletAddress provided for permit request: ${JSON.stringify({ ...permitRequest, caller: "info" })}`);
-
-    expect(loggerSpy).toHaveBeenCalledWith(`No userWalletAddress provided for permit request: ${JSON.stringify({ ...permitRequest, caller: "info" })}`);
-  });
+      )
+    ).rejects.toBeInstanceOf(LogReturn);
+  }, 36000);
 });

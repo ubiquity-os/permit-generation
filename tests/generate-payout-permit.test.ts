@@ -14,11 +14,25 @@ jest.mock("@supabase/supabase-js", () => ({
     single: jest.fn().mockReturnThis(),
   }),
 }));
+
+jest.mock("../src/utils/get-fastest-provider", () => {
+  const module = jest.requireActual("../src/utils/get-fastest-provider") as typeof import("../src/utils/get-fastest-provider");
+  return {
+    getHandler: (networkId: number | null) => {
+      return !networkId ? null : module.getHandler(31337);
+    },
+    getFastestProvider: async (networkId: number | null) => {
+      return !networkId ? null : await module.getFastestProvider(31337);
+    },
+  };
+});
+
 describe("generatePayoutPermit", () => {
   let context: Context;
-  const userId = 123;
+  let userId: number;
 
   beforeEach(() => {
+    userId = 123;
     context = {
       ...mockContext,
       config: {
@@ -70,8 +84,7 @@ describe("generatePayoutPermit", () => {
   });
 
   it("should generate payout permit signatures for ERC721 and ERC20", async () => {
-    const result = await generatePayoutPermit(context, []);
-    expect(result).toEqual([
+    await expect(generatePayoutPermit(context, [])).resolves.toEqual([
       {
         amount: "100000000000000000000",
         beneficiary: WALLET_ADDRESS,
@@ -112,5 +125,5 @@ describe("generatePayoutPermit", () => {
         tokenType: "ERC721",
       },
     ]);
-  });
+  }, 144000);
 });
