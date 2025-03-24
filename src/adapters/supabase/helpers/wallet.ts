@@ -11,8 +11,7 @@ export class Wallet extends Super {
   async getWalletByUserId(userId: number) {
     const { data, error } = await this.supabase.from("users").select("wallets(*)").eq("id", userId).single();
     if (error) {
-      logger.error("Failed to get wallet", { userId, er: error });
-      throw error;
+      throw logger.error("Failed to get wallet", { userId, er: error });
     }
 
     logger.ok("Successfully fetched wallet", { userId, address: data.wallets?.address });
@@ -23,15 +22,13 @@ export class Wallet extends Super {
     const { error: walletError, data } = await this.supabase.from("wallets").upsert([{ address }]).select().single();
 
     if (walletError) {
-      logger.error("Failed to upsert wallet", { userId, address, walletError });
-      throw walletError;
+      throw logger.error("Failed to upsert wallet", { userId, address, walletError });
     }
 
     const { error: userError } = await this.supabase.from("users").upsert([{ id: userId, wallet_id: data.id }]);
 
     if (userError) {
-      logger.error("Failed to upsert user with new wallet", { userId, address, userError });
-      throw userError;
+      throw logger.error("Failed to upsert user with new wallet", { userId, address, userError });
     }
 
     logger.ok("Successfully upsert wallet", { userId, address });
