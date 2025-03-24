@@ -8,7 +8,7 @@ const config: KnipConfig = {
   // eslint can also be safely ignored as per the docs: https://knip.dev/guides/handling-issues#eslint--jest
   ignoreDependencies: ["@mswjs/data", "@typescript-eslint/eslint-plugin", "@typescript-eslint/parser", "ts-node", "node"],
   eslint: true,
-  ignoreBinaries: ["publish"],
+  ignoreBinaries: ["publish", "tsx"],
 };
 
 export default config;
