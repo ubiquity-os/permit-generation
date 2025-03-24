@@ -42,6 +42,12 @@ General remarks:
 1. Verify that the `task.id` exists on GitHub. If not, throw an error. If it is `null` then skip this validation.
 1. Record all the results in our database. `public.permits`
 
+### Testing
+
+1. Fill in the `X25519_PRIVATE_KEY` in the `.env` file.
+2. Run `bun test:anvil` to start the anvil server.
+3. Run `bun run test` to run the tests.
+
 ### Return
 
 Return value should just be an array of generated permits. A separate module can convert them into URLs for pay.ubq.fi.
@@ -56,7 +62,7 @@ Generate a permit:
 
 1. Terminal A: `bun worker`
 2. Set your `X25519_PRIVATE_KEY` to the same one used in the tests.
-3. Terminal B: Start anvil: `anvil --fork-url https://rpc.gnosis.gateway.fm --chain-id 31337`
+3. Terminal B: Start anvil: `yarn test:anvil`
 4. Terminal C: run the following command:
 
 ```
