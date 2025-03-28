@@ -15,7 +15,7 @@ jobs:
         with:
           treatAsEsm: true
           sourcemap: true
-          pluginEntry: "${{ github.workspace }}/src/action.ts"
+          pluginEntry: "${{ github.workspace }}/src/worker.ts"
         env:
           APP_ID: ${{ secrets.APP_ID }}
           APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
