@@ -2,7 +2,7 @@ import { Octokit } from "@octokit/rest";
 import { EmitterWebhookEvent as WebhookEvent, EmitterWebhookEventName as WebhookEventName } from "@octokit/webhooks";
 import { Env } from "./env";
 import { Logs } from "@ubiquity-os/ubiquity-os-logger";
-import { PermitGenerationSettings } from "./plugin-inputs";
+import { PermitGenerationSettings } from "./plugin-input";
 import { createAdapters } from "../adapters";
 
 export type SupportedEventsU = "issue_comment.created" | "workflow_dispatch" | "pull_request.closed" | "issues.closed";
