@@ -51,11 +51,11 @@ const permitRequestSchema = T.Union(
 
 export type PermitRequest = StaticDecode<typeof permitRequestSchema>;
 
-export const permitGenerationSettingsSchema = T.Object({
+export const pluginSettingsSchema = T.Object({
   evmPrivateEncrypted: T.String(),
   permitRequests: T.Array(permitRequestSchema),
 });
 
-export type PermitGenerationSettings = StaticDecode<typeof permitGenerationSettingsSchema>;
-export const permitGenerationSettingsValidator = new StandardValidator(permitGenerationSettingsSchema);
+export type PermitGenerationSettings = StaticDecode<typeof pluginSettingsSchema>;
+export const permitGenerationSettingsValidator = new StandardValidator(pluginSettingsSchema);
 export const permitRequestValidator = new DiscriminatedUnionValidator(permitRequestSchema);

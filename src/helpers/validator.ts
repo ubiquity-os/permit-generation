@@ -1,5 +1,5 @@
 import { TransformDecodeCheckError, TransformDecodeError, Value, ValueError } from "@sinclair/typebox/value";
-import { Env, envSchema, envValidator, PermitGenerationSettings, permitGenerationSettingsSchema, permitRequestValidator } from "../types";
+import { Env, envSchema, envValidator, PermitGenerationSettings, pluginSettingsSchema, permitRequestValidator } from "../types";
 
 export function validateAndDecodeSchemas(rawEnv: object, rawSettings: object) {
   const errors: ValueError[] = [];
@@ -13,13 +13,13 @@ export function validateAndDecodeSchemas(rawEnv: object, rawSettings: object) {
     }
   }
 
-  const settings = Value.Default(permitGenerationSettingsSchema, rawSettings) as PermitGenerationSettings;
+  const settings = Value.Default(pluginSettingsSchema, rawSettings) as PermitGenerationSettings;
 
   if (!settings.evmPrivateEncrypted) {
     errors.push({
       message: "evmPrivateEncrypted is required",
       path: "/evmPrivateEncrypted",
-      schema: permitGenerationSettingsSchema,
+      schema: pluginSettingsSchema,
       type: 0,
       value: settings.evmPrivateEncrypted,
     });
@@ -40,7 +40,7 @@ export function validateAndDecodeSchemas(rawEnv: object, rawSettings: object) {
   }
 
   try {
-    const decodedSettings = Value.Decode(permitGenerationSettingsSchema, settings);
+    const decodedSettings = Value.Decode(pluginSettingsSchema, settings);
     const decodedEnv = Value.Decode(envSchema, rawEnv || {});
     return { decodedEnv, decodedSettings };
   } catch (e) {
