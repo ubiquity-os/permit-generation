@@ -1,5 +1,124 @@
 {
   "name": "permit-generation",
   "description": "Uses Permit2 to create reward permits.",
-  "ubiquity:listeners": []
+  "ubiquity:listeners": [],
+  "configuration": {
+    "type": "object",
+    "properties": {
+      "evmPrivateEncrypted": {
+        "type": "string"
+      },
+      "permitRequests": {
+        "type": "array",
+        "items": {
+          "discriminantKey": "type",
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "ERC20",
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "number"
+                },
+                "userWalletAddress": {
+                  "type": "string"
+                },
+                "amount": {
+                  "minimum": 1,
+                  "type": "number"
+                },
+                "evmNetworkId": {
+                  "type": "number"
+                },
+                "tokenAddress": {
+                  "type": "string"
+                },
+                "nonce": {
+                  "type": "string"
+                }
+              },
+              "required": ["type", "userId", "userWalletAddress", "amount", "evmNetworkId", "tokenAddress", "nonce"]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "ERC721",
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "number"
+                },
+                "userWalletAddress": {
+                  "type": "string"
+                },
+                "amount": {
+                  "maximum": 1,
+                  "minimum": 1,
+                  "default": 1,
+                  "type": "number"
+                },
+                "evmNetworkId": {
+                  "type": "number"
+                },
+                "tokenAddress": {
+                  "type": "string"
+                },
+                "nonce": {
+                  "type": "string"
+                },
+                "erc721Request": {
+                  "type": "object",
+                  "properties": {
+                    "contributionType": {
+                      "type": "string"
+                    },
+                    "keys": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "values": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "GITHUB_ORGANIZATION_NAME": {
+                          "type": "string"
+                        },
+                        "GITHUB_REPOSITORY_NAME": {
+                          "type": "string"
+                        },
+                        "GITHUB_ISSUE_NODE_ID": {
+                          "type": "string"
+                        },
+                        "GITHUB_USERNAME": {
+                          "type": "string"
+                        },
+                        "GITHUB_CONTRIBUTION_TYPE": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["GITHUB_ORGANIZATION_NAME", "GITHUB_REPOSITORY_NAME", "GITHUB_ISSUE_NODE_ID", "GITHUB_USERNAME", "GITHUB_CONTRIBUTION_TYPE"]
+                    }
+                  },
+                  "required": ["contributionType", "keys", "values", "metadata"]
+                }
+              },
+              "required": ["type", "userId", "userWalletAddress", "evmNetworkId", "tokenAddress", "nonce", "erc721Request"]
+            }
+          ]
+        }
+      }
+    },
+    "required": ["evmPrivateEncrypted", "permitRequests"]
+  }
 }
