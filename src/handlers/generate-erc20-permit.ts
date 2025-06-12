@@ -3,7 +3,7 @@ import { ethers, utils } from "ethers";
 import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
 import { decrypt, parseDecryptedPrivateKey } from "../utils";
-import { getFastestProvider } from "../utils/get-fastest-provider";
+import { getRpcProvider } from "../utils/get-fastest-provider";
 
 export interface Payload {
   evmNetworkId: number;
@@ -68,7 +68,7 @@ export async function generateErc20PermitSignature(
     throw new Error(errorMessage);
   }
 
-  const provider = await getFastestProvider(evmNetworkId);
+  const provider = await getRpcProvider(evmNetworkId);
   if (!provider) {
     logger.error("Provider is not defined");
     throw new Error("Provider is not defined");

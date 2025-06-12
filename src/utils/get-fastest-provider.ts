@@ -1,28 +1,9 @@
-import { RPCHandler, HandlerConstructorConfig } from "@ubiquity-dao/rpc-handler";
-import { providers } from "ethers";
+import { ethers, providers } from "ethers";
 
-function getHandler(networkId: number | string) {
-  const config = {
-    networkId,
-    autoStorage: false,
-    cacheRefreshCycles: 5,
-    rpcTimeout: 1500,
-    networkName: null,
-    runtimeRpcs: null,
-    networkRpcs: null,
-    proxySettings: {
-      retryCount: 5,
-    },
-  };
-
-  return new RPCHandler(config as HandlerConstructorConfig);
-}
-
-export async function getFastestProvider(networkId: number | string): Promise<providers.JsonRpcProvider> {
+export async function getRpcProvider(networkId: number | string): Promise<providers.JsonRpcProvider> {
   try {
-    const handler = getHandler(networkId);
-    return await handler.getFastestRpcProvider();
+    return new ethers.providers.JsonRpcProvider(`https://rpc.ubq.fi/${networkId}`);
   } catch (e) {
-    throw new Error(`Failed to get fastest provider for networkId: ${networkId}`);
+    throw new Error(`Failed to get provider for networkId: ${networkId}`);
   }
 }

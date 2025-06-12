@@ -3,7 +3,7 @@ import { Wallet, utils } from "ethers";
 import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
 import { isIssueEvent } from "../types/typeguards";
-import { getFastestProvider } from "../utils/get-fastest-provider";
+import { getRpcProvider } from "../utils/get-fastest-provider";
 
 interface Erc721PermitSignatureData {
   beneficiary: string;
@@ -109,7 +109,7 @@ export async function generateErc721PermitSignature(
     _walletAddress = walletAddress;
   }
 
-  const provider = await getFastestProvider(_evmNetworkId);
+  const provider = await getRpcProvider(_evmNetworkId);
 
   if (!provider) {
     _logger.error("Provider is not defined");
