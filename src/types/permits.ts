@@ -24,7 +24,7 @@ interface Erc20PermitReward extends CommonFields {
 
 interface Erc721PermitReward extends CommonFields {
   tokenType: TokenType.ERC721;
-  amount: "0" | "1";
+  amount: 0 | 1 | BigNumberish;
   erc721Request?: {
     keys: string[];
     values: string[];

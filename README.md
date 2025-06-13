@@ -10,14 +10,14 @@
 The input should be an array of permit descriptors:
 
 ```typescript
-type PermitGenerationInput {
+type PermitGenerationInput = {
   username: string;
   amount: string;
   address: string;
   task: GitHubIssue | null;
   transfer: boolean;
   evmPrivateKeyEncrypted: string;
-}[]
+}[];
 ```
 
 ###### Remarks
@@ -42,6 +42,12 @@ General remarks:
 1. Verify that the `task.id` exists on GitHub. If not, throw an error. If it is `null` then skip this validation.
 1. Record all the results in our database. `public.permits`
 
+### Testing
+
+1. Fill in the `X25519_PRIVATE_KEY` in the `.env` file.
+2. Run `bun test:anvil` to start the anvil server.
+3. Run `bun run test` to run the tests.
+
 ### Return
 
 Return value should just be an array of generated permits. A separate module can convert them into URLs for pay.ubq.fi.
@@ -51,3 +57,14 @@ Return value should just be an array of generated permits. A separate module can
 [^2^]: We pass in the username for enhanced developer experience for plugin development. I believe it will be much easier to use GitHub usernames and let the system do the lookup.
 
 [^3^]: Mixed feelings on this lookup because it does not self encapsulate this module well. We already have an optional database write for the permit record, but this plugin WILL break if there is a database issue for reading the user's registered wallet, which can make testing and development more difficult here. The alternative is to pass in the user's wallet here, but then the kernel (or another plugin) needs to look up their wallet address (this seems like the better approach.)
+
+Generate a permit:
+
+1. Terminal A: `bun worker`
+2. Set your `X25519_PRIVATE_KEY` to the same one used in the tests.
+3. Terminal B: Start anvil: `yarn test:anvil`
+4. Terminal C: run the following command:
+
+```
+curl -X POST http://localhost:4000 -H "Content-Type: application/json" -d '{"settings":{"evmPrivateEncrypted":"wOzNgt-yKT6oFlOVz5wrBLUSYxAbKGE9Co-yvT8f9lePsx7wJwPVugS9186zdhr1T4UpkpXvq9ii5M-nWfrydMnllSkowH4LirRZsHbvRVSvDoH_uh80p6HpwqDSG3g4Nwx5q0GD3H-ne4vwXMuwWAHd","permitRequests":[{"type":"ERC20","userWalletAddress":"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266","userId":106303466,"amount":1,"evmNetworkId":31337,"tokenAddress":"0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d","nonce":"0x123"}]}}'
+```

@@ -1,0 +1,21 @@
+name: "Update Configuration and Build"
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  update:
+    name: "Update Configuration & Build"
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - uses: ubiquity-os/action-deploy-plugin@main
+        with:
+          treatAsEsm: true
+          sourcemap: true
+          pluginEntry: "${{ github.workspace }}/src/worker.ts"
+        env:
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}

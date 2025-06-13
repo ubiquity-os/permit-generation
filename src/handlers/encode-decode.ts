@@ -71,7 +71,7 @@ export function decodePermits(base64: string) {
     const tokenType = obj.type === "erc20-permit" ? TokenType.ERC20 : TokenType.ERC721;
     if (tokenType === TokenType.ERC721) {
       result.push({
-        amount: obj.permit.permitted.amount as "0" | "1",
+        amount: obj.permit.permitted.amount,
         beneficiary: obj.transferDetails.to,
         deadline: obj.permit.deadline,
         networkId: obj.networkId,

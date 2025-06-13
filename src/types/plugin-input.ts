@@ -1,8 +1,10 @@
 import { EmitterWebhookEvent as WebhookEvent, EmitterWebhookEventName as WebhookEventName } from "@octokit/webhooks";
-import { SupportedEvents } from "./context";
+import { SupportedEventsU } from "./context";
 import { StaticDecode, Type as T } from "@sinclair/typebox";
+import { DiscriminatedUnionValidator } from "typebox-validators/discriminated";
+import { StandardValidator } from "typebox-validators";
 
-export interface PluginInputs<T extends WebhookEventName = SupportedEvents> {
+export interface PluginInputs<T extends WebhookEventName = SupportedEventsU> {
   stateId: string;
   eventName: T;
   eventPayload: WebhookEvent<T>["payload"];
@@ -11,20 +13,49 @@ export interface PluginInputs<T extends WebhookEventName = SupportedEvents> {
   ref: string;
 }
 
-export const permitRequestSchema = T.Object({
-  type: T.Union([T.Literal("ERC20"), T.Literal("ERC721")]),
-  username: T.String(),
-  amount: T.Number(),
-  contributionType: T.String(),
-  tokenAddress: T.String(),
-});
+const permitRequestSchema = T.Union(
+  [
+    T.Object({
+      type: T.Literal("ERC20"),
+      userId: T.Number(),
+      userWalletAddress: T.String(),
+      amount: T.Number({ minimum: 1 }),
+      evmNetworkId: T.Number(),
+      tokenAddress: T.String(),
+      nonce: T.String(),
+    }),
+    T.Object({
+      type: T.Literal("ERC721"),
+      userId: T.Number(),
+      userWalletAddress: T.String(),
+      amount: T.Number({ maximum: 1, minimum: 1, default: 1 }),
+      evmNetworkId: T.Number(),
+      tokenAddress: T.String(),
+      nonce: T.String(),
+      erc721Request: T.Object({
+        contributionType: T.String(),
+        keys: T.Array(T.String()),
+        values: T.Array(T.String()),
+        metadata: T.Object({
+          GITHUB_ORGANIZATION_NAME: T.String(),
+          GITHUB_REPOSITORY_NAME: T.String(),
+          GITHUB_ISSUE_NODE_ID: T.String(),
+          GITHUB_USERNAME: T.String(),
+          GITHUB_CONTRIBUTION_TYPE: T.String(),
+        }),
+      }),
+    }),
+  ],
+  { discriminantKey: "type" }
+);
 
 export type PermitRequest = StaticDecode<typeof permitRequestSchema>;
 
-export const permitGenerationSettingsSchema = T.Object({
-  evmNetworkId: T.Number(),
+export const pluginSettingsSchema = T.Object({
   evmPrivateEncrypted: T.String(),
   permitRequests: T.Array(permitRequestSchema),
 });
 
-export type PermitGenerationSettings = StaticDecode<typeof permitGenerationSettingsSchema>;
+export type PermitGenerationSettings = StaticDecode<typeof pluginSettingsSchema>;
+export const permitGenerationSettingsValidator = new StandardValidator(pluginSettingsSchema);
+export const permitRequestValidator = new DiscriminatedUnionValidator(permitRequestSchema);

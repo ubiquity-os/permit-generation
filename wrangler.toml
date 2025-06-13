@@ -1,7 +1,18 @@
-name = "ubiquibot-worker"
+name = "ubiquity-os-permit-generation"
 main = "src/worker.ts"
-compatibility_date = "2023-08-25"
-node_compat = true
+compatibility_date = "2025-03-20"
+compatibility_flags = [ "nodejs_compat" ]
+
+[env.dev]
+[version_metadata]
+binding = "CLOUDFLARE_VERSION_METADATA"
+
+[env.prod]
+
+[observability]
+enabled = true
+
+
 
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
 # Note: Use secrets to store sensitive data.
