@@ -1,5 +1,7 @@
 import { BigNumberish } from "ethers";
 
+export const PERMIT2_ADDRESS = "0xd635918A75356D133d5840eE5c9ED070302C9C60";
+
 export enum TokenType {
   ERC20 = "ERC20",
   ERC721 = "ERC721",
