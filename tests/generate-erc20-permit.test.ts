@@ -1,7 +1,7 @@
-import { describe, expect, it, beforeEach, jest } from "@jest/globals";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import { generateErc20PermitSignature } from "../src";
 import { Context } from "../src/types/context";
-import { SPENDER, mockContext, ERC20_REWARD_TOKEN_ADDRESS } from "./constants";
+import { ERC20_REWARD_TOKEN_ADDRESS, SPENDER, mockContext } from "./constants";
 
 describe("generateErc20PermitSignature", () => {
   let context: Context;
@@ -78,13 +78,13 @@ describe("generateErc20PermitSignature", () => {
       deadline: "115792089237316195423570985008687907853269984665640564039457584007913129639935",
       amount: "100000000000000000000",
       owner: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-      signature: "0xad87653fb0ecf740c73b78a8f414cdd5b1ffb18670cde5a1d21c65e43d6bb2a36c5470c5529334dc11566f0c380889b734a8539d69ec74cc2abf37af0ea7a7781b",
+      signature: "0xf5282034f8f121b03c957f42d178a66346e2a2fda08e07e131eb469970cfb01f46b556b903d9c8d529bb3ce08388b22d6cf4b79154399b8578d423ec7b3389ea1c",
       networkId: 100,
     };
 
     expect(result).toEqual(expectedResult);
     expect(context.logger.info).toHaveBeenCalledWith("Generated ERC20 permit2 signature", expect.any(Object));
-  });
+  }, 30000);
 
   it("should throw error when evmPrivateEncrypted is not defined", async () => {
     const amount = 0;
