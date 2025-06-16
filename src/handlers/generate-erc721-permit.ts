@@ -3,7 +3,7 @@ import { Wallet, utils } from "ethers";
 import { Context, Logger } from "../types/context";
 import { PermitReward, TokenType } from "../types";
 import { isIssueEvent } from "../types/typeguards";
-import { getFastestProvider } from "../utils/get-fastest-provider";
+import { getRpcProvider } from "../utils/get-fastest-provider";
 
 interface Erc721PermitSignatureData {
   beneficiary: string;
@@ -68,9 +68,23 @@ export async function generateErc721PermitSignature(
     _userId = contextOrPermitPayload.userId;
   } else {
     const { NFT_MINTER_PRIVATE_KEY, NFT_CONTRACT_ADDRESS } = contextOrPermitPayload.env;
+
+    _logger = contextOrPermitPayload.logger;
+
+    if (!NFT_MINTER_PRIVATE_KEY) {
+      const errorMessage = "NFT minter private key is not defined";
+      _logger.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
+    if (!NFT_CONTRACT_ADDRESS) {
+      const errorMessage = "NFT contract address is not defined";
+      _logger.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+
     const { evmNetworkId } = contextOrPermitPayload.config;
     const adapters = contextOrPermitPayload.adapters;
-    _logger = contextOrPermitPayload.logger;
     _nftContractAddress = NFT_CONTRACT_ADDRESS;
     _evmNetworkId = evmNetworkId;
     _nftMinterPrivateKey = NFT_MINTER_PRIVATE_KEY;
@@ -95,17 +109,11 @@ export async function generateErc721PermitSignature(
     _walletAddress = walletAddress;
   }
 
-  const provider = await getFastestProvider(_evmNetworkId);
+  const provider = await getRpcProvider(_evmNetworkId);
 
   if (!provider) {
     _logger.error("Provider is not defined");
     throw new Error("Provider is not defined");
-  }
-
-  if (!_nftContractAddress) {
-    const errorMessage = "NFT contract address is not defined";
-    _logger.error(errorMessage);
-    throw new Error(errorMessage);
   }
 
   let adminWallet;
