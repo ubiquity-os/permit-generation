@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.1.0](https://github.com/ubiquity-os/permit-generation/compare/v2.0.6...v2.1.0) (2025-06-16)
+
+
+### Features
+
+* throw error when nft minter pk or contract addr is not defined ([49c8a23](https://github.com/ubiquity-os/permit-generation/commit/49c8a231e8570c03c3a4b5bf7640210428d8ab92))
+* use new permit2 address ([ae0e2c0](https://github.com/ubiquity-os/permit-generation/commit/ae0e2c0a0ae8bf2626f37649046c384cec383bea))
+* use ubiquity's knip-reporter ([cb20e43](https://github.com/ubiquity-os/permit-generation/commit/cb20e436e4a6e412b2184ae5775b6a718575908a))
+* use ubiquity's knip-reporter ([dc579a6](https://github.com/ubiquity-os/permit-generation/commit/dc579a631928e1696da506a2421ef258301e5609))
+
+
+### Bug Fixes
+
+* avoid error strings duplication ([9c3526e](https://github.com/ubiquity-os/permit-generation/commit/9c3526e57388903e4d26bbbd112676b2b4bff374))
+* remove rpc package ([ce0e163](https://github.com/ubiquity-os/permit-generation/commit/ce0e163ead7199fa8e152a8fe1167ef3c4f91a52))
+* removed rpc package ([dd313a3](https://github.com/ubiquity-os/permit-generation/commit/dd313a34578732e756664e3269677e8930201b28))
+* tests ([c381055](https://github.com/ubiquity-os/permit-generation/commit/c381055cc87764ae0afac15e9cd952cd3e5677e5))
+* tests ([2e1b80f](https://github.com/ubiquity-os/permit-generation/commit/2e1b80fe8d05902d90b06b754a504d4b970cdd36))
+
 ## [2.0.6](https://github.com/ubiquity-os/permit-generation/compare/v2.0.5...v2.0.6) (2024-10-31)
 
 
