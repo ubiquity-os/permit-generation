@@ -1,7 +1,7 @@
-import { PERMIT2_ADDRESS, PermitTransferFrom, SignatureTransfer, MaxUint256 } from "@uniswap/permit2-sdk";
+import { MaxUint256, PermitTransferFrom, SignatureTransfer } from "@uniswap/permit2-sdk";
 import { ethers, utils } from "ethers";
+import { PERMIT2_ADDRESS, PermitReward, TokenType } from "../types";
 import { Context, Logger } from "../types/context";
-import { PermitReward, TokenType } from "../types";
 import { decrypt, parseDecryptedPrivateKey } from "../utils";
 import { getFastestProvider } from "../utils/get-fastest-provider";
 
