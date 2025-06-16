@@ -6,7 +6,7 @@ const config: KnipConfig = {
   ignore: [],
   ignoreBinaries: ["publish"],
   ignoreExportsUsedInFile: true,
-  ignoreDependencies: ["ts-node"],
+  ignoreDependencies: ["ts-node", "tslib"],
   jest: {
     config: ["jest.config.ts"],
     entry: ["tests/*.ts"],
