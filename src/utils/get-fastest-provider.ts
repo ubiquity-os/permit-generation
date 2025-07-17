@@ -2,7 +2,7 @@ import { ethers, providers } from "ethers";
 
 export async function getRpcProvider(networkId: number | string): Promise<providers.JsonRpcProvider> {
   try {
-    const provider = new ethers.providers.JsonRpcProvider(`https://rpc.ubq.fi/${networkId}`);
+    const provider = new ethers.providers.JsonRpcProvider(`https://permit2-rpc-proxy.deno.dev/${networkId}`);
     // We make one call to make sure our provider is responding
     await provider.getBlockNumber();
     return provider;
