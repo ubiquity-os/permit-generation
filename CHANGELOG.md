@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.1](https://github.com/ubiquity-os/permit-generation/compare/v2.1.0...v2.1.1) (2025-07-17)
+
+
+### Bug Fixes
+
+* changed endpoint for the RPC proxy ([ea37160](https://github.com/ubiquity-os/permit-generation/commit/ea3716007d4d881c1c0717e6839080b6b07a0090))
+* changed endpoint for the RPC proxy ([2fad2e8](https://github.com/ubiquity-os/permit-generation/commit/2fad2e88f185d4ce662202ed789b1e268c105cbb))
+
 ## [2.1.0](https://github.com/ubiquity-os/permit-generation/compare/v2.0.6...v2.1.0) (2025-06-16)
 
 
