@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.3](https://github.com/ubiquity-os/permit-generation/compare/v2.1.2...v2.1.3) (2026-02-05)
+
+
+### Miscellaneous Chores
+
+* release 2.1.3 ([6bcfa62](https://github.com/ubiquity-os/permit-generation/commit/6bcfa62cd729203ff88a053a397b9c246b73da22))
+
 ## [2.1.2](https://github.com/ubiquity-os/permit-generation/compare/v2.1.1...v2.1.2) (2026-02-05)
 
 
