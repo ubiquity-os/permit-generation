@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.2](https://github.com/ubiquity-os/permit-generation/compare/v2.1.1...v2.1.2) (2026-02-05)
+
+
+### Bug Fixes
+
+* updated old version of `libsodium` to the latest ([8dbac35](https://github.com/ubiquity-os/permit-generation/commit/8dbac35b369ce2a872ca68d988c9d0b1e3f0382a))
+
 ## [2.1.1](https://github.com/ubiquity-os/permit-generation/compare/v2.1.0...v2.1.1) (2025-07-17)
 
 
